@@ -32,10 +32,10 @@
     <property name="oldversionboxee" value="10.10"/>
     <property name="oldversiondate" value="19/03/2015"/>
 
-    <property name="version" value="4.0.3"/>
-    <property name="versionboxee" value="4.0.3"/>
-    <property name="versiondate" value="28/08/2015"/>
-    <property name="versionchanges" value="Versión semanal"/>
+    <property name="version" value="4.0.0"/>
+    <property name="versionboxee" value="4.0.0"/>
+    <property name="versiondate" value="22/02/2016"/>
+    <property name="versionchanges" value="Nueva versión"/>
 
     <property name="target" value="../../target/python"/>
     <property file='${user.home}/build.properties'/>
@@ -192,9 +192,9 @@
     <!-- copy-kodi-15-isengard ============================================================ -->
     <target name="copy-kodi-15-isengard">
 
-        <mkdir dir="${target}/kodi-15-isengard/plugin.video.pelisalacarta"/>
+        <mkdir dir="${target}/kodi-15-isengard/plugin.video.tvalacarta"/>
 
-        <copy todir="${target}/kodi-15-isengard/plugin.video.pelisalacarta">
+        <copy todir="${target}/kodi-15-isengard/plugin.video.tvalacarta">
             <fileset dir="main-classic">
                 <exclude name="**/.*"/>
                 <exclude name="**/.*/**"/>
@@ -208,7 +208,7 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/kodi-15-isengard/pelisalacarta-kodi-isengard-${version}.zip" basedir="${target}/kodi-15-isengard"/>
+        <zip destfile="${target}/kodi-15-isengard/tvalacarta-kodi-isengard-${version}.zip" basedir="${target}/kodi-15-isengard"/>
 
     </target>
 
@@ -511,7 +511,6 @@
 
         <copy file="version-plex/bridge.py" todir="${target}/plex/pelisalacarta.bundle/Contents/Libraries/Shared" overwrite="true"/>
         <copy file="main-classic/channelselector.py" todir="${target}/plex/pelisalacarta.bundle/Contents/Libraries/Shared" overwrite="true"/>
-        <copy file="main-classic/channels/buscador.py" todir="${target}/plex/pelisalacarta.bundle/Contents/Libraries/Shared" overwrite="true"/>
 
         <copy file="version-plex/config.py" todir="${target}/plex/pelisalacarta.bundle/Contents/Libraries/Shared/core" overwrite="true"/>
         <copy file="version-plex/logger.py" todir="${target}/plex/pelisalacarta.bundle/Contents/Libraries/Shared/core" overwrite="true"/>
