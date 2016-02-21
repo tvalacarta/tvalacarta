@@ -1,0 +1,53 @@
+<apps>
+   <app>
+      <id>info.mimediacenter.tvalacarta</id>
+      <name>tvalacarta</name>
+      <version>5.6</version>
+      <description>Television a la carta</description>
+      <thumb>http://www.mimediacenter.info/boxee/tvalacarta.png</thumb>
+      <repositoryid>info.mimediacenter</repositoryid>
+      <repository>http://www.mimediacenter.info/boxee</repository>
+      <media>video</media>
+      <author>Jesus</author>
+      <copyright>blog.tvalacarta.info</copyright>
+      <email>tvalacarta@gmail.com</email>
+      <type>plugin</type>
+      <url></url>
+      <platform>all</platform>
+      <minversion>0.9.7</minversion>
+   </app>
+   <app>
+      <id>info.mimediacenter.pelisalacarta</id>
+      <name>pelisalacarta</name>
+      <version>9.7</version>
+      <description>Peliculas y series a la carta</description>
+      <thumb>http://pelisalacarta.mimediacenter.info/icon.png</thumb>
+      <repositoryid>info.mimediacenter</repositoryid>
+      <repository>http://www.mimediacenter.info/boxee</repository>
+      <media>video</media>
+      <author>Jesus</author>
+      <copyright>blog.tvalacarta.info</copyright>
+      <email>tvalacarta@gmail.com</email>
+      <type>plugin</type>
+      <url></url>
+      <platform>all</platform>
+      <minversion>0.9.7</minversion>
+   </app>
+   <app>
+      <id>info.mimediacenter.mywebtv</id>
+      <name>mywebtv</name>
+      <version>2.1</version>
+      <description>Television en vivo mediante streaming</description>
+      <thumb>http://www.mimediacenter.info/boxee/mywebtv.png</thumb>
+      <repositoryid>info.mimediacenter</repositoryid>
+      <repository>http://www.mimediacenter.info/boxee</repository>
+      <media>video</media>
+      <author>Jesús</author>
+      <copyright>blog.tvalacarta.info</copyright>
+      <email>tvalacarta@gmail.com</email>
+      <type>plugin</type>
+      <url></url>
+      <platform>all</platform>
+      <minversion>0.9.7</minversion>
+   </app>
+</apps>

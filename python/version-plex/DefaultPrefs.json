@@ -1,0 +1,11 @@
+[
+
+        { "id": "updatecheck2", "label": "Verificar actualizaciones del plugin", "type": "bool","default": "true"},
+        { "id": "updatechannels", "label": "Actualizar automáticamente canales", "type": "bool", "default": "true"},
+        { "id": "debug", "label": "Usar log completo", "type": "bool", "default": "true"},
+        { "id": "thumbnail_type", "label": "Logos de canales", "type": "enum", "values": ["Poster (vertical)", "Banner (horizontal)", "Cuadrado"], "default": "Cuadrado"},
+        { "id": "downloadpath", "label": "Ruta de descargas", "type": "text", "default": ""},
+        { "id": "downloadlistpath", "label": "Ruta de lista de descargas", "type": "text", "default": ""},
+        { "id": "bookmarkpath", "label": "Ruta de favoritos", "type": "text", "default": ""},
+        { "id": "jdownloader", "label": "URL de jDownloader", "type": "text", "default": "http://127.0.0.1:10025"}
+]

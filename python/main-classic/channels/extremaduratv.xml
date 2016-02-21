@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<version>
+	<name>extremaduratv</name>
+	<tag>2</tag>
+	<date>28/07/2013</date>
+	<changes>Arreglado acceso a programas que separan episodios completos de videos destacados</changes>
+</version>
