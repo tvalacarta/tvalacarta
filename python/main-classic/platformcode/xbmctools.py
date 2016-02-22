@@ -77,7 +77,7 @@ def add_new_folder( item , totalItems=0 ):
 
         query = '%s?channel=%s&action=download_all_videos&title=%s&url=%s&thumbnail=%s&plot=%s&extradata=%s&show=%s' % ( sys.argv[ 0 ] , item.channel , urllib.quote_plus(item.title) , urllib.quote_plus( item.url ) , urllib.quote_plus( item.thumbnail ) , urllib.quote_plus( item.plot ) , urllib.quote_plus( item.extra ) , urllib.quote_plus( item.title ))
         command = "XBMC.RunPlugin("+query+")"
-        contextCommands.append( ("Descargar todos los vídeos de este programa" , command) )
+        contextCommands.append( ("Descargar todos los vídeos" , command) )
 
         if item.is_favorite=="true":
             query = '%s?channel=api_programas&action=remove_from_favorites&url=%s' % ( sys.argv[ 0 ] , item.id)
@@ -88,14 +88,14 @@ def add_new_folder( item , totalItems=0 ):
             command = "XBMC.RunPlugin("+query+")"
             contextCommands.append( ("Añadir programa a favoritos",command) )
 
-            query = '%s?channel=api_programas&action=add_to_hidden&url=%s' % ( sys.argv[ 0 ] , item.id)
-            command = "XBMC.RunPlugin("+query+")"
-            contextCommands.append( ("Ocultar este programa",command) )
+            #query = '%s?channel=api_programas&action=add_to_hidden&url=%s' % ( sys.argv[ 0 ] , item.id)
+            #command = "XBMC.RunPlugin("+query+")"
+            #contextCommands.append( ("Ocultar este programa",command) )
 
-    elif item.context=="hidden_program":
-        query = '%s?channel=api_programas&action=remove_from_hidden&url=%s' % ( sys.argv[ 0 ] , item.id)
-        command = "XBMC.RunPlugin("+query+")"
-        contextCommands.append( ("No ocultar este programa",command) )
+    #elif item.context=="hidden_program":
+    #    query = '%s?channel=api_programas&action=remove_from_hidden&url=%s' % ( sys.argv[ 0 ] , item.id)
+    #    command = "XBMC.RunPlugin("+query+")"
+    #    contextCommands.append( ("No ocultar este programa",command) )
 
     if config.get_platform()=="boxee":
         #logger.info("Modo boxee")
@@ -256,8 +256,8 @@ def play_video(channel="",server="",url="",category="",title="", thumbnail="",pl
             else:
                 opciones.append(config.get_localized_string(30155)) # "Añadir a favoritos"
         
-            if not strmfile:
-                opciones.append(config.get_localized_string(30161)) # "Añadir a Biblioteca"
+            #if not strmfile:
+            #    opciones.append(config.get_localized_string(30161)) # "Añadir a Biblioteca"
         
             if download_enable:
                 if channel!="descargas":
@@ -269,14 +269,14 @@ def play_video(channel="",server="",url="",category="",title="", thumbnail="",pl
                     else:
                         opciones.append(config.get_localized_string(30156)) # "Quitar de lista de descargas"
     
-            opciones.append(config.get_localized_string(30158)) # "Enviar a JDownloader"
+            #opciones.append(config.get_localized_string(30158)) # "Enviar a JDownloader"
 
         if default_action=="3":
             seleccion = len(opciones)-1
     
         # Busqueda de trailers en youtube    
-        if not channel in ["Trailer","ecarteleratrailers"]:
-            opciones.append(config.get_localized_string(30162)) # "Buscar Trailer"
+        #if not channel in ["Trailer","ecarteleratrailers"]:
+        #    opciones.append(config.get_localized_string(30162)) # "Buscar Trailer"
 
     # Si no puedes ver el vídeo te informa
     else:

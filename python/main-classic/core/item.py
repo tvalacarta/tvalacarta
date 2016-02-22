@@ -24,9 +24,11 @@
 
 class Item(object):
 
-    def __init__(self, channel="", title="", url="", page="", thumbnail="", plot="", duration="", fanart="", action="", server="directo", extra="", show="", category = "" , language = "" , subtitle="" , folder=True, context = "",totalItems = 0, overlay = None, type="", password="", fulltitle="", viewmode="list", aired_date="" ):
+    def __init__(self, channel="", title="", channel_title="", show_title="", url="", page="", thumbnail="", plot="", duration="", fanart="", action="", server="directo", extra="", show="", category = "" , language = "" , subtitle="" , folder=True, context = "",totalItems = 0, overlay = None, type="", password="", fulltitle="", viewmode="list", aired_date="" ):
         self.channel = channel
         self.title = title
+        self.channel_title = channel_title
+        self.show_title = show_title
         self.url = url
         if page=="":
             self.page = url

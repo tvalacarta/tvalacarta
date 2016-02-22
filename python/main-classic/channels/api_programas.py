@@ -113,7 +113,14 @@ def videos_get_by_program(item):
 def videos_get_by_date(item):
     logger.info("tvalacarta.channels.api_programas videos_get_by_date")
 
-    return api.get_itemlist_from_item(item,viewmode="episodes",channel=CHANNELNAME)
+    itemlist = api.get_itemlist_from_item(item,viewmode="episodes",channel=CHANNELNAME)
+
+    for item in itemlist:
+        if item.show_title<>"":
+            item.title = item.show_title+" - "+item.title
+            item.plot  = "Programa: "+item.show_title+"\n"+"Canal: "+item.channel_title+"\n"+item.plot
+
+    return itemlist
 
 def play(item):
     logger.info("tvalacarta.channels.api_programas play item="+repr(item))
@@ -139,11 +146,7 @@ def subscribe_to_program(item):
 
         if config.is_xbmc():
             import xbmcgui
-            yes_pressed = xbmcgui.Dialog().yesno( "tvalacarta" , "Suscripción a \""+item.title+"\" creada" , "¿Quieres descargar los vídeos existentes ahora?" )
-
-            if yes_pressed:
-                from platformcode import launcher
-                launcher.download_all_episodes(item)
+            xbmcgui.Dialog().ok( "tvalacarta" , "Suscripción a \""+item.title+"\" creada")
 
             import xbmc
             xbmc.executebuiltin("XBMC.Container.Refresh()");

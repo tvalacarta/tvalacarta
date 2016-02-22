@@ -86,6 +86,12 @@ def parse_itemlist_from_response(json_response, viewmode="", channel="", context
             if 'channel_name' in entry:
                 item.category = entry['channel_name']
 
+            if 'channel_title' in entry:
+                item.channel_title = entry['channel_title']
+
+            if 'show_title' in entry:
+                item.show_title = entry['show_title']
+
             if 'channel_id' in entry:
                 item.extra = entry['channel_id']
             else:
@@ -93,8 +99,10 @@ def parse_itemlist_from_response(json_response, viewmode="", channel="", context
 
             if 'updated_date' in entry:
                 item.date = entry['updated_date']
+            elif 'episode_date' in entry:
+                item.date = entry['episode_date']
             else:
-                item.date = "2015"
+                item.date = "2016"
 
             item.context = context
 
@@ -326,6 +334,15 @@ def navigation_get_programs_menu(item,viewmode="",channel=""):
     service_parameters = {"s":get_session_token(),"api_key":API_KEY}
 
     return get_itemlist(service_url,service_parameters,viewmode=viewmode,channel=channel)
+
+def get_favorite_programs(item,viewmode="", channel="", context=""):
+    plugintools.log("tvalacarta.api.get_favorite_programs")
+
+    service_url = MAIN_URL+"/programs/get_all.php"
+    service_parameters = {"favorites":"1","s":get_session_token(),"api_key":API_KEY}
+
+    return get_itemlist(service_url,service_parameters,viewmode=viewmode,channel=channel)
+
 
 def add_to_favorites(id):
     plugintools.log("tvalacarta.api.add_to_favorites")

@@ -7,6 +7,7 @@
 import urlparse,urllib2,urllib,re
 import os
 import sys
+import datetime
 
 from core import config
 from core import logger
@@ -37,50 +38,25 @@ def mainlist(item):
 
     logger.info("core.descargas downloadpath=" + downloadpath)
 
-    # Sólo para eden, frodo, gotham
-    if config.is_xbmc():
-        itemlist.append( Item( channel="descargas", action="suscripciones", title="Suscripciones", viewmode="movie_with_plot"))
-    itemlist.append( Item( channel="descargas", action="pendientes", title="Descargas pendientes", viewmode="movie_with_plot"))
-    itemlist.append( Item( channel="descargas", action="errores", title="Descargas con error"))
-
-    # Añade al listado de XBMC
-    try:
-        ficheros = os.listdir(downloadpath)
-        for fichero in ficheros:
-            logger.info("core.descargas fichero=" + fichero)
-            if fichero!="lista" and fichero!="error" and fichero!=".DS_Store" and not fichero.endswith(".nfo") and not fichero.endswith(".tbn") and os.path.join(downloadpath,fichero)!=config.get_setting("downloadlistpath"):
-                url = os.path.join( downloadpath , fichero )
-
-                try:
-                    nfo_file = open(url[:-4]+".nfo")
-                    nfo_data = nfo_file.read()
-                    nfo_file.close()
-
-                    plot = scrapertools.find_single_match(nfo_data,"<plot>(.*?)</plot>")
-                except:
-                    plot = ""
-
-                if not os.path.isdir(url):
-                    itemlist.append( Item( channel="descargas", action="play", title=fichero, thumbnail=url[:-4]+".tbn", fanart=url[:-4]+".tbn", fulltitle=fichero, url=url, plot=plot, server="local", folder=False))
-
-    except:
-        import traceback
-        logger.info(traceback.format_exc())
+    itemlist.append( Item( channel="descargas", action="ultimas_descargas", title="Últimas descargas"))
+    itemlist.append( Item( channel="descargas", action="todas_las_descargas", title="Todas las descargas"))
+    itemlist.append( Item( channel="descargas", action="administrar_suscripciones" , title="Administrar suscripciones"))
+    itemlist.append( Item( channel="descargas", action="descargas_pendientes"    , title="Descargas pendientes en la lista"))
 
     return itemlist
 
-def suscripciones(item):
-    logger.info("core.descargas suscripciones")
+def administrar_suscripciones(item):
+    logger.info("core.descargas administrar_suscripciones")
     itemlist=[]
 
     current_suscriptions = suscription.get_current_suscriptions()
-
     for suscription_item in current_suscriptions:
         itemlist.append( Item( channel="descargas" , action="borrar_suscripcion" , url=suscription_item.url , title=suscription_item.title, thumbnail=suscription_item.thumbnail, plot=suscription_item.plot, fanart=suscription_item.thumbnail, folder=False ))
 
     return itemlist
 
 def borrar_suscripcion(item):
+    logger.info("core.descargas borrar_suscripcion")
 
     import xbmcgui
     yes_pressed = xbmcgui.Dialog().yesno( "tvalacarta" , "¿Quieres eliminar tu suscripción a" , "\""+item.title+"\"?" )
@@ -90,8 +66,80 @@ def borrar_suscripcion(item):
         import xbmc
         xbmc.executebuiltin( "Container.Refresh" )
 
-def pendientes(item):
-    logger.info("core.descargas pendientes")
+def todas_las_descargas(item):
+    logger.info("core.descargas todas_las_descargas")
+    itemlist=[]
+
+    ficheros_itemlist = get_all_downloads(path=item.url, recurse=False,sort_order="date")
+
+    # Primero añade los directorios, luego los ficheros
+    for descarga_item in ficheros_itemlist:
+        if descarga_item.folder:
+            itemlist.append( descarga_item )
+
+    for descarga_item in ficheros_itemlist:
+        if not descarga_item.folder:
+            itemlist.append( descarga_item )
+
+    return itemlist
+
+def ultimas_descargas(item):
+    logger.info("core.descargas ultimas_descargas")
+    itemlist=[]
+
+    ficheros_itemlist = get_all_downloads(recurse=True,sort_order="date")
+
+    for descarga_item in ficheros_itemlist:
+        itemlist.append( descarga_item )
+
+    return itemlist
+
+def get_all_downloads(path="", recurse=False, sort_order="filename"):
+    logger.info("core.descargas get_recent_downloads")
+    itemlist=[]
+
+    if path=="":
+        path = config.get_setting("downloadpath")
+
+    ficheros = os.listdir(path)
+    for fichero in ficheros:
+        logger.info("core.descargas get_recent_downloads fichero=" + fichero+" "+repr(fichero.endswith(".nfo")))
+
+        full_path = os.path.join( path , fichero )
+        creation_timestamp = str(os.path.getctime(full_path))
+        creation_date_formatted = datetime.datetime.fromtimestamp(os.path.getctime(full_path)).strftime('%Y-%m-%d %H:%M:%S')
+
+        if not os.path.isdir(full_path):
+
+            if fichero!=".DS_Store" and not fichero.endswith(".nfo") and not fichero.endswith(".tbn"):
+
+                plot = "Descargado en: "+creation_date_formatted+"\n"
+                if os.path.exists(full_path[:-4]+".nfo"):
+                    nfo_file = open(full_path[:-4]+".nfo")
+                    nfo_data = nfo_file.read()
+                    nfo_file.close()
+
+                    plot = plot + scrapertools.find_single_match(nfo_data,"<plot>(.*?)</plot>")
+
+                itemlist.append( Item( channel="descargas", action="play", title=fichero, thumbnail=full_path[:-4]+".tbn", fanart=full_path[:-4]+".tbn", fulltitle=fichero, url=full_path, plot=plot, extra=creation_timestamp, server="local", viewmode="movie_with_plot", folder=False))
+        
+        elif full_path!=config.get_setting("downloadlistpath"):
+
+            if recurse:
+                itemlist.extend( get_all_downloads(path=full_path,recurse=True))
+            else:
+                plot = ""
+                itemlist.append( Item( channel="descargas", action="todas_las_descargas", title=fichero, thumbnail=full_path[:-4]+".tbn", fanart=full_path[:-4]+".tbn", fulltitle=fichero, url=full_path, plot=plot, extra=creation_timestamp, folder=True))
+
+    if sort_order == "filename":
+        itemlist = sorted(itemlist, key=lambda Item: Item.title) 
+    elif sort_order == "date":
+        itemlist = sorted(itemlist, key=lambda Item: float(Item.extra) )
+
+    return itemlist
+
+def descargas_pendientes(item):
+    logger.info("core.descargas descargas_pendientes")
     itemlist=[]
 
     # Crea un listado con las entradas de favoritos
@@ -125,40 +173,6 @@ def pendientes(item):
                 logger.error( "%s" % line )
 
     itemlist.append( Item( channel=CHANNELNAME , action="downloadall" , title="(Empezar la descarga de la lista)", thumbnail=os.path.join(IMAGES_PATH, "Crystal_Clear_action_db_update.png") , folder=False ))
-
-    return itemlist
-
-def errores(item):
-    logger.info("core.descargas errores")
-    itemlist=[]
-
-    # Crea un listado con las entradas de favoritos
-    if usingsamba:
-        ficheros = samba.get_files(ERROR_PATH)
-    else:
-        ficheros = os.listdir(ERROR_PATH)
-
-    # Ordena el listado por orden de incorporación
-    ficheros.sort()
-    
-    # Crea un listado con las entradas de la lista de descargas
-    for fichero in ficheros:
-        logger.info("core.descargas fichero="+fichero)
-        try:
-            # Lee el bookmark
-            canal,titulo,thumbnail,plot,server,url,fulltitle = favoritos.readbookmark(fichero,ERROR_PATH)
-            if canal=="":
-                canal="descargas"
-
-            # Crea la entrada
-            # En la categoría va el nombre del fichero para poder borrarlo
-            itemlist.append( Item( channel=canal , action="play" , url=url , server=server, title=titulo, fulltitle=fulltitle, thumbnail=thumbnail, plot=plot, fanart=thumbnail, category="errores", extra=os.path.join( ERROR_PATH, fichero ), folder=False ))
-
-        except:
-            pass
-            logger.info("core.descargas error al leer bookmark")
-            for line in sys.exc_info():
-                logger.error( "%s" % line )
 
     return itemlist
 

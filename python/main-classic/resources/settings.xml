@@ -16,9 +16,9 @@
     <setting id="downloadpath" type="text" label="30017" default=""/>
     <setting id="downloadlistpath" type="text" label="30018" default=""/>
     <setting id="bookmarkpath" type="text" source="video" option="writeable" label="30030" default=""/>
-    <setting id="jdownloader" type="text" label="30022" default="http://127.0.0.1:10025"/>
-    <setting id="modo_cache" type="enum" lvalues="30039|30040|30041" label="30038" default="0"/>
-    <setting id="cache.dir" type="text" label="30042" default=""/>
+    <setting id="jdownloader" type="text" label="30022" default="http://127.0.0.1:10025" visible="false"/>
+    <setting id="modo_cache" type="enum" lvalues="30039|30040|30041" label="30038" default="0" visible="false"/>
+    <setting id="cache.dir" type="text" label="30042" default="" visible="false"/>
   </category>
 
   <category label="Cuenta de usuario">

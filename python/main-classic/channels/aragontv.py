@@ -10,6 +10,7 @@ import datetime
 import time
 
 from core import logger
+from core import config
 from core import scrapertools
 from core.item import Item
 

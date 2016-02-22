@@ -1,7 +1,7 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 #------------------------------------------------------------
 # pelisalacarta - XBMC Plugin
-# Lista de vídeos favoritos
+# Lista de v?eos favoritos
 # http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
 #------------------------------------------------------------
 import urllib
@@ -11,6 +11,7 @@ import downloadtools
 import config
 import logger
 import samba
+import api
 from item import Item
 
 CHANNELNAME = "favoritos"
@@ -24,13 +25,27 @@ if not BOOKMARK_PATH.upper().startswith("SMB://"):
         logger.debug("[favoritos.py] Path de bookmarks no existe, se crea: "+BOOKMARK_PATH)
         os.mkdir(BOOKMARK_PATH)
 
-logger.info("[favoritos.py] path="+BOOKMARK_PATH)
+logger.info("tvalacarta.core.favoritos path="+BOOKMARK_PATH)
 
 def isGeneric():
     return True
 
 def mainlist(item):
-    logger.info("[favoritos.py] mainlist")
+    logger.info("tvalacarta.core.favoritos mainlist")
+    itemlist=[]
+
+    itemlist.append( Item(channel=CHANNELNAME, action="get_all_programs" , title="Programas"))
+    itemlist.append( Item(channel=CHANNELNAME, action="get_all_videos" , title="VÃ­deos"))
+
+    return itemlist
+
+def get_all_programs(item):
+    logger.info("tvalacarta.core.favoritos get_all_programs")
+
+    return api.get_favorite_programs(item,viewmode="series",channel="api_programas",context="program")
+
+def get_all_videos(item):
+    logger.info("tvalacarta.core.favoritos get_all_videos")
     itemlist=[]
 
     # Crea un listado con las entradas de favoritos
@@ -39,7 +54,7 @@ def mainlist(item):
     else:
         ficheros = os.listdir(BOOKMARK_PATH)
     
-    # Ordena el listado por nombre de fichero (orden de incorporación)
+    # Ordena el listado por nombre de fichero (orden de incorporaci?)
     ficheros.sort()
     
     # Rellena el listado
@@ -53,7 +68,7 @@ def mainlist(item):
 
             # Crea la entrada
             # En extra va el nombre del fichero para poder borrarlo
-            ## <-- Añado fulltitle con el titulo de la peli
+            ## <-- A?do fulltitle con el titulo de la peli
             if server=="":
                 itemlist.append( Item( channel=canal , action="play" , url=url , server=server, title=fulltitle, thumbnail=thumbnail, plot=plot, fanart=thumbnail, extra=os.path.join( BOOKMARK_PATH, fichero ), fulltitle=fulltitle, folder=False ))
             else:
@@ -65,7 +80,7 @@ def mainlist(item):
     return itemlist
 
 def readbookmark(filename,readpath=BOOKMARK_PATH):
-    logger.info("[favoritos.py] readbookmark")
+    logger.info("tvalacarta.core.favoritos readbookmark")
 
     if usingsamba(readpath):
         bookmarkfile = samba.get_file_handle_for_reading(filename, readpath)
@@ -73,7 +88,7 @@ def readbookmark(filename,readpath=BOOKMARK_PATH):
         filepath = os.path.join( readpath , filename )
 
         # Lee el fichero de configuracion
-        logger.info("[favoritos.py] filepath="+filepath)
+        logger.info("tvalacarta.core.favoritos filepath="+filepath)
         bookmarkfile = open(filepath)
     lines = bookmarkfile.readlines()
 
@@ -102,7 +117,7 @@ def readbookmark(filename,readpath=BOOKMARK_PATH):
     except:
         plot = lines[4].strip()
 
-    ## Campos fulltitle y canal añadidos
+    ## Campos fulltitle y canal a?didos
     if len(lines)>=6:
         try:
             fulltitle = urllib.unquote_plus(lines[5].strip())
@@ -124,7 +139,7 @@ def readbookmark(filename,readpath=BOOKMARK_PATH):
     return canal,titulo,thumbnail,plot,server,url,fulltitle
 
 def savebookmark(canal=CHANNELNAME,titulo="",url="",thumbnail="",server="",plot="",fulltitle="",savepath=BOOKMARK_PATH):
-    logger.info("[favoritos.py] savebookmark(path="+savepath+")")
+    logger.info("tvalacarta.core.favoritos savebookmark(path="+savepath+")")
 
     # Crea el directorio de favoritos si no existe
     if not usingsamba(savepath):
@@ -140,13 +155,13 @@ def savebookmark(canal=CHANNELNAME,titulo="",url="",thumbnail="",server="",plot=
         ficheros = os.listdir(savepath)
     ficheros.sort()
     
-    # Averigua el último número
+    # Averigua el ?ltimo n?mero
     if len(ficheros)>0:
-        # XRJ: Linea problemática, sustituida por el bucle siguiente
+        # XRJ: Linea problem?ica, sustituida por el bucle siguiente
         #filenumber = int( ficheros[len(ficheros)-1][0:-4] )+1
         filenumber = 1
         for fichero in ficheros:
-            logger.info("[favoritos.py] fichero="+fichero)
+            logger.info("tvalacarta.core.favoritos fichero="+fichero)
             try:
                 tmpfilenumber = int( fichero[0:8] )+1
                 if tmpfilenumber > filenumber:
@@ -169,7 +184,7 @@ def savebookmark(canal=CHANNELNAME,titulo="",url="",thumbnail="",server="",plot=
     # Genera el nombre de fichero
     from core import scrapertools
     filename = '%08d-%s.txt' % (filenumber,scrapertools.slugify(fulltitle))
-    logger.info("[favoritos.py] savebookmark filename="+filename)
+    logger.info("tvalacarta.core.favoritos savebookmark filename="+filename)
 
     # Graba el fichero
     if not usingsamba(savepath):
@@ -182,7 +197,7 @@ def savebookmark(canal=CHANNELNAME,titulo="",url="",thumbnail="",server="",plot=
         samba.write_file(filename, filecontent, savepath)
 
 def deletebookmark(fullfilename,deletepath=BOOKMARK_PATH):
-    logger.info("[favoritos.py] deletebookmark(fullfilename="+fullfilename+",deletepath="+deletepath+")")
+    logger.info("tvalacarta.core.favoritos deletebookmark(fullfilename="+fullfilename+",deletepath="+deletepath+")")
 
     if not usingsamba(deletepath):
         os.remove( os.path.join( urllib.unquote_plus( deletepath ) , urllib.unquote_plus( fullfilename )))
@@ -190,8 +205,8 @@ def deletebookmark(fullfilename,deletepath=BOOKMARK_PATH):
         fullfilename = fullfilename.replace("\\","/")
         partes = fullfilename.split("/")
         filename = partes[len(partes)-1]
-        logger.info("[favoritos.py] filename="+filename)
-        logger.info("[favoritos.py] deletepath="+deletepath)
+        logger.info("tvalacarta.core.favoritos filename="+filename)
+        logger.info("tvalacarta.core.favoritos deletepath="+deletepath)
         samba.remove_file(filename,deletepath)
 
 def usingsamba(path):
