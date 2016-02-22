@@ -58,8 +58,8 @@
     <target name="package" depends="clean" description="Builds a package for each platform">
 
         <antcall target="copy-kodi-16-jarvis"/>
+        <antcall target="copy-kodi-16-jarvis-ui"/>
         <antcall target="copy-kodi-15-isengard"/>
-        <antcall target="copy-kodi-15-isengard-ui"/>
         <antcall target="copy-kodi-14-helix"/>
         <antcall target="copy-xbmc-13-gotham"/>
         <antcall target="copy-xbmc-12-frodo"/>
@@ -92,12 +92,6 @@
         <echo message="Subiendo tvalacarta-kodi-15-isengard-${version}.zip"/>
         <exec executable="scp">
             <arg value="${target}/kodi-15-isengard/tvalacarta-kodi-isengard-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
-
-        <echo message="Subiendo tvalacarta-kodi-15-isengard-ui-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/kodi-15-isengard-ui/tvalacarta-ui-kodi-isengard-${version}.zip"/>
             <arg value="${ruta_remota_descargas}"/>
         </exec>
 
@@ -148,6 +142,37 @@
             <arg value="${target}/plex/tvalacarta-plex-${version}.zip"/>
             <arg value="${ruta_remota_descargas}"/>
         </exec>
+
+
+
+
+
+        <echo message="Subiendo tvalacarta-kodi-16-jarvis-ui-${version}.zip"/>
+        <exec executable="scp">
+            <arg value="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-jarvis-${version}.zip"/>
+            <arg value="${ruta_remota_descargas}"/>
+        </exec>
+
+        <echo message="Subiendo tvalacarta-kodi-15-isengard-ui-${version}.zip"/>
+        <exec executable="scp">
+            <arg value="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-isengard-${version}.zip"/>
+            <arg value="${ruta_remota_descargas}"/>
+        </exec>
+
+        <echo message="Subiendo tvalacarta-kodi-14-helix-ui-${version}.zip"/>
+        <exec executable="scp">
+            <arg value="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-helix-${version}.zip"/>
+            <arg value="${ruta_remota_descargas}"/>
+        </exec>
+
+        <echo message="Subiendo tvalacarta-xbmc-13-gotham-ui-${version}.zip"/>
+        <exec executable="scp">
+            <arg value="${target}/kodi-16-jarvis-ui/tvalacarta-ui-xbmc-gotham-${version}.zip"/>
+            <arg value="${ruta_remota_descargas}"/>
+        </exec>
+
+
+
 
         <!--
         <echo message="Subiendo tvalacarta-wiimc-${version}.zip"/>
@@ -219,6 +244,39 @@
 
     </target>
 
+    <!-- copy-kodi-16-jarvis-ui ============================================================ -->
+    <target name="copy-kodi-16-jarvis-ui">
+
+        <mkdir dir="${target}/kodi-16-jarvis-ui/plugin.video.tvalacarta-ui"/>
+
+        <copy todir="${target}/kodi-16-jarvis-ui/plugin.video.tvalacarta-ui">
+            <fileset dir="main-classic">
+                <exclude name="**/.*"/>
+                <exclude name="**/.*/**"/>
+                <exclude name="**/*.pyo"/>
+                <exclude name="**/*.pyc"/>
+                <exclude name="**/*.json"/>
+                <exclude name="resources/images/bannermenu/**"/>
+                <exclude name="resources/images/banners/**"/>
+                <exclude name="resources/images/fanart/**"/>
+                <exclude name="resources/images/posters/**"/>
+                <exclude name="resources/images/squares/**"/>
+            </fileset>
+        </copy>
+        <copy overwrite="true" todir="${target}/kodi-16-jarvis-ui/plugin.video.tvalacarta-ui">
+            <fileset dir="main-ui">
+                <exclude name="**/.*"/>
+                <exclude name="**/.*/**"/>
+            </fileset>
+        </copy>
+
+        <zip destfile="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-jarvis-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
+        <zip destfile="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-isengard-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
+        <zip destfile="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-helix-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
+        <zip destfile="${target}/kodi-16-jarvis-ui/tvalacarta-ui-xbmc-gotham-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
+
+    </target>
+
     <!-- copy-kodi-15-isengard ============================================================ -->
     <target name="copy-kodi-15-isengard">
 
@@ -239,35 +297,6 @@
         </copy>
 
         <zip destfile="${target}/kodi-15-isengard/tvalacarta-kodi-isengard-${version}.zip" basedir="${target}/kodi-15-isengard"/>
-
-    </target>
-
-    <!-- copy-kodi-15-isengard-ui ============================================================ -->
-    <target name="copy-kodi-15-isengard-ui">
-
-        <mkdir dir="${target}/kodi-15-isengard-ui/plugin.video.tvalacarta-ui"/>
-
-        <copy todir="${target}/kodi-15-isengard-ui/plugin.video.tvalacarta-ui">
-            <fileset dir="main-classic">
-                <exclude name="**/.*"/>
-                <exclude name="**/.*/**"/>
-                <exclude name="**/*.pyo"/>
-                <exclude name="**/*.pyc"/>
-                <exclude name="resources/images/bannermenu/**"/>
-                <exclude name="resources/images/banners/**"/>
-                <exclude name="resources/images/fanart/**"/>
-                <exclude name="resources/images/posters/**"/>
-                <exclude name="resources/images/squares/**"/>
-            </fileset>
-        </copy>
-        <copy overwrite="true" todir="${target}/kodi-15-isengard-ui/plugin.video.tvalacarta-ui">
-            <fileset dir="main-ui">
-                <exclude name="**/.*"/>
-                <exclude name="**/.*/**"/>
-            </fileset>
-        </copy>
-
-        <zip destfile="${target}/kodi-15-isengard-ui/tvalacarta-ui-kodi-isengard-${version}.zip" basedir="${target}/kodi-15-isengard-ui"/>
 
     </target>
 

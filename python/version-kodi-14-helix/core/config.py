@@ -15,7 +15,7 @@ import os
 import xbmcaddon
 import xbmc
 
-PLATFORM_NAME = "kodi-jarvis"
+PLATFORM_NAME = "kodi-helix"
 print "tvalacarta.core.config PLATFORM_NAME="+PLATFORM_NAME
 
 PLUGIN_NAME = "tvalacarta"

@@ -9,6 +9,7 @@ import urllib
 
 from core import logger
 from core import scrapertools
+from core import config
 from core.item import Item
 
 DEBUG = config.get_setting("debug")

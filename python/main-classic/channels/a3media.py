@@ -11,6 +11,7 @@ from core import logger
 from core import scrapertools
 from core.item import Item
 from core import jsontools
+from core import config
 
 DEBUG = config.get_setting("debug")
 CHANNELNAME = "a3media"
