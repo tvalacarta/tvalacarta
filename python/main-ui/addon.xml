@@ -5,6 +5,7 @@
     provider-name="tvalacarta">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="script.module.youtube.dl" version="2016.02.01"/>
   </requires>
   <extension point="xbmc.python.script" library="default.py" >
     <provides>executable video</provides>
