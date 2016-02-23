@@ -111,7 +111,7 @@ def get_all_downloads(path="", recurse=False, sort_order="filename"):
 
         if not os.path.isdir(full_path):
 
-            if fichero!=".DS_Store" and not fichero.endswith(".nfo") and not fichero.endswith(".tbn"):
+            if fichero!=".DS_Store" and not fichero.endswith(".nfo") and not fichero.endswith(".tbn") and not fichero.endswith(".tmp"):
 
                 plot = "Descargado en: "+creation_date_formatted+"\n"
                 if os.path.exists(full_path[:-4]+".nfo"):

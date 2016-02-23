@@ -36,7 +36,11 @@ try:
     # porque seria un falso "True", ya que el xbmc en las xbox no son dharma por lo tanto no existen los addons
     logger.info("tvalacarta.core.updater get_platform="+config.get_platform())
     logger.info("tvalacarta.core.updater get_system_platform="+config.get_system_platform())
-    if config.get_platform()=="kodi-isengard":
+    if config.get_platform()=="kodi-jarvis":
+        import xbmc
+        REMOTE_FILE = "http://descargas.tvalacarta.info/"+config.PLUGIN_NAME+"-kodi-jarvis-"
+        DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
+    elif config.get_platform()=="kodi-isengard":
         import xbmc
         REMOTE_FILE = "http://descargas.tvalacarta.info/"+config.PLUGIN_NAME+"-kodi-isengard-"
         DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
@@ -44,15 +48,15 @@ try:
         import xbmc
         REMOTE_FILE = "http://descargas.tvalacarta.info/"+config.PLUGIN_NAME+"-kodi-helix-"
         DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
-    elif config.get_platform()=="xbmceden":
+    elif config.get_platform()=="xbmc-eden":
         import xbmc
         REMOTE_FILE = "http://descargas.tvalacarta.info/"+config.PLUGIN_NAME+"-xbmc-eden-"
         DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
-    elif config.get_platform()=="xbmcfrodo":
+    elif config.get_platform()=="xbmc-frodo":
         import xbmc
         REMOTE_FILE = "http://descargas.tvalacarta.info/"+config.PLUGIN_NAME+"-xbmc-frodo-"
         DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
-    elif config.get_platform()=="xbmcgotham":
+    elif config.get_platform()=="xbmc-gotham":
         import xbmc
         REMOTE_FILE = "http://descargas.tvalacarta.info/"+config.PLUGIN_NAME+"-xbmc-gotham-"
         DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
@@ -90,7 +94,7 @@ def checkforupdates(plugin_mode=True):
             <changes>New release</changes>
     </version>
     '''
-    logger.info("data="+data)
+
     version_publicada = scrapertools.find_single_match(data,"<version>([^<]+)</version>").strip()
     tag_publicada = scrapertools.find_single_match(data,"<tag>([^<]+)</tag>").strip()
     logger.info("tvalacarta.core.updater version remota="+tag_publicada+" "+version_publicada)
@@ -223,11 +227,14 @@ def update(params):
     logger.info("tvalacarta.core.updater ...fichero borrado")
 
 def get_channel_remote_url(channel_name):
+
     _remote_channel_url_ = "https://raw.githubusercontent.com/tvalacarta/tvalacarta/master/python/main-classic/"
+
     if channel_name <> "channelselector":
         _remote_channel_url_+= "channels/"
+
     remote_channel_url = _remote_channel_url_+channel_name+".py"
-    remote_version_url = _remote_channel_url_+channel_name+".xml"
+    remote_version_url = _remote_channel_url_+channel_name+".xml" 
 
     logger.info("tvalacarta.core.updater remote_channel_url="+remote_channel_url)
     logger.info("tvalacarta.core.updater remote_version_url="+remote_version_url)
@@ -267,8 +274,12 @@ def updatechannel(channel_name):
     try:
         data = scrapertools.cachePage( remote_version_url )
         logger.info("tvalacarta.core.updater remote_data="+data)
-        if "<tag>" in data: patronvideos  = '<tag>([^<]+)</tag>'
-        elif "<version>" in data: patronvideos  = '<version>([^<]+)</version>'
+        
+        if "<tag>" in data: 
+            patronvideos  = '<tag>([^<]+)</tag>'
+        elif "<version>" in data: 
+            patronvideos  = '<version>([^<]+)</version>'
+
         matches = re.compile(patronvideos,re.DOTALL).findall(data)
         remote_version = int(matches[0])
     except:
@@ -282,8 +293,12 @@ def updatechannel(channel_name):
         data = infile.read()
         infile.close();
         logger.info("tvalacarta.core.updater local_data="+data)
-        if "<tag>" in data: patronvideos  = '<tag>([^<]+)</tag>'
-        elif "<version>" in data: patronvideos  = '<version>([^<]+)</version>'
+
+        if "<tag>" in data:
+            patronvideos  = '<tag>([^<]+)</tag>'
+        elif "<version>" in data:
+            patronvideos  = '<version>([^<]+)</version>' 
+
         matches = re.compile(patronvideos,re.DOTALL).findall(data)
         local_version = int(matches[0])
     else:

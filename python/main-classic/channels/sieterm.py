@@ -90,7 +90,7 @@ def programas(item, load_all_pages=False):
     for scrapedurl, scrapedtitle, scrapedthumbnail, scrapedplot in matches:
 
         title = scrapedtitle
-        plot = scrapertools.htmlclean(scrapedplot)
+        plot = scrapertools.htmlclean(scrapedplot).strip()
         thumbnail = urlparse.urljoin(item.url,scrapedthumbnail)
         url = urlparse.urljoin(item.url,scrapedurl)
         fanart = thumbnail
