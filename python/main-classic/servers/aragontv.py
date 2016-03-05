@@ -100,6 +100,13 @@ def get_video_url_from_page(page_url):
         else:
             url = principio+"/"+final
         url = urllib.unquote(url)
+
+        host = scrapertools.find_single_match(url,'(rtmp://[^/]+)')
+        app = scrapertools.find_single_match(url,'rtmp://[^/]+/(.*?)/mp4\:')
+        playpath = scrapertools.find_single_match(url,'rtmp://[^/]+/.*?/(mp4\:.*?)$')
+
+        url = host+' app='+app+' playpath='+playpath
+
         logger.info("url="+url)
     except:
         url = ""
