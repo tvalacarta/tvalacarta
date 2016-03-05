@@ -22,6 +22,6 @@
     <email>tvalacarta@gmail.com</email>
     <source>https://github.com/tvalacarta/tvalacarta</source>
   </extension>
-  <!--extension point="xbmc.service" library="service.py" start="login|startup">
-  </extension-->
+  <extension point="xbmc.service" library="service.py" start="login|startup">
+  </extension>
 </addon>
