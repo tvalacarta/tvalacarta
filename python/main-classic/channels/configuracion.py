@@ -121,6 +121,10 @@ def reset_password(item):
 	logger.info("tvalacarta.channels.configuracion reset_password")
 
 	email = plugintools.keyboard_input( config.get_setting("account_email") ,"Introduce tu email")
+	if len(email.strip())==0:
+		plugintools.message("Olvidé mi contraseña","No has introducido ningún email")
+		return
+
 	result = api.accounts_reset_password_request( email )
 
 	if result["error"]:
@@ -129,7 +133,7 @@ def reset_password(item):
 
 	request_id = result["body"]["request_id"]
 	
-	canceled = plugintools.message("Olvidé mi contraseña","Te llegará un correo con un enlace","Haz click y luego pulsa OK para introducir tu nueva contraseña")
+	canceled = plugintools.message("Olvidé mi contraseña","Te llegará un correo con un enlace","Haz click sobre él y luego pulsa OK para introducir tu nueva contraseña")
 
 	if not canceled:
 		password = plugintools.keyboard_input("","Introduce tu contraseña",hidden=True)

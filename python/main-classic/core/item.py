@@ -24,7 +24,7 @@
 
 class Item(object):
 
-    def __init__(self, channel="", title="", channel_title="", show_title="", url="", page="", thumbnail="", plot="", duration="", fanart="", action="", server="directo", extra="", show="", category = "" , language = "" , subtitle="" , folder=True, context = "",totalItems = 0, overlay = None, type="", password="", fulltitle="", viewmode="list", aired_date="" ):
+    def __init__(self, channel="", title="", channel_title="", show_title="", url="", page="", thumbnail="", plot="", duration="", fanart="", action="", server="directo", extra="", show="", category = "" , language = "" , subtitle="" , folder=True, context = "",totalItems = 0, overlay = None, type="", password="", fulltitle="", viewmode="list", aired_date="", size="" ):
         self.channel = channel
         self.title = title
         self.channel_title = channel_title
@@ -55,6 +55,7 @@ class Item(object):
         self.fulltitle = fulltitle
         self.viewmode = viewmode
         self.aired_date = aired_date
+        self.size = size
 
         self.totalItems =0
         self.channel_id = ""

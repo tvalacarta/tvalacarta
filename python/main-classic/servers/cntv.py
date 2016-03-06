@@ -74,7 +74,11 @@ def get_video_url( page_url , premium = False , user="" , password="" , video_pa
                     kb = " "+str(int(bitrate)/1024)+"Kbps "
                 except:
                     kb = ""
-                lista_videourls.append([ resolucion + kb + '('+scrapertools.get_filename_from_url(esta_url)[-4:] + ') [cntv]' , esta_url])
+
+                if resolucion=="640x480":
+                    lista_videourls.insert(0,[ resolucion + kb + '('+scrapertools.get_filename_from_url(esta_url)[-4:] + ') [cntv]' , esta_url])
+                else:
+                    lista_videourls.append([ resolucion + kb + '('+scrapertools.get_filename_from_url(esta_url)[-4:] + ') [cntv]' , esta_url])
         else:
             lista_videourls.append([ '('+scrapertools.get_filename_from_url(video_url_m3u8)[-4:] + ') [cntv]' , video_url_m3u8])
 

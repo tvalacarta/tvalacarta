@@ -71,6 +71,7 @@ def todas_las_descargas(item):
     itemlist=[]
 
     ficheros_itemlist = get_all_downloads(path=item.url, recurse=False,sort_order="date")
+    ficheros_itemlist.reverse()
 
     # Primero añade los directorios, luego los ficheros
     for descarga_item in ficheros_itemlist:
@@ -88,6 +89,7 @@ def ultimas_descargas(item):
     itemlist=[]
 
     ficheros_itemlist = get_all_downloads(recurse=True,sort_order="date")
+    ficheros_itemlist.reverse()
 
     for descarga_item in ficheros_itemlist:
         itemlist.append( descarga_item )
@@ -107,6 +109,7 @@ def get_all_downloads(path="", recurse=False, sort_order="filename"):
 
         full_path = os.path.join( path , fichero )
         creation_timestamp = str(os.path.getctime(full_path))
+        filesize = str(os.path.getsize(full_path))
         creation_date_formatted = datetime.datetime.fromtimestamp(os.path.getctime(full_path)).strftime('%Y-%m-%d %H:%M:%S')
 
         if not os.path.isdir(full_path):
@@ -121,7 +124,7 @@ def get_all_downloads(path="", recurse=False, sort_order="filename"):
 
                     plot = plot + scrapertools.find_single_match(nfo_data,"<plot>(.*?)</plot>")
 
-                itemlist.append( Item( channel="descargas", action="play", title=fichero, thumbnail=full_path[:-4]+".tbn", fanart=full_path[:-4]+".tbn", fulltitle=fichero, url=full_path, plot=plot, extra=creation_timestamp, server="local", viewmode="movie_with_plot", folder=False))
+                itemlist.append( Item( channel="descargas", action="play", title=fichero, thumbnail=full_path[:-4]+".tbn", fanart=full_path[:-4]+".tbn", fulltitle=fichero, url=full_path, plot=plot, extra=creation_timestamp, server="local", viewmode="movie_with_plot", size=filesize, folder=False))
         
         elif full_path!=config.get_setting("downloadlistpath"):
 

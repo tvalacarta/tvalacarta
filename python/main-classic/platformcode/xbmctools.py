@@ -66,19 +66,6 @@ def add_new_folder( item , totalItems=0 ):
 
     if item.context=="program":
 
-        if not suscription.already_suscribed(item):
-            query = '%s?channel=%s&action=subscribe_to_program&title=%s&url=%s&thumbnail=%s&plot=%s&extradata=%s&show=%s' % ( sys.argv[ 0 ] , item.channel , urllib.quote_plus(item.title) , urllib.quote_plus( item.url ) , urllib.quote_plus( item.thumbnail ) , urllib.quote_plus( item.plot ) , urllib.quote_plus( item.extra ) , urllib.quote_plus( item.title ))
-            command = "XBMC.RunPlugin("+query+")"
-            contextCommands.append( ("Suscribirme a este programa" , command) )
-        else:
-            query = '%s?channel=%s&action=unsubscribe_to_program&title=%s&url=%s&thumbnail=%s&plot=%s&extradata=%s&show=%s' % ( sys.argv[ 0 ] , item.channel , urllib.quote_plus(item.title) , urllib.quote_plus( item.url ) , urllib.quote_plus( item.thumbnail ) , urllib.quote_plus( item.plot ) , urllib.quote_plus( item.extra ) , urllib.quote_plus( item.title ))
-            command = "XBMC.RunPlugin("+query+")"
-            contextCommands.append( ("Quitar suscripción a este programa" , command) )
-
-        query = '%s?channel=%s&action=download_all_videos&title=%s&url=%s&thumbnail=%s&plot=%s&extradata=%s&show=%s' % ( sys.argv[ 0 ] , item.channel , urllib.quote_plus(item.title) , urllib.quote_plus( item.url ) , urllib.quote_plus( item.thumbnail ) , urllib.quote_plus( item.plot ) , urllib.quote_plus( item.extra ) , urllib.quote_plus( item.title ))
-        command = "XBMC.RunPlugin("+query+")"
-        contextCommands.append( ("Descargar todos los vídeos" , command) )
-
         if item.is_favorite=="true":
             query = '%s?channel=api_programas&action=remove_from_favorites&url=%s' % ( sys.argv[ 0 ] , item.id)
             command = "XBMC.RunPlugin("+query+")"
@@ -91,6 +78,19 @@ def add_new_folder( item , totalItems=0 ):
             #query = '%s?channel=api_programas&action=add_to_hidden&url=%s' % ( sys.argv[ 0 ] , item.id)
             #command = "XBMC.RunPlugin("+query+")"
             #contextCommands.append( ("Ocultar este programa",command) )
+
+        if not suscription.already_suscribed(item):
+            query = '%s?channel=%s&action=subscribe_to_program&title=%s&url=%s&thumbnail=%s&plot=%s&extradata=%s&show=%s' % ( sys.argv[ 0 ] , item.channel , urllib.quote_plus(item.title) , urllib.quote_plus( item.url ) , urllib.quote_plus( item.thumbnail ) , urllib.quote_plus( item.plot ) , urllib.quote_plus( item.extra ) , urllib.quote_plus( item.title ))
+            command = "XBMC.RunPlugin("+query+")"
+            contextCommands.append( ("Suscribirme a este programa" , command) )
+        else:
+            query = '%s?channel=%s&action=unsubscribe_to_program&title=%s&url=%s&thumbnail=%s&plot=%s&extradata=%s&show=%s' % ( sys.argv[ 0 ] , item.channel , urllib.quote_plus(item.title) , urllib.quote_plus( item.url ) , urllib.quote_plus( item.thumbnail ) , urllib.quote_plus( item.plot ) , urllib.quote_plus( item.extra ) , urllib.quote_plus( item.title ))
+            command = "XBMC.RunPlugin("+query+")"
+            contextCommands.append( ("Quitar suscripción a este programa" , command) )
+
+        query = '%s?channel=%s&action=download_all_videos&title=%s&url=%s&thumbnail=%s&plot=%s&extradata=%s&show=%s' % ( sys.argv[ 0 ] , item.channel , urllib.quote_plus(item.title) , urllib.quote_plus( item.url ) , urllib.quote_plus( item.thumbnail ) , urllib.quote_plus( item.plot ) , urllib.quote_plus( item.extra ) , urllib.quote_plus( item.title ))
+        command = "XBMC.RunPlugin("+query+")"
+        contextCommands.append( ("Descargar todos los vídeos" , command) )
 
     #elif item.context=="hidden_program":
     #    query = '%s?channel=api_programas&action=remove_from_hidden&url=%s' % ( sys.argv[ 0 ] , item.id)
@@ -112,7 +112,7 @@ def add_new_folder( item , totalItems=0 ):
             ok = xbmcplugin.addDirectoryItem( handle = pluginhandle, url = itemurl , listitem=listitem, isFolder=True, totalItems=totalItems)
     return ok
 
-def addnewvideo( canal , accion , category , server , title , url , thumbnail, plot ,Serie="",duration="",fanart="",IsPlayable='false',context = "", subtitle="", viewmode="", totalItems = 0, show="", password="", extra="",fulltitle=""):
+def addnewvideo( canal , accion , category , server , title , url , thumbnail, plot ,Serie="",duration="",fanart="",IsPlayable='false',context = "", subtitle="", viewmode="", totalItems = 0, show="", password="", extra="",fulltitle="", size=""):
     contextCommands = []
     ok = False
     try:
@@ -128,7 +128,7 @@ def addnewvideo( canal , accion , category , server , title , url , thumbnail, p
             logger.info('[xbmctools.py] addnewvideo(<unicode>)')
 
     listitem = xbmcgui.ListItem( title, iconImage="DefaultVideo.png", thumbnailImage=thumbnail )
-    listitem.setInfo( "video", { "Title" : title, "Plot" : plot, "Duration" : duration, "Studio" : canal, "Genre" : category } )
+    listitem.setInfo( "video", { "Title" : title, "Plot" : plot, "Duration" : duration, "Studio" : canal, "Genre" : category , "Size": size} )
 
     if fanart!="":
         logger.info("fanart :%s" %fanart)
@@ -339,7 +339,15 @@ def play_video(channel="",server="",url="",category="",title="", thumbnail="",pl
     elif opciones[seleccion]==config.get_localized_string(30164): # Borrar archivo en descargas
         # En "extra" está el nombre del fichero en favoritos
         import os
+
         os.remove( url )
+
+        if os.path.exists(url[:-4]+".tbn"):
+            os.remove( url[:-4]+".tbn" )
+
+        if os.path.exists(url[:-4]+".nfo"):
+            os.remove( url[:-4]+".nfo" )
+
         xbmc.executebuiltin( "Container.Refresh" )
         return
 
@@ -788,9 +796,9 @@ def renderItems(itemlist, params, url, category,isPlayable='false'):
                     isPlayable = "true"
 
                 if item.duration:
-                    addnewvideo( item.channel , item.action , item.category , item.server, item.title , item.url , item.thumbnail , item.plot , "" ,  duration = item.duration , fanart = item.fanart, IsPlayable=isPlayable,context = item.context , subtitle=item.subtitle, totalItems = len(itemlist), show=item.show, password = item.password, extra = item.extra, fulltitle=item.fulltitle )
+                    addnewvideo( item.channel , item.action , item.category , item.server, item.title , item.url , item.thumbnail , item.plot , "" ,  duration = item.duration , fanart = item.fanart, IsPlayable=isPlayable,context = item.context , subtitle=item.subtitle, totalItems = len(itemlist), show=item.show, password = item.password, extra = item.extra, fulltitle=item.fulltitle, size=item.size )
                 else:    
-                    addnewvideo( item.channel , item.action , item.category , item.server, item.title , item.url , item.thumbnail , item.plot, fanart = item.fanart, IsPlayable=isPlayable , context = item.context , subtitle = item.subtitle , totalItems = len(itemlist), show=item.show , password = item.password , extra=item.extra, fulltitle=item.fulltitle )
+                    addnewvideo( item.channel , item.action , item.category , item.server, item.title , item.url , item.thumbnail , item.plot, fanart = item.fanart, IsPlayable=isPlayable , context = item.context , subtitle = item.subtitle , totalItems = len(itemlist), show=item.show , password = item.password , extra=item.extra, fulltitle=item.fulltitle, size=item.size )
             if item.viewmode!="list":
                 viewmode = item.viewmode
 
