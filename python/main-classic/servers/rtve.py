@@ -17,7 +17,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
     # Extrae el código
     logger.info("url="+page_url)
-    codigo = scrapertools.find_single_match(page_url,'http://.*?/([0-9]+)')
+    codigo = scrapertools.find_single_match(page_url,'http://.*?/([0-9]+)/')
     url=""
     itemlist = []
     logger.info("assetid="+codigo)
