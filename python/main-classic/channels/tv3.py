@@ -128,7 +128,6 @@ def loadprogram(item):
         data = data.replace("\\\"","")
 
         # Trabajamos con un subconjunto de la página, ya que hay muchos <li> previamente a los que nos interesan
-        #patron = '<div class="span9">(.*?)<div class="container-fluid L-bottomContainer">'
         patron = '<div class="span9">(.*?)<footer class="container-fluid L-bottomContainer">'
         subpage = re.compile(patron,re.DOTALL).findall(data)
 
@@ -148,12 +147,10 @@ def loadprogram(item):
                     itemlist.append( Item(channel=item.channel, title=scrapedtitle, action="loadchapters", url=urlallchapters, folder=True) )
 
                 except:
-                    import sys
                     for line in sys.exc_info():
                         logger.error( "%s" % line )
 
     except:
-        import sys
         for line in sys.exc_info():
             logger.error( "%s" % line )
 
@@ -179,15 +176,77 @@ def loadchapters(item):
     return pager(item.url, item.channel)
 
 
+# Comprueba si hay secciones
+def findsections(data):
+    patron = '<h1 class="titol">EDICIONS<\/h1>(.*?)<\/section>'
+    subpage = re.compile(patron,re.DOTALL).findall(data)
+    return subpage
+
+
+# Carga subsecciones (precondicion: llega una subpagina generada por "findsections")
+def loadsections(subpage, channel=__channel__):
+    itemlist = []
+    patron = '<div class="R-infoDestacat">[\s]*<a title="([^"]+)" href="([^"]+)"'
+    matches = re.compile(patron,re.DOTALL).findall(subpage[0])
+    if matches:
+        for program in matches:
+            try:
+                # Crea entradas
+                scrapedtitle = str(program[0]).replace("&quot;", "'").strip()
+                import os.path
+                urlallchapters = URLBASE + "/" + os.path.dirname(os.path.dirname(program[1].strip("/"))) + "/programes/"
+                itemlist.append( Item(channel=channel, title=scrapedtitle, action="loadchapters", url=urlallchapters, folder=True) )
+            except:
+                for line in sys.exc_info():
+                    logger.error( "%s" % line )
+        return itemlist
+    return None
+
+
+# Carga excepción para los informativos "Comarques"
+def loadcomarques():
+    itemlist = []
+
+    url_bar = "http://www.ccma.cat/tv3/alacarta/telenoticies/tn-barcelona/programes/"
+    url_tar = "http://www.ccma.cat/tv3/alacarta/telenoticies/tn-tarragona/programes/"
+    url_lle = "http://www.ccma.cat/tv3/alacarta/telenoticies/tn-lleida/programes/"
+    url_gir = "http://www.ccma.cat/tv3/alacarta/telenoticies/tn-girona/programes/"
+    url_ara = "http://www.ccma.cat/tv3/alacarta/telenoticies/tn-aran/programes/"
+
+    itemlist.append( Item(channel=__channel__, title="TN Comarques Barcelona", action="loadchapters", url=url_bar, folder=True) )
+    itemlist.append( Item(channel=__channel__, title="TN Comarques Tarragona", action="loadchapters", url=url_tar, folder=True) )
+    itemlist.append( Item(channel=__channel__, title="TN Comarques Lleida", action="loadchapters", url=url_lle, folder=True) )
+    itemlist.append( Item(channel=__channel__, title="TN Comarques Girona", action="loadchapters", url=url_gir, folder=True) )
+    itemlist.append( Item(channel=__channel__, title="TN Comarques Arán", action="loadchapters", url=url_ara, folder=True) )
+
+    return itemlist
+
+
 # Dada una url de la web CCMA, pagina los resultados
 # Precondición: la url debe ser la de un programa o una búsqueda
 def pager(url, channel=__channel__):
 
     try:
+        # Tratamiento de la excepción única que tienen en la web de informativos en la sección "Comarques"
+        if "tn-comarques" in url:
+            return loadcomarques()
+
         itemlist = []
         data = scrapertools.cachePage(url)
         data = data.replace("\\\"","")
         #print "DATA: " + data
+
+        # A partir del 28/03(2016 (aprox) en la sección de Telenotícies añaden subsecciones para desglosar las
+        # ediciones y deja de funcionar correctamente este código para esa sección (Telenotícies).
+        # Solución: procesar las ediciones antes y crear un submenú con las URLs correctas, ya que esas otras
+        # páginas tienen el mismo formato y pager las podrá cargar.
+        # Si añaden secciones a otros programas del mismo modo, también debería funcionar.
+        # Hay una excepción: los informativos "Comarques" están hechos de otra forma... (añadido al principio
+        # de esta función).
+        #
+        sections = findsections(data)
+        if sections:
+            return loadsections(sections, channel)
 
         # --------------------------------------------------------
         # Extrae los videos
@@ -229,7 +288,6 @@ def pager(url, channel=__channel__):
                     )
 
                 except:
-                    import sys
                     for line in sys.exc_info():
                         logger.error( "%s" % line )
 
@@ -253,7 +311,6 @@ def pager(url, channel=__channel__):
                 )
             )
     except:
-        import sys
         for line in sys.exc_info():
             logger.error( "%s" % line )
 
@@ -322,7 +379,6 @@ def loadsection(item):
                         )
                     ) 
                 except:
-                    import sys
                     for line in sys.exc_info():
                         logger.error( "%s" % line )  
 
@@ -348,7 +404,6 @@ def loadsection(item):
                 )
             )  
     except:
-        import sys
         for line in sys.exc_info():
             logger.error( "%s" % line )
 
@@ -413,7 +468,6 @@ def dooldsearch(item):
                     )
                 ) 
             except:
-                import sys
                 for line in sys.exc_info():
                     logger.error( "%s" % line ) 
 
@@ -438,7 +492,6 @@ def dooldsearch(item):
                     )
                 ) 
         except:
-            import sys
             for line in sys.exc_info():
                 logger.error( "%s" % line ) 
 
@@ -492,12 +545,10 @@ def hdvideolist(item):
                 itemlist.append( Item(channel=__channel__, action="play" , title= scrapedtitle + " (720p)", url=video_720, thumbnail=scrapedthumbnail, plot=scrapedplot, server=server, extra="", category=item.category, fanart=scrapedthumbnail, folder=False))
                 itemlist.append( Item(channel=__channel__, action="play" , title=scrapedtitle + " (1080p)", url=video_1080, thumbnail=scrapedthumbnail, plot=scrapedplot, server=server, extra="", category=item.category, fanart=scrapedthumbnail, folder=False))
             except:
-                import sys
                 for line in sys.exc_info():
                     logger.error( "%s" % line )
 
     except:
-        import sys
         for line in sys.exc_info():
             logger.error( "%s" % line )
 
