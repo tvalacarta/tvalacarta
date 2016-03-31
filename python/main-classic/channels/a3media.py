@@ -5,12 +5,13 @@
 # http://blog.tvalacarta.info/plugin-xbmc/tvalacarta/
 #------------------------------------------------------------
 import urlparse,re
-import urllib, urllib2
+import urllib, urllib2, os
 
 from core import logger
 from core import scrapertools
 from core.item import Item
 from core import jsontools
+from core import config
 
 DEBUG = False
 CHANNELNAME = "a3media"
@@ -19,11 +20,39 @@ import hmac
 
 ANDROID_HEADERS = [ ["User-Agent","Dalvik/1.6.0 (Linux; U; Android 4.3; GT-I9300 Build/JSS15J"] ]
 
+account = (config.get_setting("a3mediaaccount") == "true" )
+
 def isGeneric():
     return True
 
+def openconfig(item):
+    if config.get_library_support():
+        config.open_settings( )
+    return []
+
+def login():
+    logger.info("pelisalacarta.channels.a3media login")
+
+    post = "j_username="+config.get_setting('a3mediauser')+"&j_password="+config.get_setting('a3mediapassword')
+    data = scrapertools.cachePage("https://servicios.atresplayer.com/j_spring_security_check", post=post)
+    if "error" in data:
+        logger.info("tvalacarta.channels.a3media Error en el login")
+        return False
+    else:
+        logger.info("tvalacarta.channels.a3media Login correcto")
+        return True
+
 def mainlist(item):
     logger.info("tvalacarta.channels.a3media mainlist")
+    itemlist = []
+
+    if account:
+        log_result = login()
+
+    if not account:
+        itemlist.append( Item(channel=CHANNELNAME, title=bbcode_kodi2html("[COLOR yellow]Regístrate y habilita tu cuenta para disfrutar de más contenido[/COLOR]"), action="openconfig", folder=False) )
+    elif not log_result:
+        itemlist.append( Item(channel=CHANNELNAME, title=bbcode_kodi2html("[COLOR yellow]Error en el login. Comprueba tus credenciales[/COLOR]"), action="openconfig", folder=False) )
 
     url="http://servicios.atresplayer.com/api/mainMenu"
     data = scrapertools.cachePage(url)
@@ -32,7 +61,7 @@ def mainlist(item):
     if lista == None: lista =[]
 
     url2="http://servicios.atresplayer.com/api/categorySections/"
-    itemlist = []
+
 
     itemlist.append( Item(channel=CHANNELNAME, title="Directos", action="loadlives", folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Destacados", action="episodios", url="http://servicios.atresplayer.com/api/highlights", folder=True) )
@@ -187,10 +216,14 @@ def episodios(item):
         else: scrapedplot = item.plot
         scrapedthumbnail = entry['urlImage'].replace('.jpg','03.jpg')
 
-        if tipo == "FREE": #solo carga los videos que no necesitan registro ni premium
-            # Añade al listado
-            itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra = str(extra), folder=False) )
-
+        if account:
+            if tipo == "FREE" or tipo == "REGISTER": #carga los videos que gratuitos y con registro
+                # Añade al listado
+                itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra = str(extra), folder=False) )
+        else:
+            if tipo == "FREE": #solo carga los videos que no necesitan registro ni premium
+                # Añade al listado
+                itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra = str(extra), folder=False) )
     return itemlist
 
 # Cargar menú de directos
@@ -229,6 +262,14 @@ def play(item):
         token = d(item.extra, "QWtMLXs414Yo+c#_+Q#K@NN)")
         url = item.url + token
 
+        if account:
+            cookies = os.path.join( config.get_data_path(), 'cookies.dat' )
+            cookiedatafile = open(cookies,'r')
+            cookiedata = cookiedatafile.read()
+            cookiedatafile.close();
+            jsessionid = scrapertools.find_single_match(cookiedata,"servicios.atresplayer.com.*?JSESSIONID\s+([A-Za-z0-9\+\-]+)")
+            ANDROID_HEADERS.append(['Cookie','JSESSIONID='+jsessionid])
+
         data = scrapertools.cachePage(url,headers=ANDROID_HEADERS)
         logger.info(data)
         lista = jsontools.load_json(data)
@@ -251,3 +292,19 @@ def d(s, s1):
 
 def e(s, s1):
     return hmac.new(s1, s).hexdigest()
+
+
+def bbcode_kodi2html(text):
+    if config.get_platform().startswith("plex") or config.get_platform().startswith("mediaserver"):
+        import re
+        text = re.sub(r'\[COLOR\s([^\]]+)\]',
+                      r'<span style="color: \1">',
+                      text)
+        text = text.replace('[/COLOR]','</span>')
+        text = text.replace('[CR]','<br>')
+        text = re.sub(r'\[([^\]]+)\]',
+                      r'<\1>',
+                      text)
+        text = text.replace('"color: white"','"color: auto"')
+
+    return text

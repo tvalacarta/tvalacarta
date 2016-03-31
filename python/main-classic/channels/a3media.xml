@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <version>
 	<name>a3media</name>
-	<tag>3</tag>
-	<date>31/05/2014</date>
-	<changes>Arreglado a3media gracias a @danichaves</changes>
+	<tag>4</tag>
+	<date>30/03/2016</date>
+	<changes>Añadido soporte para cuenta en la web</changes>
 </version>
