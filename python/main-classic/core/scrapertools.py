@@ -425,18 +425,26 @@ def downloadpage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; 
         txheaders[header[0]]=header[1]
     logger.info("pelisalacarta.core.scrapertools ---------------------------")
 
+    cafile = os.path.join(config.get_runtime_path(),"resources","ca.crt")
+
     req = Request(url, post, txheaders)
 
     try:
         if timeout is None:
             logger.info("pelisalacarta.core.scrapertools Peticion sin timeout")
-            handle=urlopen(req)
+            if os.path.exists(cafile):
+                handle=urlopen(req,cafile=cafile)
+            else:
+                handle=urlopen(req)
         else:        
             logger.info("pelisalacarta.core.scrapertools Peticion con timeout")
             #Para todas las versiones:
             deftimeout = socket.getdefaulttimeout()
             socket.setdefaulttimeout(timeout)
-            handle=urlopen(req)            
+            if os.path.exists(cafile):
+                handle=urlopen(req,cafile=cafile)
+            else:
+                handle=urlopen(req)
             socket.setdefaulttimeout(deftimeout)
         logger.info("pelisalacarta.core.scrapertools ...hecha")
         
