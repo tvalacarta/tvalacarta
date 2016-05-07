@@ -425,7 +425,8 @@ def downloadpage(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; 
         txheaders[header[0]]=header[1]
     logger.info("pelisalacarta.core.scrapertools ---------------------------")
 
-    cafile = os.path.join(config.get_runtime_path(),"resources","ca.crt")
+    #cafile = os.path.join(config.get_runtime_path(),"resources","ca.crt")
+    cafile = os.path.join(config.get_runtime_path(),"resources","ca.crt-noex")
 
     req = Request(url, post, txheaders)
 

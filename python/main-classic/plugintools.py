@@ -319,7 +319,8 @@ def read_body_and_headers(url, post=None, headers=[], follow_redirects=False, ti
         txheaders[header[0]]=header[1]
     _log("read_body_and_headers ---------------------------")
 
-    cafile = os.path.join(get_runtime_path(),"resources","ca.crt")
+    #cafile = os.path.join(get_runtime_path(),"resources","ca.crt")
+    cafile = os.path.join(get_runtime_path(),"resources","ca.crt-noex")
 
     req = Request(url, post, txheaders)
     if timeout is None:
