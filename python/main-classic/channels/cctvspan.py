@@ -24,7 +24,7 @@ __creationdate__ = "20121130"
 __vfanart__ = "http://espanol.cntv.cn/library/column/2010/11/24/C28600/style/img/map2.jpg"
 
 DEBUG = config.get_setting("debug")
-MAIN_URL = "http://espanol.cntv.cn/"
+MAIN_URL = "http://espanol.cctv.com/"
 
 def isGeneric():
     return True
@@ -52,13 +52,16 @@ def programas(item):
     '''
     # Descarga la pȧina
     data = scrapertools.cachePage(item.url)
+    logger.info("data="+data)
     data = scrapertools.find_single_match(data,'<li><a href="http://cctvespanol.cntv.cn/[^>]+>CCTV-Espa[^<]+</a[^<]+<div class="xiala"[^<]+<dl id="up_box">(.*?)</dl>')
+    logger.info("data="+data)
     patron = '<a href="([^"]+)"[^>]+>([^<]+)</a>'
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 
     item_series = None
-    
+    item_infantil = None
+
     for scrapedurl,scrapedtitle in matches:
         title = scrapertools.htmlclean(scrapedtitle)
         url   = urlparse.urljoin(item.url,scrapedurl)
