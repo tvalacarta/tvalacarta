@@ -65,6 +65,18 @@ def mainlist(item):
     itemlist = []
     itemlist.append( Item(channel=CHANNELNAME, title="Todo", action="todos", folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Categorías", action="categorias", folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="A-Z", action="alfabetico", folder=True) )
+
+    return itemlist
+
+def alfabetico(item):
+    logger.info("[eitb.py] alfabetico")
+    itemlist=[]
+
+    letras = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    for letra in letras:
+        itemlist.append( Item(channel=CHANNELNAME, title=letra, action="todos", category="alfabetico", url="?inicial="+letra, folder=True) )
 
     return itemlist
 
@@ -98,6 +110,13 @@ def todos(item):
     if item.category == "categoria":
         categoria=urlparse.parse_qs(item.url[1:])["category"][0]
         patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;hormigas\.setHormigas\('TV\|Categorías\|" + categoria + "\|[^']+'\)"
+    elif item.category == "alfabetico":
+        inicial=urlparse.parse_qs(item.url[1:])["inicial"][0]
+        if inicial == "#":
+            inicial="^A-Za-z"
+        else:
+            inicial += inicial.lower()
+        patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([" + inicial + "][^']+)','([^']+)'\)\;"
     else:
         patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;"
 
