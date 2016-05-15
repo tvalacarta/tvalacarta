@@ -63,7 +63,7 @@ def clean_title(title):
 def mainlist(item):
     logger.info("[eitb.py] mainlist")
     itemlist = []
-    itemlist.append( Item(channel=CHANNELNAME, title="Todo", action="todos", folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Todo", action="programas", folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Categorías", action="categorias", folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="A-Z", action="alfabetico", folder=True) )
 
@@ -76,7 +76,7 @@ def alfabetico(item):
     letras = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
     for letra in letras:
-        itemlist.append( Item(channel=CHANNELNAME, title=letra, action="todos", category="alfabetico", url="?inicial="+letra, folder=True) )
+        itemlist.append( Item(channel=CHANNELNAME, title=letra, action="programas", category="alfabetico", url="?inicial="+letra, folder=True) )
 
     return itemlist
 
@@ -95,12 +95,12 @@ def categorias(item):
     counter = collections.Counter(matches)
 
     for categoria in sorted(counter.keys()):
-        itemlist.append( Item(channel=CHANNELNAME, title='{0} ({1})'.format(categoria, counter[categoria]), action="todos", category="categoria", url="?category="+categoria, folder=True) )
+        itemlist.append( Item(channel=CHANNELNAME, title='{0} ({1})'.format(categoria, counter[categoria]), action="programas", category="categoria", url="?category="+categoria, folder=True) )
 
     return itemlist
 
-def todos(item):
-    logger.info("[eitb.py] todos")
+def programas(item):
+    logger.info("[eitb.py] programas")
     itemlist=[]
 
     url = 'http://www.eitb.tv/es/'
