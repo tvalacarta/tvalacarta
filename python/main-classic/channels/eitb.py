@@ -66,8 +66,16 @@ def mainlist(item):
     itemlist.append( Item(channel=CHANNELNAME, title="Todo", action="programas", folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Categorías", action="categorias", folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="A-Z", action="alfabetico", folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Buscador" , action="search" , folder=True) )
 
     return itemlist
+
+def search(item,texto):
+    logger.info("[eitb.py] search")
+
+    item.url = "?filter=" + texto
+    return programas(item)
+
 
 def alfabetico(item):
     logger.info("[eitb.py] alfabetico")
@@ -104,6 +112,7 @@ def programas(item):
     itemlist=[]
 
     url = 'http://www.eitb.tv/es/'
+    filtro = None
 
     # Descarga la página
     data = scrapertools.cachePage(url)
@@ -118,6 +127,7 @@ def programas(item):
             inicial += inicial.lower()
         patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([" + inicial + "][^']+)','([^']+)'\)\;"
     else:
+        filtro=urlparse.parse_qs(item.url[1:])["filter"][0]
         patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;"
 
 
@@ -127,6 +137,8 @@ def programas(item):
     oldid = -1
     for id,titulo,titulo2 in sorted(set(matches), key=lambda match: (match[1] + match[2]).lower()):
         if id == oldid:
+            continue
+        if filtro and filtro not in titulo.lower():
             continue
         scrapedtitle = titulo
         if titulo!=titulo2:
