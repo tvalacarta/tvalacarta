@@ -6,6 +6,7 @@
 #------------------------------------------------------------
 import urlparse,re
 import urllib
+import collections
 
 from core import logger
 from core import scrapertools
@@ -59,16 +60,48 @@ def clean_title(title):
     logger.info(val)
     return val.lower().encode('utf-8')
 
-
 def mainlist(item):
     logger.info("[eitb.py] mainlist")
+    itemlist = []
+    itemlist.append( Item(channel=CHANNELNAME, title="Todo", action="todos", folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Categorías", action="categorias", folder=True) )
+
+    return itemlist
+
+def categorias(item):
+    logger.info("[eitb.py] categorias")
     itemlist=[]
 
     url = 'http://www.eitb.tv/es/'
 
     # Descarga la página
     data = scrapertools.cachePage(url)
-    patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;"
+    patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('\d+','[^']+','[^']+'\)\;hormigas\.setHormigas\('TV\|Categorías\|([^\|]+)\|[^']+'\)"
+    matches = re.compile(patron,re.DOTALL).findall(data)
+    if DEBUG: scrapertools.printMatches(matches)
+
+    counter = collections.Counter(matches)
+
+    for categoria in sorted(counter.keys()):
+        itemlist.append( Item(channel=CHANNELNAME, title='{0} ({1})'.format(categoria, counter[categoria]), action="todos", category="categoria", url="?category="+categoria, folder=True) )
+
+    return itemlist
+
+def todos(item):
+    logger.info("[eitb.py] todos")
+    itemlist=[]
+
+    url = 'http://www.eitb.tv/es/'
+
+    # Descarga la página
+    data = scrapertools.cachePage(url)
+    if item.category == "categoria":
+        categoria=urlparse.parse_qs(item.url[1:])["category"][0]
+        patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;hormigas\.setHormigas\('TV\|Categorías\|" + categoria + "\|[^']+'\)"
+    else:
+        patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;"
+
+
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 
