@@ -124,7 +124,10 @@ def programas(item):
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 
-    for id,titulo,titulo2 in matches:
+    oldid = -1
+    for id,titulo,titulo2 in sorted(set(matches), key=lambda match: (match[1] + match[2]).lower()):
+        if id == oldid:
+            continue
         scrapedtitle = titulo
         if titulo!=titulo2:
             scrapedtitle = scrapedtitle + " - " + titulo2
@@ -134,6 +137,7 @@ def programas(item):
         if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")
 
         itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , folder=True) )
+        oldid = id
 
     return itemlist
 
