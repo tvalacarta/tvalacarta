@@ -15,21 +15,8 @@ from core import config
 def get_video_url( page_url , premium = False , user="" , password="" , video_password="" ):
     logger.info("[adnstream.py] get_video_url(page_url='%s')" % page_url)
 
-    # Saca el código del vídeo
-    if page_url.startswith("http://"):
-        try:
-            code = scrapertools.get_match(page_url,"http\://www.adnstream.com/video/([a-zA-Z]+)/")
-        except:
-            code = scrapertools.get_match(page_url,"http\://www.adnstream.tv/video/([a-zA-Z]+)/")
-    else:
-        code = page_url
-
-    # Lee la playlist    
-    url = "http://www.adnstream.com/get_playlist.php?lista=video&param="+code+"&c=463"
-    data = scrapertools.cache_page(url)
-
-    # Extrae la URL
-    media_url = scrapertools.get_match(data,"<jwplayer:file>([^<]+)</jwplayer:file>")
+    data = scrapertools.cache_page(page_url)
+    media_url = scrapertools.get_match(data,"file\:\s*'([^']+)'")
     video_urls = [[ scrapertools.get_filename_from_url(media_url)[-4:] + ' [adnstream]' , media_url]]
 
     for video_url in video_urls:
