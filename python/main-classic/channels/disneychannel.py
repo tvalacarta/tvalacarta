@@ -94,12 +94,13 @@ def episodios(item):
 
     try:
         data = scrapertools.cachePage(item.url)
-        logger.info("data="+repr(data))
-
-        data = scrapertools.find_single_match(data,'Grill.burger\=(.*?)\:\(function\(\)')
         #logger.info("data="+repr(data))
+
+        #data = scrapertools.find_single_match(data,'Grill.burger\=(.*?)\:\(function\(\)')
         # Limpia el json incorrecto
-        data = "{"+scrapertools.find_single_match(data,'("title"\:"Episodios completos","data"\:\[.*?)\,"config_options"')+"}"
+        #data = "{"+scrapertools.find_single_match(data,'("title"\:"Episodios completos","data"\:\[.*?)\,"config_options"')+"}"
+        
+        data = scrapertools.find_single_match(data,'(\{"view"\:"slider".*?\}),\{"view"')
         data_json = jsontools.load_json(data)
         #logger.info("data_json="+repr(data_json))
 
