@@ -10,8 +10,6 @@ from core import logger
 from core import scrapertools
 from core.item import Item
 
-logger.info("[ib3.py] init")
-
 DEBUG = True
 CHANNELNAME = "ib3"
 MAIN_URL = "http://ib3tv.com/carta"
@@ -20,26 +18,27 @@ def isGeneric():
     return True
 
 def mainlist(item):
-    logger.info("[ib3.py] mainlist")
+    logger.info("tvalacarta.channels.ib3 mainlist")
 
     itemlist = []
-    itemlist.append( Item(channel=CHANNELNAME, title="Programes de producció pròpia"                    , action="categoria" , extra="Progra", url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Programes de producció pròpia"                    , action="categoria" , extra="Programes", url=MAIN_URL, folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Sèries de producció pròpia"                       , action="categoria" , extra="Sèries", url=MAIN_URL, folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Notícies / Programes d'actualitat"                , action="categoria" , extra="Infor", url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Notícies / Programes d'actualitat"                , action="categoria" , extra="Informatius", url=MAIN_URL, folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Programes d'Esports / Retransmissions esportives" , action="categoria" , extra="Esports", url=MAIN_URL, folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Retransmissions / Documentals / Especials"        , action="categoria" , extra="Retrans", url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Retransmissions"                                  , action="categoria" , extra="Retransm.", url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Documentals / Especials"                          , action="categoria" , extra="Documentals", url=MAIN_URL, folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Programes [A-Z] (thumbnail)"                      , action="programas" , url=MAIN_URL, folder=True) )
 
     return itemlist
 
 def categoria(item):
-    logger.info("[ib3.py] categoria")
+    logger.info("tvalacarta.channels.ib3 categoria")
     itemlist=[]
 
     # Descarga la página
     item.url = MAIN_URL
     data = scrapertools.cache_page(item.url)
-    data = scrapertools.get_match(data,'<li><a href="">'+item.extra+'</a>(.*?)</ul>')
+    data = scrapertools.get_match(data,'<li><a href="">'+item.extra+'</a>(.*?)</div>')
     #logger.info(data)
 
     # Extrae los programas
@@ -52,11 +51,11 @@ def categoria(item):
     <li><a href="javascript:stepcarousel.loadcontent('f-slide', '/wp-content/themes/ib3tv/carta/update.php?programId=01e0e6c9-b2fd-4f5e-8641-17e3e455a553')">AIXÒ ÉS TOT</a></li>
     <li><a href="javascript:stepcarousel.loadcontent('f-slide', '/wp-content/themes/ib3tv/carta/update.php?programId=ff2ec1f6-a5ee-4d4d-b864-013f125c088a')">AIXÒ NO ÉS ISLÀNDIA</a></li>
     '''
-    patron = "<li><a href=\"javascript.stepcarousel.loadcontent\('f-slide', '([^']+)'\)\">([^<]+)</a></li>"
+    patron = "<li><a href=\"javascript.stepcarousel.loadcontent\('f-slide', '([^']+)'\)\">(.*?)</li>"
     matches = re.compile(patron,re.DOTALL).findall(data)
 
     for scrapedurl,scrapedtitle in matches:
-        title = scrapedtitle.strip()
+        title = scrapertools.htmlclean(scrapedtitle).strip()
         
         #/wp-content/themes/ib3/carta/update.php?programId=2d15fe76-bbed-40c9-95e3-32a800174b7c
         #http://ib3tv.com/wp-content/themes/ib3/carta/update.php?programId=e8f6d4ec-1d7c-4101-839a-36393d0df2a8
@@ -69,7 +68,7 @@ def categoria(item):
     return itemlist
 
 def programas(item):
-    logger.info("[ib3.py] programlist")
+    logger.info("tvalacarta.channels.ib3 programlist")
     itemlist=[]
 
     # Descarga la página
@@ -100,7 +99,7 @@ def programas(item):
     return itemlist
 
 def episodios(item):
-    logger.info("[ib3.py] episodios")
+    logger.info("tvalacarta.channels.ib3 episodios")
 
     itemlist = []
 
@@ -134,10 +133,27 @@ def episodios(item):
     </div>
     </div>
     '''
-    patron = '<div class="keyelement">[^<]+'
-    patron += '<div class="keyimage">[^<]+'
-    patron += '<div class="shadow">[^<]+'
-    patron += '<a href="javascript:CambiaGraf.\'([^\']+)\'." ><img src="([^"]+)"[^<]+</a>[^<]+'
+    '''
+    <div class="keyelement">
+    <div class="keyimage">
+    <div class="shadow">    
+
+    <a href="javascript:CambiaGraf('0f8a716f-d03b-4e02-84e9-48cba55cd576','Això és Tot! | Cap: 67')" ><img src="http://media.ib3alacarta.com/01e0e6c9-b2fd-4f5e-8641-17e3e455a553/0f8a716f-d03b-4e02-84e9-48cba55cd576/4266329.jpg" height="120px" " width="190"/></a>
+    </div>
+    </div>  
+    <div  class="keytext">
+    <font color="#c6006f" size="2.5"><strong>Això és Tot!</strong></font>
+    <br />
+    <font color="#595959">Això és Tot!</font>
+    <br />
+    <font size="0.5">03 11 2010 - Capítol: 67</font>
+    </div>
+    </div>
+    '''
+    patron  = '<div class="keyelement"[^<]+'
+    patron += '<div class="keyimage"[^<]+'
+    patron += '<div class="shadow"[^<]+'
+    patron += '<a href="javascript:CambiaGraf.\'([^\']+)\',\'[^\']+\'." ><img src="([^"]+)"[^<]+</a>[^<]+'
     patron += '</div>[^<]+'
     patron += '</div>[^<]+'
     patron += '<div  class="keytext">(.*?)</div>'
@@ -148,7 +164,7 @@ def episodios(item):
     for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
         title = scrapertools.htmlclean(scrapedtitle).strip()
         title = re.compile("\s+",re.DOTALL).sub(" ",title)
-        url = "http://ib3tv.com/wp-content/themes/ib3/carta/titulos.php?type=TV&id="+scrapedurl
+        url = "http://ib3tv.com/wp-content/themes/ENS/carta/titulos.php?type=TV&id="+scrapedurl
         thumbnail = scrapedthumbnail
         plot = ""
         itemlist.append( Item(channel=CHANNELNAME, title=title , fulltitle = item.show + " - " + title , action="play" , page = url, url=url, thumbnail=thumbnail, show=item.show , plot=plot , folder=False) )
@@ -156,10 +172,12 @@ def episodios(item):
     return itemlist
 
 def play(item):
-    logger.info("[ib3.py] play")
+    logger.info("tvalacarta.channels.ib3 play")
     itemlist = []
     
     data = scrapertools.cache_page(item.url)
+    logger.info("data="+data)
+    #'src', "http://media.ib3alacarta.com/ff2ec1f6-a5ee-4d4d-b864-013f125c088a/7d3a82fb-6c03-4500-8c65-5ea510c61420/5018376.mp4"
     mediaurl = scrapertools.get_match(data,"file:'([^']+)',")
     itemlist.append( Item(channel=CHANNELNAME, title=item.title , action="play" , server="directo" , url=mediaurl, thumbnail=item.thumbnail, show=item.show , folder=False) )
     
