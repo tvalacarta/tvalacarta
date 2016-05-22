@@ -7,7 +7,12 @@
 
 from core import logger
 
-import youtube_dl, urllib
+try:
+    import youtube_dl
+except:
+    from lib import youtube_dl
+
+import urllib
 
 # Some helper methods
 def safe_unicode(value):
@@ -21,7 +26,6 @@ def safe_unicode(value):
         except:
             return unicode(value, 'iso-8859-1')
 
-
 def get_video_url( page_url , premium = False , user="" , password="", video_password="", page_data="" ):
     logger.info("[discoverymax.py] get_video_url(page_url='%s')" % page_url)
 
@@ -31,7 +35,10 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     video_urls = []
     if 'formats' in result:
         for entry in result['formats']:
-            video_urls.append([safe_unicode(entry['format']).encode('utf-8'), safe_unicode(entry['url']).encode('utf-8')])
+            video_urls.append( [safe_unicode(entry['format']).encode('utf-8') , safe_unicode(entry['url']).encode('utf-8') ])
+
+    # Para que ponga la calidad más alta primero
+    video_urls.reverse()
 
     return video_urls
 
