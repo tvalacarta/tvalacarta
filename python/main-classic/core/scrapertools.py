@@ -1481,3 +1481,15 @@ def fixurl(url):
     # put it back together
     netloc = ''.join((user,colon1,pass_,at,host,colon2,port))
     return urlparse.urlunsplit((scheme,netloc,path,query,fragment))
+
+# Some helper methods
+def safe_unicode(value):
+    """ Generic unicode handling method to parse the titles """
+    from types import UnicodeType
+    if type(value) is UnicodeType:
+        return value
+    else:
+        try:
+            return unicode(value, 'utf-8')
+        except:
+            return unicode(value, 'iso-8859-1')
