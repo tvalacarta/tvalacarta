@@ -7,7 +7,10 @@
 
 from core import logger
 
-import youtube_dl
+try:
+    import youtube_dl
+except:
+    from lib import youtube_dl
 
 # Some helper methods
 def safe_unicode(value):
