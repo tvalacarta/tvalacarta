@@ -127,7 +127,10 @@ def programas(item):
             inicial += inicial.lower()
         patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([" + inicial + "][^']+)','([^']+)'\)\;"
     else:
-        filtro=urlparse.parse_qs(item.url[1:])["filter"][0]
+        try:
+            filtro=urlparse.parse_qs(item.url[1:])["filter"][0]
+        except:
+            filtro = False
         patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;"
 
 
