@@ -29,9 +29,9 @@ def get_video_url(page_url, premium = False, user="", password="", video_passwor
         # http://www.ccma.cat/tv3/alacarta/telenoticies/telenoticies-vespre-17042015/video/5505723/
         # http://www.tv3.cat/videos/5495372/La-baldana
         #
-       if page_url.startswith("http://www.ccma.cat"):
+        if page_url.startswith("http://www.ccma.cat"):
             patron = '/tv3/alacarta/.*?/.*?/video/(\d+)'
-       else:
+        else:
             patron = '/videos/(\d+)/.*?'
 
         matches = re.compile(patron,re.DOTALL).findall(page_url)
