@@ -59,20 +59,89 @@ def clean_title(title):
     logger.info(val)
     return val.lower().encode('utf-8')
 
-
 def mainlist(item):
     logger.info("[eitb.py] mainlist")
+    itemlist = []
+    itemlist.append( Item(channel=CHANNELNAME, title="Todo", action="programas", folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Categorías", action="categorias", folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="A-Z", action="alfabetico", folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Buscador" , action="search" , folder=True) )
+
+    return itemlist
+
+def search(item,texto):
+    logger.info("[eitb.py] search")
+
+    item.url = "?filter=" + texto
+    return programas(item)
+
+
+def alfabetico(item):
+    logger.info("[eitb.py] alfabetico")
+    itemlist=[]
+
+    letras = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    for letra in letras:
+        itemlist.append( Item(channel=CHANNELNAME, title=letra, action="programas", category="alfabetico", url="?inicial="+letra, folder=True) )
+
+    return itemlist
+
+def categorias(item):
+    logger.info("[eitb.py] categorias")
     itemlist=[]
 
     url = 'http://www.eitb.tv/es/'
 
     # Descarga la página
     data = scrapertools.cachePage(url)
-    patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;"
+    patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('\d+','[^']+','[^']+'\)\;hormigas\.setHormigas\('TV\|Categorías\|([^\|]+)\|[^']+'\)"
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 
-    for id,titulo,titulo2 in matches:
+    unique_matches = list(set(matches))
+
+    for categoria in sorted(unique_matches):
+        itemlist.append( Item(channel=CHANNELNAME, title='{0} ({1})'.format(categoria, matches.count(categoria)), action="programas", category="categoria", url="?category="+categoria, folder=True) )
+
+    return itemlist
+
+def programas(item):
+    logger.info("[eitb.py] programas")
+    itemlist=[]
+
+    url = 'http://www.eitb.tv/es/'
+    filtro = None
+
+    # Descarga la página
+    data = scrapertools.cachePage(url)
+    if item.category == "categoria":
+        categoria=urlparse.parse_qs(item.url[1:])["category"][0]
+        patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;hormigas\.setHormigas\('TV\|Categorías\|" + categoria + "\|[^']+'\)"
+    elif item.category == "alfabetico":
+        inicial=urlparse.parse_qs(item.url[1:])["inicial"][0]
+        if inicial == "#":
+            inicial="^A-Za-z"
+        else:
+            inicial += inicial.lower()
+        patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([" + inicial + "][^']+)','([^']+)'\)\;"
+    else:
+        try:
+            filtro=urlparse.parse_qs(item.url[1:])["filter"][0]
+        except:
+            filtro = False
+        patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;"
+
+
+    matches = re.compile(patron,re.DOTALL).findall(data)
+    if DEBUG: scrapertools.printMatches(matches)
+
+    oldid = -1
+    for id,titulo,titulo2 in sorted(set(matches), key=lambda match: (match[1] + match[2]).lower()):
+        if id == oldid:
+            continue
+        if filtro and filtro not in titulo.lower():
+            continue
         scrapedtitle = titulo
         if titulo!=titulo2:
             scrapedtitle = scrapedtitle + " - " + titulo2
@@ -82,6 +151,7 @@ def mainlist(item):
         if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")
 
         itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , folder=True) )
+        oldid = id
 
     return itemlist
 
