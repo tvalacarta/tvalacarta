@@ -316,19 +316,59 @@ def play(item):
 
     return itemlist
 
-# Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
+# Test de canal
+# Devuelve: Funciona (True/False) y Motivo en caso de que no funcione (String)
 def test():
-    bien = True
     
-    menuitem = mainlist(Item())[0]
-    # El canal tiene estructura programas -> episodios -> play
-    programas_itemlist = programas(menuitem)
-    if len(programas_itemlist)==0:
-        return False
+    # Carga el menu principal
+    items_mainlist = mainlist(Item())
 
-    print "Episodios de "+programas_itemlist[1].tostring()
-    episodios_itemlist = episodios(programas_itemlist[1])
-    if len(episodios_itemlist)==0:
-        return False
+    # Busca un item con la lista de programas
+    items_programas = []
+    for item_mainlist in items_mainlist:
 
-    return bien
+        if item_mainlist.action=="programas_antiguos":
+            items_programas = programas_antiguos(item_mainlist)
+            break
+
+    if len(items_programas)==0:
+        return False,"No hay programas antiguos"
+
+    # Carga los episodios
+    items_episodios = episodios(items_programas[0])
+    if len(items_episodios)==0:
+        return False,"No hay episodios en programa antiguo "+items_programas[0].title
+
+    # Lee la URL del vídeo
+    item_episodio = detalle_episodio(items_episodios[0])
+    if item_episodio.media_url=="":
+        return False,"El conector no devuelve enlace para el vídeo "+item_episodio.title
+
+
+    # Busca un item con la lista de programas
+    items_programas = []
+    for item_mainlist in items_mainlist:
+
+        if item_mainlist.action=="programas":
+            items_programas = programas(item_mainlist)
+            break
+
+    if len(items_programas)==0:
+        return False,"No hay programas nuevos"
+
+    # Carga las temporadas
+    items_temporadas = temporadas(items_programas[0])
+    if len(items_temporadas)==0:
+        return False,"No hay temporadas en programa nuevo "+items_programas[0].title
+    
+    # Carga los episodios
+    items_episodios = videos(items_temporadas[0])
+    if len(items_episodios)==0:
+        return False,"No hay episodios en temporada "+items_temporadas[0].title+" de programa nuevo "+items_programas[0].title
+
+    # Lee la URL del vídeo
+    item_episodio = detalle_episodio(items_episodios[0])
+    if item_episodio.media_url=="":
+        return False,"El conector no devuelve enlace para el vídeo "+item_episodio.title
+
+    return True,""
