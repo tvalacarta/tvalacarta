@@ -33,9 +33,12 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     video_urls = []
     if 'formats' in result:
         for entry in result['formats']:
+            logger.info("entry="+repr(entry))
             if 'http' in entry['format']:
                 video_urls.append([safe_unicode(entry['format']).encode('utf-8'), safe_unicode(entry['url']).encode('utf-8')])
-                logger.info('Append: {}'.format(entry['url']))
+                #logger.info('Append: {}'.format(entry['url']))
+
+    video_urls.reverse()
 
     return video_urls
 

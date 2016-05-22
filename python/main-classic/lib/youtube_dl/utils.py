@@ -990,7 +990,7 @@ def parse_iso8601(date_str, delimiter='T', timezone=None):
         date_format = '%Y-%m-%d{0}%H:%M:%S'.format(delimiter)
         dt = datetime.datetime.strptime(date_str, date_format) - timezone
         return calendar.timegm(dt.timetuple())
-    except ValueError:
+    except:
         pass
 
 
