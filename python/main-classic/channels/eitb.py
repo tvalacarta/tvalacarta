@@ -6,7 +6,6 @@
 #------------------------------------------------------------
 import urlparse,re
 import urllib
-import collections
 
 from core import logger
 from core import scrapertools
@@ -100,10 +99,10 @@ def categorias(item):
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 
-    counter = collections.Counter(matches)
+    unique_matches = list(set(matches))
 
-    for categoria in sorted(counter.keys()):
-        itemlist.append( Item(channel=CHANNELNAME, title='{0} ({1})'.format(categoria, counter[categoria]), action="programas", category="categoria", url="?category="+categoria, folder=True) )
+    for categoria in sorted(unique_matches):
+        itemlist.append( Item(channel=CHANNELNAME, title='{0} ({1})'.format(categoria, matches.count(categoria)), action="programas", category="categoria", url="?category="+categoria, folder=True) )
 
     return itemlist
 
