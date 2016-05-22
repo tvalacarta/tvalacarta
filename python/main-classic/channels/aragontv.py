@@ -221,18 +221,23 @@ def play(item):
 
     return itemlist
 
-# Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
+# Test de canal
+# Devuelve: Funciona (True/False) y Motivo en caso de que no funcione (String)
 def test():
     
+    items_mainlist = mainlist(Item())
+    items_programas = programas(items_mainlist[2])
+
     # El canal tiene estructura programas -> episodios -> play
-    items_programas = mainlist(Item())
     if len(items_programas)==0:
-        print "No hay programas"
-        return False
+        return False,"No hay programas"
 
     items_episodios = episodios(items_programas[0])
     if len(items_episodios)==0:
-        print "No hay episodios"
-        return False
+        return False,"No hay episodios en "+items_programas[0].title
 
-    return True
+    item_episodio = detalle_episodio(items_episodios[0])
+    if item_episodio.media_url=="":
+        return False,"El conector no devuelve enlace para el vídeo "+item_episodio.title
+
+    return True,""

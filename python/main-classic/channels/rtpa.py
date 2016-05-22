@@ -180,22 +180,32 @@ def play(item):
 
     return itemlist
 
+# Test de canal
+# Devuelve: Funciona (True/False) y Motivo en caso de que no funcione (String)
 def test():
+    
+    # Carga el menu principal
+    items_mainlist = mainlist(Item())
 
-    # Al entrar sale una lista de categorias
-    categorias_items = mainlist(Item())
-    if len(categorias_items)==0:
-        print "No devuelve categorias"
-        return False
+    # Busca el item con la lista de programas
+    items_programas = []
+    for item_mainlist in items_mainlist:
 
-    programas_items = programas(categorias_items[-1])
-    if len(programas_items)==0:
-        print "No devuelve programas en "+categorias_items[0]
-        return False
+        if item_mainlist.action=="programas":
+            items_programas = programas(item_mainlist)
+            break
 
-    episodios_items = episodios(programas_items[0])
-    if len(episodios_items)==1:
-        print "No devuelve videos en "+programas_items[0].title
-        return False
+    if len(items_programas)==0:
+        return False,"No hay programas"
 
-    return True
+    # Carga los episodios
+    items_episodios = episodios(items_programas[0])
+    if len(items_episodios)==0:
+        return False,"No hay episodios en "+items_programas[0].title
+
+    # Lee la URL del vídeo
+    item_episodio = detalle_episodio(items_episodios[0])
+    if item_episodio.media_url=="":
+        return False,"El conector no devuelve enlace para el vídeo "+item_episodio.title
+
+    return True,""

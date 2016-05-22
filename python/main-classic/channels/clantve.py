@@ -123,3 +123,47 @@ def play(item):
 
     return itemlist
 
+def detalle_episodio(item):
+
+    item.geolocked = "1"
+
+    try:
+        from servers import rtve as servermodule
+        video_urls = servermodule.get_video_url(item.url)
+        item.media_url = video_urls[-1][1]
+    except:
+        import traceback
+        print traceback.format_exc()
+        item.media_url = ""
+
+    return item
+
+# Test de canal
+# Devuelve: Funciona (True/False) y Motivo en caso de que no funcione (String)
+def test():
+    
+    # Carga el menu principal
+    items_mainlist = mainlist(Item())
+
+    # Busca el item con la lista de programas
+    items_programas = []
+    for item_mainlist in items_mainlist:
+
+        if item_mainlist.action=="programas":
+            items_programas = programas(item_mainlist)
+            break
+
+    if len(items_programas)==0:
+        return False,"No hay programas"
+
+    # Carga los episodios
+    items_episodios = episodios(items_programas[0])
+    if len(items_episodios)==0:
+        return False,"No hay episodios en "+items_programas[0].title
+
+    # Lee la URL del vídeo
+    #item_episodio = detalle_episodio(items_episodios[0])
+    #if item_episodio.media_url=="":
+    #    return False,"El conector no devuelve enlace para el vídeo "+item_episodio.title
+
+    return True,""
