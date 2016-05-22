@@ -530,10 +530,7 @@ class YoutubeDL(object):
         else:
             if self.params.get('no_warnings'):
                 return
-            if not self.params.get('no_color') and self._err_file.isatty() and compat_os_name != 'nt':
-                _msg_header = '\033[0;33mWARNING:\033[0m'
-            else:
-                _msg_header = 'WARNING:'
+            _msg_header = 'WARNING:'
             warning_message = '%s %s' % (_msg_header, message)
             self.to_stderr(warning_message)
 

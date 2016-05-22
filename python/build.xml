@@ -28,13 +28,13 @@
 <project name="tvalacarta" default="package">
 	<description>tvalacarta</description>
 
-    <property name="oldversion" value="3.9.99"/>
-    <property name="oldversionboxee" value="10.10"/>
+    <property name="oldversion" value="4.0.0"/>
+    <property name="oldversionboxee" value="10.11"/>
     <property name="oldversiondate" value="19/03/2015"/>
 
-    <property name="version" value="4.0.0"/>
-    <property name="versionboxee" value="4.0.0"/>
-    <property name="versiondate" value="22/02/2016"/>
+    <property name="version" value="4.0.1"/>
+    <property name="versionboxee" value="10.12"/>
+    <property name="versiondate" value="23/05/2016"/>
     <property name="versionchanges" value="Nueva versión"/>
 
     <property name="target" value="../../target/python"/>
