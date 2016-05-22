@@ -148,7 +148,9 @@ def play(item,page_data=""):
     logger.info("tvalacarta.channels.rtva play")
 
     itemlist = []
-    itemlist.append( Item(channel=CHANNELNAME, title=item.title , action="play" , server="directo" , url=item.extra, thumbnail=item.thumbnail, plot=item.plot , show=item.show , folder=False) )
+
+    if item.extra<>"":
+        itemlist.append( Item(channel=CHANNELNAME, title=item.title , action="play" , server="directo" , url=item.extra, thumbnail=item.thumbnail, plot=item.plot , show=item.show , folder=False) )
 
     return itemlist
 

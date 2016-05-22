@@ -108,8 +108,10 @@ def parse_itemlist_from_response(json_response, viewmode="", channel="", context
 
             if 'id' in entry:
                 item.id = str(entry['id'])
+                item.uid = str(entry['id'])
             else:
                 item.id = ""
+                item.uid = ""
 
             item.is_favorite = "false"
             if 'is_favorite' in entry and entry['is_favorite']=="1":
@@ -127,24 +129,31 @@ def parse_itemlist_from_response(json_response, viewmode="", channel="", context
 def get_itemlist(service_url,parameters,channel="",viewmode="",folder=True):
     plugintools.log("tvalacarta.api.get_itemlist service_url="+service_url+", parameters="+repr(parameters))
 
+    json_response = get_response(service_url,parameters)
+
+    itemlist = parse_itemlist_from_response(json_response,viewmode=viewmode,channel=channel,folder=folder)
+
+    return itemlist
+
+def get_response(service_url,parameters):
+    plugintools.log("tvalacarta.api.get_response service_url="+service_url+", parameters="+repr(parameters))
+
     # Service call
     service_parameters = urllib.urlencode(parameters)
-    plugintools.log("tvalacarta.api.get_json_response parameters="+service_parameters)
+    plugintools.log("tvalacarta.api.get_response parameters="+service_parameters)
 
     try:
         body, response_headers = read( service_url , service_parameters )
     except:
         import traceback
-        plugintools.log("tvalacarta.api.get_json_response "+traceback.format_exc())
+        plugintools.log("tvalacarta.api.get_response "+traceback.format_exc())
 
     json_response = plugintools.load_json(body)
 
     if json_response["error"] and json_response["error_code"]=="403":
         config.set_setting("account_session","")
 
-    itemlist = parse_itemlist_from_response(json_response,viewmode=viewmode,channel=channel,folder=folder)
-
-    return itemlist
+    return json_response
 
 def read( url="" , post="" ):
     plugintools.log("tvalacarta.api.read url="+url+", post="+repr(post))
@@ -376,3 +385,14 @@ def remove_from_hidden(id):
 
     get_itemlist(service_url,service_parameters)
 
+# ---------------------------------------------------------------------------------------------------------
+#  video service calls
+# ---------------------------------------------------------------------------------------------------------
+
+def videos_get_media_url(id):
+    plugintools.log("tvalacarta.api.get_media_url")
+
+    service_url = MAIN_URL+"/videos/get_media_url.php"
+    service_parameters = {"id":id,"s":get_session_token(),"api_key":API_KEY}
+
+    return get_response(service_url,service_parameters)

@@ -129,7 +129,20 @@ def play(item):
 
     exec "from channels import "+item.extra+" as channelmodule"
 
-    return channelmodule.play(item)
+    play_items = channelmodule.play(item)
+
+    valid_url = False
+    for play_item in play_items:
+        if play_item.server=="directo" and play_item.url.startswith("http"):
+            valid_url = True
+        if play_item.server<>"directo":
+            valid_url = True
+
+    if not valid_url:
+        response = api.videos_get_media_url(item.uid)
+        play_items = [Item(channel=item.channel, server="directo", url=response["body"])]
+
+    return play_items
 
 def mark_as_watched(item):
     logger.info("tvalacarta.channels.api_programas mark_as_watched item="+repr(item))
