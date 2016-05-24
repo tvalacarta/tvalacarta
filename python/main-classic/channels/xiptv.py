@@ -156,7 +156,11 @@ def episodios(item):
 
     # Descarga la página
     data = scrapertools.cache_page(item.url)
-    data = scrapertools.find_single_match(data,'(<li[^<]+<div class="item">.*?<div class="pager">.*?</div>)')
+
+    if item.url=="http://www.xiptv.cat/ben-trobats":
+        data = scrapertools.find_single_match(data,'(<li[^<]+<div class="item">.*?<div class="pager">.*?</div>)',1)
+    else:
+        data = scrapertools.find_single_match(data,'(<li[^<]+<div class="item">.*?<div class="pager">.*?</div>)')
     '''
     <li>
     <div class="item">
