@@ -14,13 +14,21 @@ except:
     from lib import youtube_dl
 
 def get_video_url( page_url , premium = False , user="" , password="", video_password="", page_data="" ):
-    logger.info("tvalacarta.server.rtve get_video_url(page_url='%s')" % page_url)
+    logger.info("tvalacarta.server.rtve get_video_url page_url"+page_url)
 
     ydl = youtube_dl.YoutubeDL({'outtmpl': u'%(id)s%(ext)s'})
     result = ydl.extract_info(page_url, download=False)
-    
+    logger.info("tvalacarta.server.rtve get_video_url result="+repr(result))
+
     video_urls = []
-    video_urls.append(["."+scrapertools.safe_unicode(result['ext']).encode('utf-8')+" [rtve]", scrapertools.safe_unicode(result['url']).encode('utf-8')])
+    if "ext" in result and "url" in result:
+        video_urls.append(["."+scrapertools.safe_unicode(result['ext']).encode('utf-8')+" [rtve]", scrapertools.safe_unicode(result['url']).encode('utf-8')])
+    else:
+
+        if "entries" in result:
+            for entry in result["entries"]:
+                video_urls.append(["."+scrapertools.safe_unicode(entry['ext']).encode('utf-8')+" [rtve]", scrapertools.safe_unicode(entry['url']).encode('utf-8')])
+
 
     return video_urls
 

@@ -99,7 +99,7 @@ def destacados(item):
             #http://www.rtve.es/alacarta/videos/cocina-con-sergio/cocina-sergio-quiche-cebolla-queso-curado/1814210/
             episodio = scrapertools.get_match(url,'http\://www.rtve.es/alacarta/videos/[^\/]+/([^\/]+)/')
             logger.info("es episodio")
-            itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="descargavideos" , url=url, thumbnail=thumbnail, plot=plot, fanart=thumbnail, folder=False) )
+            itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="rtve" , url=url, thumbnail=thumbnail, plot=plot, fanart=thumbnail, folder=False) )
         except:
             logger.info("es serie")
             itemlist.append( Item(channel=CHANNELNAME, title=title , action="episodios" , url=url, thumbnail=thumbnail, plot=plot, fanart=thumbnail, folder=True) )
@@ -271,7 +271,7 @@ def get_episodios(item,recursion):
         scrapedextra = match[2]
         
         if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , server="descargavideos" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , show=item.show, category = item.category, extra=scrapedextra, folder=False) )
+        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , server="rtve" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , show=item.show, category = item.category, extra=scrapedextra, folder=False) )
 
     # Paginación
 
@@ -342,7 +342,7 @@ def get_episodios_documentales(item,recursion):
         thumbnail = scrapedthumbnail
         
         if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-        itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="descargavideos" , url=url, thumbnail=thumbnail, plot=plot , show=item.show, category = item.category, fanart=thumbnail, viewmode="movie_with_plot", folder=False) )
+        itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="rtve" , url=url, thumbnail=thumbnail, plot=plot , show=item.show, category = item.category, fanart=thumbnail, viewmode="movie_with_plot", folder=False) )
 
     # Items
     '''
@@ -385,7 +385,7 @@ def get_episodios_documentales(item,recursion):
         thumbnail = scrapedthumbnail
         
         if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-        itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="descargavideos" , url=url, thumbnail=thumbnail, plot=plot , show=item.show, category = item.category, fanart=thumbnail, viewmode="movie_with_plot", folder=False) )
+        itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="rtve" , url=url, thumbnail=thumbnail, plot=plot , show=item.show, category = item.category, fanart=thumbnail, viewmode="movie_with_plot", folder=False) )
 
     # Paginación
 
