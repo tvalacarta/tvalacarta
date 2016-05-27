@@ -128,7 +128,7 @@ def loadprogram(item):
         data = data.replace("\\\"","")
 
         # Trabajamos con un subconjunto de la página, ya que hay muchos <li> previamente a los que nos interesan
-        patron = '<div class="span9">(.*?)<footer class="container-fluid L-bottomContainer">'
+        patron = '<div class="span9">(.*?)<footer class='
         subpage = re.compile(patron,re.DOTALL).findall(data)
 
         # --------------------------------------------------------
