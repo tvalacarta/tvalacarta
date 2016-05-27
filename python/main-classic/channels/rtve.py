@@ -25,11 +25,44 @@ def mainlist(item):
     itemlist = []
     
     # El primer nivel de menú es un listado por canales
+    itemlist.append( Item(channel=CHANNELNAME, title="Directos"          , action="loadlives", folder=True))
     itemlist.append( Item(channel=CHANNELNAME, title="Todas las cadenas" , action="canal" , thumbnail = "" , url="http://www.rtve.es/alacarta/tve/", extra="tve"))
     itemlist.append( Item(channel=CHANNELNAME, title="La 1"              , action="canal" , thumbnail = "" , url="http://www.rtve.es/alacarta/tve/la1/", extra="la1"))
     itemlist.append( Item(channel=CHANNELNAME, title="La 2"              , action="canal" , thumbnail = "" , url="http://www.rtve.es/alacarta/tve/la2/", extra="la2"))
     itemlist.append( Item(channel=CHANNELNAME, title="Canal 24 horas"    , action="canal" , thumbnail = "" , url="http://www.rtve.es/alacarta/tve/24-horas/", extra="24-horas"))
     itemlist.append( Item(channel=CHANNELNAME, title="Teledeporte"       , action="canal" , thumbnail = "" , url="http://www.rtve.es/alacarta/tve/teledeporte/", extra="teledeporte"))
+
+    return itemlist
+
+def loadlives(item):
+    logger.info("tvalacarta.channels.rtve play loadlives")
+
+    itemlist = []
+
+    url_la1 = "rtmp://rtvegeofs.fplive.net:1935/rtvegeoargmex-live-live/RTVE_LA1_LV3_WEB_GL7 swfUrl=http://swf.rtve.es/swf/4.3.13/RTVEPlayerVideo.swf pageUrl=http://www.rtve.es/directo/la-1/ live=true swfVfy=true"
+    url_la2 = "rtmp://rtvefs.fplive.net:1935/rtve-live-live/RTVE_LA2_LV3_WEB_GL0 swfUrl=http://swf.rtve.es/swf/4.3.13/RTVEPlayerVideo.swf pageUrl=http://www.rtve.es/directo/la-2/ live=true swfVfy=true"
+    url_tld = "rtmp://rtvegeofs.fplive.net:1935/rtvegeo-live-live/RTVE_TDP_LV3_WEB_GL1 swfUrl=http://swf.rtve.es/swf/4.3.13/RTVEPlayerVideo.swf pageUrl=http://www.rtve.es/directo/teledeporte/ live=true swfVfy=true"
+    url_24h = "rtmp://rtvefs.fplive.net:443/rtve2-live-live/RTVE_24H_LV3_WEB_GL8 swfUrl=http://swf.rtve.es/swf/4.3.13/RTVEPlayerVideo.swf pageUrl=http://www.rtve.es/directo/canal-24h/ live=true swfVfy=true"
+    # Radio
+    url_rne = "http://radio1-fme.rtve.stream.flumotion.com/rtve/radio1.mp3.m3u"
+    url_cls = "http://radioclasica-fme.rtve.stream.flumotion.com/rtve/radioclasica.mp3.m3u"
+    url_rd3 = "http://radio3-fme.rtve.stream.flumotion.com/rtve/radio3.mp3.m3u"
+    url_rd4 = "http://radio4-fme.rtve.stream.flumotion.com/rtve/radio4.mp3.m3u"
+    url_rd5 = "http://radio5-fme.rtve.stream.flumotion.com/rtve/radio5.mp3.m3u"
+    url_rex = "http://radioexterior-fme.rtve.stream.flumotion.com/rtve/radioexterior.mp3.m3u"
+
+    itemlist.append( Item(channel=CHANNELNAME, title="La 1",        action="play", url=url_la1, folder=False) )
+    itemlist.append( Item(channel=CHANNELNAME, title="La 2",        action="play", url=url_la2, folder=False) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Teledeporte", action="play", url=url_tld, folder=False) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Canal 24H",   action="play", url=url_24h, folder=False) )
+
+    # Radio
+    itemlist.append( Item(channel=CHANNELNAME, title="Radio: Radio Nacional", action="play", url=url_rne, folder=False) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Radio: Radio Clásica",  action="play", url=url_cls, folder=False) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Radio: Radio 3",        action="play", url=url_rd3, folder=False) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Radio: Radio 4",        action="play", url=url_rd4, folder=False) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Radio: Radio 5",        action="play", url=url_rd5, folder=False) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Radio: Radio Exterior", action="play", url=url_rex, folder=False) )
 
     return itemlist
 
