@@ -1,10 +1,10 @@
 ﻿# -*- coding: utf-8 -*-
-#------------------------------------------------------------
-# pelisalacarta - XBMC Plugin
-# Canal para http://conectate.gov.ar
-# creado por rsantaella
-# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
-#------------------------------------------------------------
+#------------------------------------------------------------------
+# tvalacarta
+# http://blog.tvalacarta.info/plugin-xbmc/tvalacarta/
+#------------------------------------------------------------------
+# Canal para Telemundo, creado por rsantaella
+#------------------------------------------------------------------
 
 import urlparse,urllib2,urllib,re
 import os, sys
@@ -43,13 +43,15 @@ def mainlist(item):
     '''
     data = scrapertools.cachePage("http://msnlatino.telemundo.com/videos/allprograms/")
     patron  = '<div class="grid-collec[^<]+'
+    patron += '[^0-9]+'
     patron += '<a href="([^"]+)"[^<]+'
     patron += '<span[^<]+'
-    patron += '<img class="[^"]+" data-original="([^"]+)"[^<]+'
-    patron += '<noscript><img[^<]+</noscript[^<]+</span>[^<]+'
-    patron += '<span class="[^"]+">([^<]+)</span>'
+    patron += '<img class="[^"]+"[^0-9]+data-original="([^"]+)"[^<]+'
+    patron += '<noscript><img[^<]+<\/noscript[^<]+<\/span>[^<]+'
+    patron += '<span class="[^"]+">([^<]+)<\/span>'
+
     matches = re.compile(patron,re.DOTALL).findall(data)
-    
+
     for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
         title = scrapertools.htmlclean(scrapedtitle)
         thumbnail = scrapedthumbnail
