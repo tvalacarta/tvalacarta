@@ -24,12 +24,13 @@
 
 class Item(object):
 
-    def __init__(self, channel="", title="", channel_title="", show_title="", url="", page="", thumbnail="", plot="", uid="", duration="", fanart="", action="", server="directo", extra="", show="", category = "" , language = "" , subtitle="" , folder=True, context = "",totalItems = 0, overlay = None, type="", password="", fulltitle="", viewmode="list", aired_date="", size="" ):
+    def __init__(self, channel="", title="", channel_title="", show_title="", url="", media_url="", page="", thumbnail="", plot="", uid="", duration="", fanart="", action="", server="directo", extra="", show="", category = "" , language = "" , subtitle="" , folder=True, context = "",totalItems = 0, overlay = None, type="", password="", fulltitle="", viewmode="list", aired_date="", size="" ):
         self.channel = channel
         self.title = title
         self.channel_title = channel_title
         self.show_title = show_title
         self.url = url
+        self.media_url = media_url
         if page=="":
             self.page = url
         else:
@@ -64,7 +65,6 @@ class Item(object):
         self.aired_date = ""
         self.media_width = 0
         self.media_height = 0
-        self.media_url = ""
         self.geolocked = "0"
         self.is_favorite = "false"
 

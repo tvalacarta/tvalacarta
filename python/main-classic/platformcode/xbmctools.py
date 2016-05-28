@@ -112,7 +112,7 @@ def add_new_folder( item , totalItems=0 ):
             ok = xbmcplugin.addDirectoryItem( handle = pluginhandle, url = itemurl , listitem=listitem, isFolder=True, totalItems=totalItems)
     return ok
 
-def addnewvideo( canal , accion , category , server , title , url , thumbnail, plot , uid, Serie="",duration="",fanart="",IsPlayable='false',context = "", subtitle="", viewmode="", totalItems = 0, show="", password="", extra="",fulltitle="", size=""):
+def addnewvideo( canal , accion , category , server , title , url , media_url, thumbnail, plot , uid, Serie="",duration="",fanart="",IsPlayable='false',context = "", subtitle="", viewmode="", totalItems = 0, show="", password="", extra="",fulltitle="", size=""):
     contextCommands = []
     ok = False
     try:
@@ -172,8 +172,25 @@ def addnewvideo( canal , accion , category , server , title , url , thumbnail, p
     except:
         pass
     
-    itemurl = '%s?channel=%s&action=%s&category=%s&title=%s&fulltitle=%s&url=%s&thumbnail=%s&plot=%s&uid=%s&server=%s&Serie=%s&subtitle=%s&show=%s&viewmode=%s&extradata=%s' % ( sys.argv[ 0 ] , canal , accion , urllib.quote_plus( category ) , urllib.quote_plus( title ) , urllib.quote_plus( fulltitle ) , urllib.quote_plus( url ) , urllib.quote_plus( thumbnail ) , urllib.quote_plus( plot ) , uid , server , Serie , urllib.quote_plus(subtitle), urllib.quote_plus( show ) ,urllib.quote_plus(viewmode),  urllib.quote_plus(extra) )
+    itemurl = sys.argv[ 0 ]+"?"
+    itemurl = itemurl + "channel="+canal+"&"
+    itemurl = itemurl + "action="+accion+"&"
+    itemurl = itemurl + "category="+urllib.quote_plus( category )+"&"
+    itemurl = itemurl + "title="+urllib.quote_plus( title )+"&"
+    itemurl = itemurl + "fulltitle="+urllib.quote_plus( fulltitle )+"&"
+    itemurl = itemurl + "url="+urllib.quote_plus( url )+"&"
+    itemurl = itemurl + "media_url="+urllib.quote_plus( media_url )+"&"
+    itemurl = itemurl + "thumbnail="+urllib.quote_plus( thumbnail )+"&"
+    itemurl = itemurl + "plot="+urllib.quote_plus( plot )+"&"
+    itemurl = itemurl + "uid="+uid+"&"
+    itemurl = itemurl + "server="+server+"&"
+    itemurl = itemurl + "Serie="+Serie+"&"
+    itemurl = itemurl + "subtitle="+urllib.quote_plus(subtitle)+"&"
+    itemurl = itemurl + "show="+urllib.quote_plus( show )+"&"
+    itemurl = itemurl + "viewmode="+urllib.quote_plus(viewmode)+"&"
+    itemurl = itemurl + "extradata="+urllib.quote_plus(extra)
     #logger.info("[xbmctools.py] itemurl=%s" % itemurl)
+    
     if totalItems == 0:
         ok = xbmcplugin.addDirectoryItem( handle = pluginhandle, url=itemurl, listitem=listitem, isFolder=False)
     else:
@@ -773,6 +790,7 @@ def renderItems(itemlist, params, url, category,isPlayable='false'):
 
     if itemlist <> None:
         for item in itemlist:
+            #logger.info("renderItems item="+item.title+", media_url="+item.media_url)
             
             if item.category == "":
                 item.category = category
@@ -796,9 +814,9 @@ def renderItems(itemlist, params, url, category,isPlayable='false'):
                     isPlayable = "true"
 
                 if item.duration:
-                    addnewvideo( item.channel , item.action , item.category , item.server, item.title , item.url , item.thumbnail , item.plot , item.uid,  "" ,  duration = item.duration , fanart = item.fanart, IsPlayable=isPlayable,context = item.context , subtitle=item.subtitle, totalItems = len(itemlist), show=item.show, password = item.password, extra = item.extra, fulltitle=item.fulltitle, size=item.size )
+                    addnewvideo( item.channel , item.action , item.category , item.server, item.title , item.url , item.media_url , item.thumbnail , item.plot , item.uid,  "" ,  duration = item.duration , fanart = item.fanart, IsPlayable=isPlayable,context = item.context , subtitle=item.subtitle, totalItems = len(itemlist), show=item.show, password = item.password, extra = item.extra, fulltitle=item.fulltitle, size=item.size )
                 else:    
-                    addnewvideo( item.channel , item.action , item.category , item.server, item.title , item.url , item.thumbnail , item.plot, item.uid, fanart = item.fanart, IsPlayable=isPlayable , context = item.context , subtitle = item.subtitle , totalItems = len(itemlist), show=item.show , password = item.password , extra=item.extra, fulltitle=item.fulltitle, size=item.size )
+                    addnewvideo( item.channel , item.action , item.category , item.server, item.title , item.url , item.media_url , item.thumbnail , item.plot, item.uid, fanart = item.fanart, IsPlayable=isPlayable , context = item.context , subtitle = item.subtitle , totalItems = len(itemlist), show=item.show , password = item.password , extra=item.extra, fulltitle=item.fulltitle, size=item.size )
             if item.viewmode!="list":
                 viewmode = item.viewmode
 

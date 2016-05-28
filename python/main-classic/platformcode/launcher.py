@@ -18,7 +18,7 @@ def run():
     config.verify_directories_created()
     
     # Extract parameters from sys.argv
-    params, channel_name, title, channel_title, show_title, fulltitle, url, thumbnail, plot, uid, action, server, extra, subtitle, category, show, password = extract_parameters()
+    params, channel_name, title, channel_title, show_title, fulltitle, url, media_url, thumbnail, plot, uid, action, server, extra, subtitle, category, show, password = extract_parameters()
     logger.info("[launcher.py] channel_name=%s, title=%s, fulltitle=%s, url=%s, thumbnail=%s, plot=%s, action=%s, server=%s, extra=%s, subtitle=%s, category=%s, show=%s, password=%s" % (channel_name, title, fulltitle, url, thumbnail, plot, action, server, extra, subtitle, category, show, password))
 
     if action=="":
@@ -118,7 +118,7 @@ def run():
             else:            
                 logger.info("[launcher.py] multiplatform channel")
                 from core.item import Item
-                item = Item(channel=channel_name, title=title , channel_title=channel_title , show_title=show_title , fulltitle=fulltitle, url=url, thumbnail=thumbnail , plot=plot , uid=uid, server=server, category=category, extra=extra, subtitle=subtitle, show=show, password=password)
+                item = Item(channel=channel_name, title=title , channel_title=channel_title , show_title=show_title , fulltitle=fulltitle, url=url, media_url=media_url, thumbnail=thumbnail , plot=plot , uid=uid, server=server, category=category, extra=extra, subtitle=subtitle, show=show, password=password)
                 
                 '''
                 if item.subtitle!="":
@@ -335,6 +335,7 @@ def run():
                     logger.info("[launcher.py] executing channel '"+action+"' method")
                     if action!="findvideos":
                         exec "itemlist = channel."+action+"(item)"
+
                     else:
                         # Intenta ejecutar una posible funcion "findvideos" del canal
                         try:
@@ -430,6 +431,12 @@ def extract_parameters():
     else:
         url=''
 
+    # Extrae la url de la página
+    if (params.has_key("media_url")):
+        media_url = urllib.unquote_plus( params.get("media_url") )
+    else:
+        media_url=''
+
     # Extrae la accion
     if (params.has_key("action")):
         action = params.get("action")
@@ -519,7 +526,7 @@ def extract_parameters():
         else:
             show = ""
 
-    return params, channel, title, channel_title, show_title, fulltitle, url, thumbnail, plot, uid, action, server, extra, subtitle, category, show, password
+    return params, channel, title, channel_title, show_title, fulltitle, url, media_url, thumbnail, plot, uid, action, server, extra, subtitle, category, show, password
 
 def download_all_episodes(item,channel=None,first_episode="", silent=False):
     logger.info("[launcher.py] download_all_episodes, show="+item.show+" item="+item.tostring())
