@@ -530,7 +530,10 @@ class YoutubeDL(object):
         else:
             if self.params.get('no_warnings'):
                 return
-            _msg_header = 'WARNING:'
+            if not self.params.get('no_color') and self._err_file.isatty() and compat_os_name != 'nt':
+                _msg_header = '\033[0;33mWARNING:\033[0m'
+            else:
+                _msg_header = 'WARNING:'
             warning_message = '%s %s' % (_msg_header, message)
             self.to_stderr(warning_message)
 
@@ -1219,6 +1222,10 @@ class YoutubeDL(object):
             raise ExtractorError('Missing "id" field in extractor result')
         if 'title' not in info_dict:
             raise ExtractorError('Missing "title" field in extractor result')
+
+        if not isinstance(info_dict['id'], compat_str):
+            self.report_warning('"id" field is not a string - forcing string conversion')
+            info_dict['id'] = compat_str(info_dict['id'])
 
         if 'playlist' not in info_dict:
             # It isn't part of a playlist
