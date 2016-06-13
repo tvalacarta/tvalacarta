@@ -230,9 +230,8 @@ class FileDownloader(object):
                 if prev_len > len(fullmsg):
                     fullmsg += ' ' * (prev_len - len(fullmsg))
                 self._report_progress_prev_line_length = len(fullmsg)
-                clear_line = '\r'
-            else:
-                clear_line = ('\r\x1b[K' if sys.stderr.isatty() else '\r')
+
+            clear_line = '\r'
             self.to_screen(clear_line + fullmsg, skip_eol=not is_last_line)
         self.to_console_title('youtube-dl ' + msg)
 
