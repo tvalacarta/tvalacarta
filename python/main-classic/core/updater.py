@@ -186,8 +186,7 @@ def checkforupdates(plugin_mode=True):
             yes_pressed = xbmcgui.Dialog().yesno( "Versión "+tag_publicada+" disponible" , "¿Quieres instalarla?" )
 
             if yes_pressed:
-                params = {"version":tag_publicada}
-                update(params)
+                update( Item(version=tag_publicada) )
 
     '''
     except:
@@ -196,11 +195,11 @@ def checkforupdates(plugin_mode=True):
         for line in sys.exc_info():
             logger.error( "%s" % line )
     '''
-def update(params):
+def update(item):
     # Descarga el ZIP
     logger.info("tvalacarta.core.updater update")
-    remotefilename = REMOTE_FILE+params.get("version")+".zip"
-    localfilename = LOCAL_FILE+params.get("version")+".zip"
+    remotefilename = REMOTE_FILE+item.version+".zip"
+    localfilename = LOCAL_FILE+item.version+".zip"
     logger.info("tvalacarta.core.updater remotefilename=%s" % remotefilename)
     logger.info("tvalacarta.core.updater localfilename=%s" % localfilename)
     logger.info("tvalacarta.core.updater descarga fichero...")

@@ -115,7 +115,17 @@ def _write_suscription_file(itemlist):
         f.write("  <action>"+item.action+"</action>\n")
         f.write("  <url>"+item.url+"</url>\n")
         f.write("  <extra>"+item.extra+"</extra>\n")
-        f.write("  <show_name>"+item.show+"</show_name>\n")
+
+        # API saves program name in "item.show_title"
+        if item.show_title<>"":
+            f.write("  <show_name>"+item.show_title+"</show_name>\n")
+        # Channels save program name in "item.show"
+        elif item.show<>"":
+            f.write("  <show_name>"+item.show+"</show_name>\n")
+        # Rest of cases
+        else:
+            f.write("  <show_name>"+item.title+"</show_name>\n")
+
         f.write("  <thumbnail>"+item.thumbnail+"</thumbnail>\n")
         f.write("</suscription>\n")
 

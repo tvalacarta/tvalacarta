@@ -7,12 +7,13 @@
 import urllib
 import os
 import sys
-import downloadtools
-import config
-import logger
-import samba
-import api
-from item import Item
+
+from core import downloadtools
+from core import config
+from core import logger
+from core import samba
+from core import api
+from core.item import Item
 
 CHANNELNAME = "favoritos"
 DEBUG = True
@@ -34,15 +35,10 @@ def mainlist(item):
     logger.info("tvalacarta.core.favoritos mainlist")
     itemlist=[]
 
-    itemlist.append( Item(channel=CHANNELNAME, action="get_all_programs" , title="Programas"))
-    itemlist.append( Item(channel=CHANNELNAME, action="get_all_videos" , title="Vídeos"))
+    itemlist.append( Item(channel="api_programas", action="get_favorite_programs" , title="Programas", view="programs"))
+    itemlist.append( Item(channel=CHANNELNAME, action="get_all_videos" , title="Vídeos", view="videos"))
 
     return itemlist
-
-def get_all_programs(item):
-    logger.info("tvalacarta.core.favoritos get_all_programs")
-
-    return api.get_favorite_programs(item,viewmode="series",channel="api_programas",context="program")
 
 def get_all_videos(item):
     logger.info("tvalacarta.core.favoritos get_all_videos")

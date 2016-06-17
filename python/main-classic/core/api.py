@@ -1,8 +1,6 @@
 #------------------------------------------------------------
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# Client for api.tvalacarta.info
-#------------------------------------------------------------
 # tvalacarta 4
 # Copyright 2015 tvalacarta@gmail.com
 #
@@ -24,6 +22,8 @@
 # You should have received a copy of the GNU General Public License
 # along with tvalacarta 4.  If not, see <http://www.gnu.org/licenses/>.
 #------------------------------------------------------------
+# Client for api.tvalacarta.info
+#------------------------------------------------------------
 
 import os
 import sys
@@ -34,154 +34,203 @@ import config
 
 import urllib
 from item import Item
+from exceptions import UserException
+from exceptions import InvalidAuthException
 
-MAIN_URL = "https://api.tvalacarta.info"
-API_KEY = "nzp4SYUe9McbS4V"
-
+MAIN_URL = "https://api.tvalacarta.info/v2"
+API_KEY = "26h4yt45Cuzr8HX"
 DEFAULT_HEADERS = [ ["User-Agent",config.PLUGIN_NAME+" "+config.PLATFORM_NAME] ]
 
 # ---------------------------------------------------------------------------------------------------------
-#  responses
+#  Common function for API calls
 # ---------------------------------------------------------------------------------------------------------
 
-def parse_itemlist_from_response(json_response, viewmode="", channel="", context="", title_field="title", folder=True):
-    plugintools.log("tvalacarta.api.parse_itemlist_from_response context="+context)
+# Make a remote call using post, ensuring api key is here
+def remote_call(url,parameters={}):
+    plugintools.log("tvalacarta.core.api.remote_call url="+url+", parameters="+repr(parameters))
 
-    itemlist = []
-    if not json_response['error']:
-        for entry in json_response['body']:
+    if not url.startswith("http"):
+        url = MAIN_URL + "/" + url
 
-            plugintools.log("entry="+repr(entry))
-            
-            item = Item(title = entry[title_field])
+    if not "api_key" in parameters:
+        parameters["api_key"] = API_KEY
 
-            # TODO: Adaptarlo a clase item
-            if 'plot' in entry:
-                item.plot = entry['plot']
-
-            if 'thumbnail' in entry and entry['thumbnail'] is not None and entry['thumbnail']<>"":
-                item.thumbnail = entry['thumbnail']
-
-            if 'fanart' in entry and entry['fanart'] is not None and entry['fanart']<>"":
-                item.fanart = entry['fanart']
-            else:
-                item.fanart = item.thumbnail
-
-            if 'action' in entry:
-                item.action = entry['action']
-            else:
-                item.action = "play"
-
-            if 'url' in entry:
-                item.url = entry['url']
-            elif 'id' in entry:
-                item.url = entry['id']
-            else:
-                item.url = entry['title']
-
-            item.folder = folder
-            item.viewmode = viewmode
-            item.channel = channel
-
-            if 'channel_name' in entry:
-                item.category = entry['channel_name']
-
-            if 'channel_title' in entry:
-                item.channel_title = entry['channel_title']
-
-            if 'show_title' in entry:
-                item.show_title = entry['show_title']
-
-            if 'channel_id' in entry:
-                item.extra = entry['channel_id']
-            else:
-                item.extra = "sinchannel"
-
-            if 'updated_date' in entry:
-                item.date = entry['updated_date']
-            elif 'episode_date' in entry:
-                item.date = entry['episode_date']
-            else:
-                item.date = "2016"
-
-            item.context = context
-
-            if 'id' in entry:
-                item.id = str(entry['id'])
-                item.uid = str(entry['id'])
-            else:
-                item.id = ""
-                item.uid = ""
-
-            item.is_favorite = "false"
-            if 'is_favorite' in entry and entry['is_favorite']=="1":
-                item.is_favorite = "true"
-
-            if item.is_favorite == "true":
-                item.title = "[COLOR yellow]" + item.title + "[/COLOR]"
-
-            plugintools.log("item="+repr(item))
-
-            itemlist.append( item )
-
-    return itemlist
-
-def get_itemlist(service_url,parameters,channel="",viewmode="",folder=True):
-    plugintools.log("tvalacarta.api.get_itemlist service_url="+service_url+", parameters="+repr(parameters))
-
-    json_response = get_response(service_url,parameters)
-
-    itemlist = parse_itemlist_from_response(json_response,viewmode=viewmode,channel=channel,folder=folder)
-
-    return itemlist
-
-def get_response(service_url,parameters):
-    plugintools.log("tvalacarta.api.get_response service_url="+service_url+", parameters="+repr(parameters))
-
-    # Service call
-    service_parameters = urllib.urlencode(parameters)
-    plugintools.log("tvalacarta.api.get_response parameters="+service_parameters)
-
-    try:
-        body, response_headers = read( service_url , service_parameters )
-    except:
-        import traceback
-        plugintools.log("tvalacarta.api.get_response "+traceback.format_exc())
-
-    json_response = plugintools.load_json(body)
-
-    if json_response["error"] and json_response["error_code"]=="403":
-        config.set_setting("account_session","")
-
-    return json_response
-
-def read( url="" , post="" ):
-    plugintools.log("tvalacarta.api.read url="+url+", post="+repr(post))
+    # Add session token if not here
+    if not "s" in parameters:
+        parameters["s"] = get_session_token()
 
     headers = DEFAULT_HEADERS
+    post = urllib.urlencode(parameters)
 
-    return plugintools.read_body_and_headers(url,post,headers)
+    response_body,response_headers = plugintools.read_body_and_headers(url,post,headers)
 
-# ---------------------------------------------------------------------------------------------------------
-#  common service calls
-# ---------------------------------------------------------------------------------------------------------
+    return jsontools.load_json(response_body)
 
-def get_itemlist_from_item(item, viewmode="", channel="", context="", title_field="title", folder=True):
-    plugintools.log("tvalacarta.api.get_itemlist_from_item item="+repr(item)+", context="+context)
+# Make a remote call for loading next items
+def get_items(item):
+    plugintools.log("tvalacarta.core.api.get_items item="+item.tostring())
 
-    body , response_headers = read( item.url )
-    json_response = plugintools.load_json(body)
+    # Break the GET URL for building a POST request
+    plugintools.log("item.url="+item.url)
+    parameters = {}
+    if "?" in item.url:
+        plugintools.log("item.url.split="+repr(item.url.split("?")))
+        url = item.url.split("?")[0]
+        parameter_list = urlparse.parse_qsl( item.url.split("?")[1] )
+        for parameter in parameter_list:
+            parameters[parameter[0]] = parameter[1]
 
+        plugintools.log("parameters="+repr(parameters))
+    else:
+        url = item.url
+
+    # Make the call
+    json_response = remote_call( url , parameters )
+
+    # Treat invalid data error
+    if json_response["error"] and json_response["error_code"]=="400":
+        raise UserException(json_response["error_message"])
+
+    # Treat invalid authorization error
     if json_response["error"] and json_response["error_code"]=="403":
-        config.set_setting("account_session","")
+        raise InvalidAuthException(json_response["error_message"])
 
-    return parse_itemlist_from_response(json_response,folder=folder,viewmode=viewmode,channel=channel,context=context,title_field=title_field)
+    return parse_itemlist_from_response(json_response)
+
+def remote_call_and_get_items(url,parameters={}):
+    plugintools.log("tvalacarta.core.api.remote_call_and_get_items url="+url+", parameters="+repr(parameters))
+    
+    json_response = remote_call(url,parameters)
+
+    # Treat invalid data error
+    if json_response["error"] and json_response["error_code"]=="400":
+        raise UserException(json_response["error_message"])
+
+    # Treat invalid authorization error
+    if json_response["error"] and json_response["error_code"]=="403":
+        raise InvalidAuthException(json_response["error_message"])
+
+    return parse_itemlist_from_response(json_response)
+
+# Parse the response JSON as a list if items
+def parse_itemlist_from_response(json_response):
+    plugintools.log("tvalacarta.core.api.parse_itemlist_from_response")
+
+    itemlist = []
+    for entry in json_response['body']:
+
+        plugintools.log("tvalacarta.core.api.parse_itemlist_from_response entry="+repr(entry))
+        
+        item = Item()
+
+        if "item_type" in entry:
+            item.item_type = entry['item_type']
+
+        if "title" in entry:
+            item.title = entry['title']
+
+        if "url" in entry:
+            item.url = entry['url']
+
+        if "id" in entry:
+            item.id = entry['id']
+
+        if "thumbnail" in entry:
+            item.thumbnail = entry['thumbnail']
+
+        if "plot" in entry:
+            item.plot = entry['plot']
+
+        if "category" in entry:
+            item.category = entry['category']
+
+        if "fanart" in entry:
+            item.fanart = entry['fanart']
+
+        if "action" in entry:
+            item.action = entry['action']
+
+        if "view" in entry:
+            item.view = entry['view']            
+
+        if "folder" in entry:
+            item.folder = entry['folder']
+
+        if "id" in entry:
+            item.id = entry['id']
+
+        if "channel_id" in entry:
+            item.channel_id = entry['channel_id']
+
+        if "show_id" in entry:
+            item.show_id = entry['show_id']
+
+        if "episode_id" in entry:
+            item.episode_id = entry['episode_id']
+
+        if "channel_title" in entry:
+            item.channel_title = entry['channel_title']
+
+        if "show_title" in entry:
+            item.show_title = entry['show_title']
+
+        if "last_updated" in entry:
+            item.last_updated = entry['last_updated']
+
+        if "updated_date" in entry:
+            item.updated_date = entry['updated_date']
+
+        if "number_of_programs" in entry:
+            item.number_of_programs = entry['number_of_programs']
+
+        if "found_date" in entry:
+            item.found_date = entry['found_date']
+
+        if "aired_date" in entry:
+            item.aired_date = entry['aired_date']
+
+        if "episode_date" in entry:
+            item.episode_date = entry['episode_date']
+
+        if "is_favorite" in entry and entry['is_favorite']==True:
+            item.is_favorite = "true"
+        else:
+            item.is_favorite = "false"
+
+        if "is_hidden" in entry and entry['is_hidden']==True:
+            item.is_hidden = "true"
+        else:
+            item.is_hidden = "false"
+
+        if "is_favorite_show" in entry and entry['is_favorite_show']==True:
+            item.is_favorite_show = "true"
+        else:
+            item.is_favorite_show = "false"
+
+        if "watched" in entry and entry['watched']==True:
+            item.watched = "true"
+        else:
+            item.watched = "false"
+
+        if "folder" in entry:
+            item.folder = entry['folder']
+
+        if item.is_favorite == "true":
+            item.title = "[COLOR yellow]" + item.title + "[/COLOR]"
+
+        item.channel = "api_programas"
+
+        plugintools.log("tvalacarta.core.api.parse_itemlist_from_response item="+item.tostring())
+
+        itemlist.append( item )
+
+    return itemlist
 
 # ---------------------------------------------------------------------------------------------------------
-#  accounts service calls
+#  accounts
 # ---------------------------------------------------------------------------------------------------------
 def get_session_token():
-    plugintools.log("tvalacarta.api.get_session_token")
+    plugintools.log("tvalacarta.core.api.get_session_token")
 
     # No tiene sesión
     if plugintools.get_setting("account_session")=="":
@@ -230,169 +279,120 @@ def get_anonymous_account_or_request_new():
     return plugintools.get_setting("account_anonymous_id")
 
 def accounts_get_new_anonymous_account():
-    plugintools.log("tvalacarta.api.accounts_get_new_anonymous_account")
+    plugintools.log("tvalacarta.core.api.accounts_get_new_anonymous_account")
 
-    url = MAIN_URL+"/accounts/get_new_anonymous_account.php"
-    parameters = { "api_key":API_KEY }
-    post = urllib.urlencode(parameters)
-    body, response_headers = read( url , post )
-
-    json_object = plugintools.load_json(body)
-
-    return json_object
+    return remote_call( "accounts/get_new_anonymous_account.php" )
 
 def accounts_login( account_email="" , account_password="" ):
-    plugintools.log("tvalacarta.api.accounts_login")
-
-    url = MAIN_URL+"/accounts/login.php"
+    plugintools.log("tvalacarta.core.api.accounts_login")
 
     if account_email!="" and account_password!="":
-        parameters = { "u":account_email , "p":account_password ,"api_key":API_KEY}
+        parameters = { "u":account_email , "p":account_password }
     else:
-        parameters = { "a":get_anonymous_account_or_request_new() ,"api_key":API_KEY}
+        parameters = { "a":get_anonymous_account_or_request_new() }
 
-    post = urllib.urlencode(parameters)
-
-    body, response_headers = read( url , post )
-
-    json_object = plugintools.load_json(body)
-
-    return json_object
+    return remote_call( "accounts/login.php" , parameters )
 
 def accounts_logout(session):
-    plugintools.log("tvalacarta.api.accounts_logout")
+    plugintools.log("tvalacarta.core.api.accounts_logout")
 
-    url = MAIN_URL+"/accounts/logout.php"
-    parameters = { "s":session ,"api_key":API_KEY}
-    post = urllib.urlencode(parameters)
-
-    body, response_headers = read( url , post )
-
-    json_object = plugintools.load_json(body)
-
-    return json_object
+    parameters = { "s":session }
+    return remote_call( "accounts/logout.php" , parameters )
 
 def accounts_register(email,password):
-    plugintools.log("tvalacarta.api.accounts_register")
+    plugintools.log("tvalacarta.core.api.accounts_register")
 
-    url = MAIN_URL+"/accounts/register.php"
-    parameters = { "u":email , "p":password ,"api_key":API_KEY}
-    post = urllib.urlencode(parameters)
-
-    body, response_headers = read( url , post )
-
-    json_object = plugintools.load_json(body)
-
-    return json_object
+    parameters = { "u":email , "p":password }
+    return remote_call( "accounts/register.php" , parameters )
 
 def accounts_reset_password_request(email):
-    plugintools.log("tvalacarta.api.accounts_reset_password_request")
+    plugintools.log("tvalacarta.core.api.accounts_reset_password_request")
 
-    url = MAIN_URL+"/accounts/reset_password_request.php"
-    parameters = { "u":email ,"api_key":API_KEY}
-    post = urllib.urlencode(parameters)
-
-    body, response_headers = read( url , post )
-
-    json_object = plugintools.load_json(body)
-
-    return json_object
+    parameters = { "u":email }
+    return remote_call( "accounts/reset_password_request.php" , parameters )
 
 def accounts_reset_password_confirmation(request_id,password):
-    plugintools.log("tvalacarta.api.accounts_reset_password_confirmation")
+    plugintools.log("tvalacarta.core.api.accounts_reset_password_confirmation")
 
-    url = MAIN_URL+"/accounts/reset_password_confirmation.php"
-    parameters = { "id":request_id , "p":password ,"api_key":API_KEY}
-    post = urllib.urlencode(parameters)
-
-    body, response_headers = read( url , post )
-
-    json_object = plugintools.load_json(body)
-
-    return json_object
+    parameters = { "id":request_id , "p":password }
+    return remote_call( "accounts/reset_password_confirmation.php" , parameters )
 
 def accounts_change_password(old_password,new_password):
-    plugintools.log("tvalacarta.api.accounts_change_password")
+    plugintools.log("tvalacarta.core.api.accounts_change_password")
 
-    url = MAIN_URL+"/accounts/change_password.php"
-    parameters = { "s":plugintools.get_setting("account_session") , "old_password":old_password , "new_password":new_password ,"api_key":API_KEY}
-    post = urllib.urlencode(parameters)
-
-    body, response_headers = read( url , post )
-
-    json_object = plugintools.load_json(body)
-
-    return json_object
+    parameters = { "s":plugintools.get_setting("account_session") , "old_password":old_password , "new_password":new_password }
+    return remote_call( "accounts/change_password.php" , parameters )
 
 # ---------------------------------------------------------------------------------------------------------
 #  navigation service calls
 # ---------------------------------------------------------------------------------------------------------
 
-def navigation_get_updated_menu(item,viewmode="",channel=""):
-    plugintools.log("tvalacarta.api.navigation_get_updated_menu")
+def navigation_get_programs_menu(item):
+    plugintools.log("tvalacarta.core.api.navigation_get_programs_menu")
 
-    service_url = MAIN_URL+"/navigation/get_updated_menu.php"
-    service_parameters = {"s":get_session_token(),"api_key":API_KEY}
+    item = Item(url=MAIN_URL+"/navigation/get_programs_menu.php")
 
-    return get_itemlist(service_url,service_parameters,viewmode=viewmode,channel=channel)
+    return get_items(item)
 
-def navigation_get_programs_menu(item,viewmode="",channel=""):
-    plugintools.log("tvalacarta.api.navigation_get_programs_menu")
+def add_to_favorites(item):
+    plugintools.log("tvalacarta.core.api.add_to_favorites")
 
-    service_url = MAIN_URL+"/navigation/get_programs_menu.php"
-    service_parameters = {"s":get_session_token(),"api_key":API_KEY}
+    parameters = { "channel_id":item.channel_id , "show_id":item.show_id }
+    return remote_call( "favorites/add.php" , parameters )
 
-    return get_itemlist(service_url,service_parameters,viewmode=viewmode,channel=channel)
+def remove_from_favorites(item):
+    plugintools.log("tvalacarta.core.api.remove_from_favorites")
 
-def get_favorite_programs(item,viewmode="", channel="", context=""):
-    plugintools.log("tvalacarta.api.get_favorite_programs")
+    parameters = { "channel_id":item.channel_id , "show_id":item.show_id }
+    return remote_call( "favorites/remove.php" , parameters )
 
-    service_url = MAIN_URL+"/programs/get_all.php"
-    service_parameters = {"favorites":"1","s":get_session_token(),"api_key":API_KEY}
+def add_to_hidden(item):
+    plugintools.log("tvalacarta.core.api.add_to_hidden")
 
-    return get_itemlist(service_url,service_parameters,viewmode=viewmode,channel=channel)
+    parameters = { "channel_id":item.channel_id , "show_id":item.show_id }
+    return remote_call( "programs/add_to_hidden.php" , parameters )
 
+def remove_from_hidden(item):
+    plugintools.log("tvalacarta.core.api.remove_from_hidden")
 
-def add_to_favorites(id):
-    plugintools.log("tvalacarta.api.add_to_favorites")
+    parameters = { "channel_id":item.channel_id , "show_id":item.show_id }
+    return remote_call( "programs/remove_from_hidden.php" , parameters )
 
-    service_url = MAIN_URL+"/favorites/add.php"
-    service_parameters = {"id_program":id,"s":get_session_token(),"api_key":API_KEY}
+def mark_as_watched(item,really_watched=True):
+    plugintools.log("tvalacarta.core.api.mark_as_watched")
 
-    get_itemlist(service_url,service_parameters)
+    if really_watched:
+        really_watched_param = "1"
+    else:
+        really_watched_param = "0"
 
-def remove_from_favorites(id):
-    plugintools.log("tvalacarta.api.remove_from_favorites")
+    parameters = { "id" : item.id , "really_watched" : really_watched_param }
+    return remote_call( "videos/mark_as_watched.php" , parameters )
 
-    service_url = MAIN_URL+"/favorites/remove.php"
-    service_parameters = {"id_program":id,"s":get_session_token(),"api_key":API_KEY}
+def mark_as_unwatched(item):
+    plugintools.log("tvalacarta.core.api.mark_as_unwatched")
 
-    get_itemlist(service_url,service_parameters)
+    parameters = { "id" : item.id }
+    return remote_call( "videos/mark_as_unwatched.php" , parameters )
 
-def add_to_hidden(id):
-    plugintools.log("tvalacarta.api.add_to_hidden")
+def get_hidden_programs(item):
+    plugintools.log("tvalacarta.core.api.get_hidden_programs")
 
-    service_url = MAIN_URL+"/programs/add_to_hidden.php"
-    service_parameters = {"id":id,"s":get_session_token(),"api_key":API_KEY}
+    parameters = { }
+    return remote_call_and_get_items( "programs/get_hidden.php" , parameters )
 
-    get_itemlist(service_url,service_parameters)
+def get_favorite_programs(item):
+    plugintools.log("tvalacarta.core.api.get_favorite_programs")
 
-def remove_from_hidden(id):
-    plugintools.log("tvalacarta.api.remove_from_hidden")
-
-    service_url = MAIN_URL+"/programs/remove_from_hidden.php"
-    service_parameters = {"id":id,"s":get_session_token(),"api_key":API_KEY}
-
-    get_itemlist(service_url,service_parameters)
+    parameters = { "favorites" : "1" }
+    return remote_call_and_get_items( "programs/get_all.php" , parameters )
 
 # ---------------------------------------------------------------------------------------------------------
 #  video service calls
 # ---------------------------------------------------------------------------------------------------------
 
-def videos_get_media_url(id):
-    plugintools.log("tvalacarta.api.get_media_url")
+def videos_get_media_url(item):
+    plugintools.log("tvalacarta.core.api.get_media_url")
 
-    service_url = MAIN_URL+"/videos/get_media_url.php"
-    service_parameters = {"id":id,"s":get_session_token(),"api_key":API_KEY}
-
-    return get_response(service_url,service_parameters)
+    parameters = { "id" : item.id }
+    return remote_call( "videos/get_media_url.php" , parameters )

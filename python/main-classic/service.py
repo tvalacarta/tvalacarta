@@ -45,9 +45,9 @@ if config.get_setting("suscription_check")=="true":
         current_suscriptions = suscription.get_current_suscriptions()
 
         for item in current_suscriptions:
-            from platformcode import launcher
+            from core import downloadtools
             exec "from channels import "+item.channel+" as channel_module"
-            launcher.download_all_episodes(item,channel_module,silent=True)
+            downloadtools.download_all_episodes(item,channel_module,silent=True)
 
             if xbmc.abortRequested:
                 break

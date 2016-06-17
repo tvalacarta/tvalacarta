@@ -12,11 +12,12 @@ import datetime
 from core import config
 from core import logger
 from core import samba
-from core import favoritos
 from core.item import Item
 from core import scrapertools
 from core import downloadtools
 from core import suscription
+
+import favoritos
 
 CHANNELNAME = "descargas"
 DEBUG = True
@@ -40,8 +41,8 @@ def mainlist(item):
 
     itemlist.append( Item( channel="descargas", action="ultimas_descargas", title="Últimas descargas"))
     itemlist.append( Item( channel="descargas", action="todas_las_descargas", title="Todas las descargas"))
-    itemlist.append( Item( channel="descargas", action="administrar_suscripciones" , title="Administrar suscripciones"))
-    itemlist.append( Item( channel="descargas", action="descargas_pendientes"    , title="Descargas pendientes en la lista"))
+    itemlist.append( Item( channel="descargas", action="administrar_suscripciones" , title="Administrar descargas automáticas"))
+    itemlist.append( Item( channel="descargas", action="descargas_pendientes"    , title="Administrar lista manual de descargas"))
 
     return itemlist
 
@@ -53,13 +54,17 @@ def administrar_suscripciones(item):
     for suscription_item in current_suscriptions:
         itemlist.append( Item( channel="descargas" , action="borrar_suscripcion" , url=suscription_item.url , title=suscription_item.title, thumbnail=suscription_item.thumbnail, plot=suscription_item.plot, fanart=suscription_item.thumbnail, folder=False ))
 
+    if len(itemlist)==0 and config.is_xbmc():
+        import xbmcgui
+        xbmcgui.Dialog().ok( "No tienes descargas automáticas" , "Elige un programa con el menú contextual, y añádelo a descargas automáticas para que los vídeos se descarguen solos a medida que se vayan publicando.")
+
     return itemlist
 
 def borrar_suscripcion(item):
     logger.info("core.descargas borrar_suscripcion")
 
     import xbmcgui
-    yes_pressed = xbmcgui.Dialog().yesno( "tvalacarta" , "¿Quieres eliminar tu suscripción a" , "\""+item.title+"\"?" )
+    yes_pressed = xbmcgui.Dialog().yesno( "tvalacarta" , "¿Quieres cancelar la descarga automática de" , "\""+item.title+"\"?" )
 
     if yes_pressed:
         suscription.remove_suscription(item)
@@ -209,18 +214,8 @@ def downloadall(item):
                 exec "from servers import "+server+" as server_connector"
                 video_urls = server_connector.get_video_url( page_url=url , premium=(config.get_setting("megavideopremium")=="true") , user=config.get_setting("megavideouser") , password=config.get_setting("megavideopassword") )
 
-                if config.get_setting("fileniumpremium")=="true" and config.get_setting("filenium_for_download")=="true" and server not in ["vk","fourshared","directo","adnstream","facebook","megalive","tutv","stagevu"]:
-                    exec "from servers import filenium as gen_conector"
-                    
-                    # Parche para solucionar el problema habitual de que un vídeo http://www.megavideo.com/?d=XXX no está, pero http://www.megaupload.com/?d=XXX si
-                    url = url.replace("http://www.megavideo.com/?d","http://www.megaupload.com/?d")
-        
-                    video_gen = gen_conector.get_video_url( page_url=url , premium=(config.get_setting("fileniumpremium")=="true") , user=config.get_setting("fileniumuser") , password=config.get_setting("fileniumpassword") )
-                    logger.info("[xbmctools.py] filenium url="+video_gen)
-                    video_urls.append( [ "[filenium]", video_gen ] )
-
-                # La última es la de mayor calidad, lo mejor para la descarga
-                mediaurl = video_urls[ len(video_urls)-1 ][1]
+                # La primera es la de mayor calidad, lo mejor para la descarga
+                mediaurl = video_urls[0][1]
                 logger.info("core.descargas mediaurl="+mediaurl)
 
                 # Genera el NFO
@@ -310,6 +305,10 @@ def downloadall(item):
                     favoritos.savebookmark(canal,titulo, url, thumbnail, server, plot, fulltitle,ERROR_PATH)
                     favoritos.deletebookmark(fichero, DOWNLOAD_LIST_PATH)
 
+    if config.is_xbmc():
+        import xbmc
+        xbmc.executebuiltin("XBMC.Container.Refresh()");    
+
 def savebookmark(canal=CHANNELNAME,titulo="",url="",thumbnail="",server="",plot="",fulltitle="",savepath=DOWNLOAD_LIST_PATH):
     favoritos.savebookmark(canal,titulo,url,thumbnail,server,plot,fulltitle,savepath)
 
@@ -326,3 +325,16 @@ def mover_descarga_error_a_pendiente(fullfilename):
     savebookmark(canal,titulo,url,thumbnail,server,plot,fulltitle)
     # Y lo borra de la lista de errores
     os.remove(fullfilename)
+
+#------------------------------------------------------------
+# Context menu
+#------------------------------------------------------------
+
+def get_context_menu_for_item(item):
+
+    context_commands = []
+
+    if item.action == "borrar_suscripcion":
+        context_commands.append( item.clone(command_title="Quitar de descargas automáticas", action="borrar_suscripcion") )
+
+    return context_commands

@@ -413,11 +413,11 @@ def limpia_nombre_excepto_2(s):
     return stripped;
 
 def getfilefromtitle(url,title,folder=""):
-    logger.info("[downloadtools.py] getfilefromtitle: title="+title+" url="+url+" folder="+folder )
+    logger.info("tvalacarta.core.downloadtools getfilefromtitle: title="+title+" url="+url+" folder="+folder )
 
-    #logger.info("[downloadtools.py] downloadtitle: title="+urllib.quote_plus( title ))
+    #logger.info("tvalacarta.core.downloadtools downloadtitle: title="+urllib.quote_plus( title ))
     plataforma = config.get_system_platform();
-    logger.info("[downloadtools.py] getfilefromtitle: plataforma="+plataforma)
+    logger.info("tvalacarta.core.downloadtools getfilefromtitle: plataforma="+plataforma)
     
     #nombrefichero = xbmc.makeLegalFilename(title + url[-4:])
     import scrapertools
@@ -426,7 +426,7 @@ def getfilefromtitle(url,title,folder=""):
         nombrefichero = limpia_nombre_excepto_1(nombrefichero)
     else:
         nombrefichero = title + scrapertools.get_filename_from_url(url)[-4:]
-        logger.info("[downloadtools.py] getfilefromtitle: nombrefichero=%s" % nombrefichero)
+        logger.info("tvalacarta.core.downloadtools getfilefromtitle: nombrefichero=%s" % nombrefichero)
         if "videobb" in url or "videozer" in url or "putlocker" in url:
             nombrefichero = title + ".flv"
         if "videobam" in url:
@@ -444,29 +444,29 @@ def getfilefromtitle(url,title,folder=""):
                 
             extension = partes[1][-5:-1]
             nombrefichero = title + extension
-        logger.info("[downloadtools.py] getfilefromtitle: nombrefichero=%s" % nombrefichero)
+        logger.info("tvalacarta.core.downloadtools getfilefromtitle: nombrefichero=%s" % nombrefichero)
 
         nombrefichero = limpia_nombre_caracteres_especiales(nombrefichero)
 
-    logger.info("[downloadtools.py] getfilefromtitle: nombrefichero=%s" % nombrefichero)
+    logger.info("tvalacarta.core.downloadtools getfilefromtitle: nombrefichero=%s" % nombrefichero)
 
     if folder=="":
         fullpath = os.path.join( config.get_setting("downloadpath") , nombrefichero )
     else:
         fullpath = os.path.join( config.get_setting("downloadpath") , folder , nombrefichero )
 
-    logger.info("[downloadtools.py] getfilefromtitle: fullpath=%s" % fullpath)
+    logger.info("tvalacarta.core.downloadtools getfilefromtitle: fullpath=%s" % fullpath)
     
     return fullpath
 
 def downloadtitle(url,title):
-    logger.info("[downloadtools.py] downloadtitle: title="+title+" url="+url )
+    logger.info("tvalacarta.core.downloadtools downloadtitle: title="+title+" url="+url )
 
     fullpath = getfilefromtitle(url,title)
     return downloadfile(url,fullpath)
 
 def downloadbest(video_urls,title,continuar=False,silent=False,folder=""):
-    logger.info("[downloadtools.py] downloadbest: title="+title+", continuar="+repr(continuar)+", silent="+repr(silent)+", folder="+folder+", video_urls="+repr(video_urls) )
+    logger.info("tvalacarta.core.downloadtools downloadbest: title="+title+", continuar="+repr(continuar)+", silent="+repr(silent)+", folder="+folder+", video_urls="+repr(video_urls) )
     
     for elemento in video_urls:
         videotitle = elemento[0]
@@ -512,7 +512,7 @@ def downloadbest(video_urls,title,continuar=False,silent=False,folder=""):
     return -2
     
 def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
-    logger.info("[downloadtools.py] downloadfile: url="+url+" nombrefichero="+nombrefichero+" continuar="+repr(continuar))
+    logger.info("tvalacarta.core.downloadtools downloadfile: url="+url+" nombrefichero="+nombrefichero+" continuar="+repr(continuar))
 
     try:
         # Si no es XBMC, siempre a "Silent"
@@ -529,7 +529,7 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
         except:
             pass
 
-        logger.info("[downloadtools.py] downloadfile: nombrefichero="+nombrefichero)
+        logger.info("tvalacarta.core.downloadtools downloadfile: nombrefichero="+nombrefichero)
     
         # El fichero existe y se quiere continuar
         if os.path.exists(nombrefichero) and continuar:
@@ -540,20 +540,20 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
             #except:
             f = open(nombrefichero, 'r+b')
             existSize = os.path.getsize(nombrefichero)
-            
-            logger.info("[downloadtools.py] downloadfile: el fichero existe, size=%d" % existSize)
+
+            logger.info("tvalacarta.core.downloadtools downloadfile: el fichero existe, size=%d" % existSize)
             grabado = existSize
             f.seek(existSize)
 
         # el fichero ya existe y no se quiere continuar, se aborta
         elif os.path.exists(nombrefichero) and not continuar:
-            logger.info("[downloadtools.py] downloadfile: el fichero existe, no se descarga de nuevo")
+            logger.info("tvalacarta.core.downloadtools downloadfile: el fichero existe, no se descarga de nuevo")
             return
 
         # el fichero no existe
         else:
             existSize = 0
-            logger.info("[downloadtools.py] downloadfile: el fichero no existe")
+            logger.info("tvalacarta.core.downloadtools downloadfile: el fichero no existe")
             
             #try:
             #    import xbmcvfs
@@ -582,13 +582,6 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
                 logger.error( traceback.format_exc() )
                 pass
 
-        # Login y password Filenium
-        # http://abcd%40gmail.com:mipass@filenium.com/get/Oi8vd3d3/LmZpbGVz/ZXJ2ZS5j/b20vZmls/ZS9kTnBL/dm11/b0/?.zip
-        if "filenium" in url:
-            from servers import filenium
-            url , authorization_header = filenium.extract_authorization_header(url)
-            headers.append( [ "Authorization", authorization_header ] )
-    
         if "|" in url:
             additional_headers = url.split("|")[1]
             if "&" in additional_headers:
@@ -597,13 +590,13 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
                 additional_headers = [ additional_headers ]
     
             for additional_header in additional_headers:
-                logger.info("[downloadtools.py] additional_header: "+additional_header)
+                logger.info("tvalacarta.core.downloadtools additional_header: "+additional_header)
                 name = re.findall( "(.*?)=.*?" , additional_header )[0]
                 value = urllib.unquote_plus(re.findall( ".*?=(.*?)$" , additional_header )[0])
                 headers.append( [ name,value ] )
     
             url = url.split("|")[0]
-            logger.info("[downloadtools.py] downloadfile: url="+url)
+            logger.info("tvalacarta.core.downloadtools downloadfile: url="+url)
     
         # Timeout del socket a 60 segundos
         socket.setdefaulttimeout(60)
@@ -611,7 +604,7 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
         h=urllib2.HTTPHandler(debuglevel=0)
         request = urllib2.Request(url)
         for header in headers:
-            logger.info("[downloadtools.py] Header="+header[0]+": "+header[1])
+            logger.info("tvalacarta.core.downloadtools Header="+header[0]+": "+header[1])
             request.add_header(header[0],header[1])
     
         if existSize > 0:
@@ -622,7 +615,7 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
         try:
             connexion = opener.open(request)
         except urllib2.HTTPError,e:
-            logger.info("[downloadtools.py] downloadfile: error %d (%s) al abrir la url %s" % (e.code,e.msg,url))
+            logger.info("tvalacarta.core.downloadtools downloadfile: error %d (%s) al abrir la url %s" % (e.code,e.msg,url))
             #print e.code
             #print e.msg
             #print e.hdrs
@@ -644,12 +637,12 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
         if existSize > 0:
             totalfichero = totalfichero + existSize
     
-        logger.info("Content-Length=%s" % totalfichero)
+        logger.info("tvalacarta.core.downloadtools Content-Length=%s" % totalfichero)
     
         blocksize = 100*1024
     
         bloqueleido = connexion.read(blocksize)
-        logger.info("Iniciando descarga del fichero, bloqueleido=%s" % len(bloqueleido))
+        logger.info("tvalacarta.core.downloadtools Iniciando descarga del fichero, bloqueleido=%s" % len(bloqueleido))
     
         maxreintentos = 10
         
@@ -688,7 +681,7 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
 
                         try:
                             if xbmc.abortRequested:
-                                logger.error( "XBMC Abort requested 1" )
+                                logger.error( "tvalacarta.core.downloadtools XBMC Abort requested 1" )
                                 return -1
                         except:
                             pass
@@ -696,20 +689,20 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
                     except:
                         try:
                             if xbmc.abortRequested:
-                                logger.error( "XBMC Abort requested 2" )
+                                logger.error( "tvalacarta.core.downloadtools XBMC Abort requested 2" )
                                 return -1
                         except:
                             pass
 
                         reintentos = reintentos + 1
-                        logger.info("ERROR en la descarga del bloque, reintento %d" % reintentos)
+                        logger.info("tvalacarta.core.downloadtools ERROR en la descarga del bloque, reintento %d" % reintentos)
                         import traceback
                         logger.error( traceback.format_exc() )
                 
                 # El usuario cancelo la descarga
                 try:
                     if progreso.iscanceled():
-                        logger.info("Descarga del fichero cancelada")
+                        logger.info("tvalacarta.core.downloadtools Descarga del fichero cancelada")
                         f.close()
                         progreso.close()
                         return -1
@@ -718,7 +711,7 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
     
                 # Ha habido un error en la descarga
                 if reintentos > maxreintentos:
-                    logger.info("ERROR en la descarga del fichero")
+                    logger.info("tvalacarta.core.downloadtools ERROR en la descarga del fichero")
                     f.close()
                     if not silent:
                         progreso.close()
@@ -742,7 +735,7 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
         if url.startswith("rtmp") and not silent:
             import xbmcgui
             advertencia = xbmcgui.Dialog()
-            resultado = advertencia.ok( "No puedes descargar ese vídeo","Las descargas en RTMP aún no","están soportadas")
+            resultado = advertencia.ok( "tvalacarta.core.downloadtools No puedes descargar ese vídeo","Las descargas en RTMP aún no","están soportadas")
         else:
             import traceback,sys
             from pprint import pprint
@@ -757,27 +750,27 @@ def downloadfile(url,nombrefichero,headers=[],silent=False,continuar=False):
         f.close()
     except:
         pass
-    if not silent:
-        try:
-            progreso.close()
-        except:
-            pass
 
-    logger.info("Fin descarga del fichero")
+    try:
+        progreso.close()
+    except:
+        pass
+
+    logger.info("tvalacarta.core.downloadtools Fin descarga del fichero")
 
 def downloadfileGzipped(url,pathfichero):
-    logger.info("[downloadtools.py] downloadfileGzipped: url="+url)
+    logger.info("tvalacarta.core.downloadtools downloadfileGzipped: url="+url)
     nombrefichero = pathfichero
-    logger.info("[downloadtools.py] downloadfileGzipped: nombrefichero="+nombrefichero)
+    logger.info("tvalacarta.core.downloadtools downloadfileGzipped: nombrefichero="+nombrefichero)
 
     import xbmc
     nombrefichero = xbmc.makeLegalFilename(nombrefichero)
-    logger.info("[downloadtools.py] downloadfileGzipped: nombrefichero="+nombrefichero)
+    logger.info("tvalacarta.core.downloadtools downloadfileGzipped: nombrefichero="+nombrefichero)
     patron = "(http://[^/]+)/.+"
     matches = re.compile(patron,re.DOTALL).findall(url)
     
     if len(matches):
-        logger.info("[downloadtools.py] URL principal :"+matches[0])
+        logger.info("tvalacarta.core.downloadtools URL principal :"+matches[0])
         url1= matches[0]
     else:
         url1 = url
@@ -812,7 +805,7 @@ def downloadfileGzipped(url,pathfichero):
     try:
         connexion = opener.open(request)
     except urllib2.HTTPError,e:
-        logger.info("[downloadtools.py] downloadfile: error %d (%s) al abrir la url %s" % (e.code,e.msg,url))
+        logger.info("tvalacarta.core.downloadtools downloadfile: error %d (%s) al abrir la url %s" % (e.code,e.msg,url))
         #print e.code
         #print e.msg
         #print e.hdrs
@@ -845,7 +838,7 @@ def downloadfileGzipped(url,pathfichero):
     
     existSize = 0
     
-    logger.info("[downloadtools.py] downloadfileGzipped: fichero nuevo abierto")
+    logger.info("tvalacarta.core.downloadtools downloadfileGzipped: fichero nuevo abierto")
 
     #if existSize > 0:
     #    totalfichero = totalfichero + existSize
@@ -946,10 +939,10 @@ def downloadfileGzipped(url,pathfichero):
     
 def GetTitleFromFile(title):
     # Imprime en el log lo que va a descartar
-    logger.info("[downloadtools.py] GetTitleFromFile: titulo="+title )
-    #logger.info("[downloadtools.py] downloadtitle: title="+urllib.quote_plus( title ))
+    logger.info("tvalacarta.core.downloadtools GetTitleFromFile: titulo="+title )
+    #logger.info("tvalacarta.core.downloadtools downloadtitle: title="+urllib.quote_plus( title ))
     plataforma = config.get_system_platform();
-    logger.info("[downloadtools.py] GetTitleFromFile: plataforma="+plataforma)
+    logger.info("tvalacarta.core.downloadtools GetTitleFromFile: plataforma="+plataforma)
     
     #nombrefichero = xbmc.makeLegalFilename(title + url[-4:])
     if plataforma=="xbox":
@@ -966,7 +959,7 @@ def sec_to_hms(seconds):
 
 def downloadIfNotModifiedSince(url,timestamp):
 
-    logger.info("[downloadtools.py] downloadIfNotModifiedSince("+url+","+time.ctime(timestamp)+")")
+    logger.info("tvalacarta.core.downloadtools downloadIfNotModifiedSince("+url+","+time.ctime(timestamp)+")")
     
     # Convierte la fecha a GMT
     fechaFormateada = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime(timestamp))
@@ -1061,3 +1054,220 @@ def _read_download_history_file():
     f.close()
 
     return data
+
+def download_all_episodes(item,channel=None,first_episode="", silent=False):
+    logger.info("tvalacarta.platformcode.launcher download_all_episodes, show="+item.show+" item="+item.tostring())
+
+    item.show = item.show.replace("[COLOR yellow]","")
+    item.show = item.show.replace("[/COLOR]","")
+
+    from servers import servertools
+
+    show_title = limpia_nombre_caracteres_especiales(item.show)
+
+    # Obtiene el listado desde el que se llamó
+    action = item.action
+
+    if channel is None:
+        exec "import channels."+item.channel+" as channel"
+
+    exec "episode_itemlist = channel."+action+"(item)"
+
+    best_server = "streamcloud"
+    worst_server = "moevideos"
+
+    # Para cada episodio
+    if first_episode=="":
+        empezar = True
+    else:
+        empezar = False
+
+    for episode_item in episode_itemlist:
+        # Si XBMC se está cerrando, cancela
+        try:
+            if xbmc.abortRequested:
+                logger.error( "[launcher.py] download_all_episodes XBMC Abort requested" )
+                return -1
+        except:
+            pass
+
+        # Si es la opción de descargar, la de "Opciones de la serie" o la de paginación, las ignora
+        if episode_item.action.startswith("download_all_episodes") or episode_item.action.startswith("serie_options") or episode_item.action.startswith(action):
+            continue
+
+        logger.info("tvalacarta.platformcode.launcher download_all_episodes, episode="+episode_item.title)
+        try:
+            episode_title = scrapertools.get_match(episode_item.title,"(\d+x\d+)")
+        except:
+            episode_title = episode_item.title
+
+        if item.channel=="rtve":
+            import re
+            episode_title = re.compile("\(.*?\)",re.DOTALL).sub("",episode_title).strip()
+
+        logger.info("tvalacarta.platformcode.launcher download_all_episodes, episode="+episode_title)
+
+        if first_episode!="" and episode_title==first_episode:
+            empezar = True
+
+        if not empezar:
+            continue
+
+        try:
+            # Extrae los mirrors
+            mirrors_itemlist = [episode_item] #channel.findvideos(episode_item)
+
+            descargado = False
+
+            new_mirror_itemlist_1 = []
+            new_mirror_itemlist_2 = []
+            new_mirror_itemlist_3 = []
+            new_mirror_itemlist_4 = []
+            new_mirror_itemlist_5 = []
+            new_mirror_itemlist_6 = []
+
+            for mirror_item in mirrors_itemlist:
+                
+                # Si está en español va al principio, si no va al final
+                if "(Español)" in mirror_item.title:
+                    if best_server in mirror_item.title.lower():
+                        new_mirror_itemlist_1.append(mirror_item)
+                    else:
+                        new_mirror_itemlist_2.append(mirror_item)
+                elif "(VOS)" in mirror_item.title:
+                    if best_server in mirror_item.title.lower():
+                        new_mirror_itemlist_3.append(mirror_item)
+                    else:
+                        new_mirror_itemlist_4.append(mirror_item)
+                else:
+                    if best_server in mirror_item.title.lower():
+                        new_mirror_itemlist_5.append(mirror_item)
+                    else:
+                        new_mirror_itemlist_6.append(mirror_item)
+
+            mirrors_itemlist = new_mirror_itemlist_1 + new_mirror_itemlist_2 + new_mirror_itemlist_3 + new_mirror_itemlist_4 + new_mirror_itemlist_5 + new_mirror_itemlist_6
+
+            for mirror_item in mirrors_itemlist:
+                logger.info("tvalacarta.platformcode.launcher download_all_episodes, mirror="+mirror_item.title)
+
+                if "(Español)" in mirror_item.title:
+                    idioma=" (Español)"
+                elif "(VOS)" in mirror_item.title:
+                    idioma=" (VOS)"
+                elif "(VO)" in mirror_item.title:
+                    idioma=" (VO)"
+                else:
+                    idioma=""
+                logger.info("tvalacarta.platformcode.launcher download_all_episodes, downloading mirror")
+
+                if hasattr(channel, 'play'):
+                    video_items = channel.play(mirror_item)
+                else:
+                    video_items = [mirror_item]
+
+                if len(video_items)>0 and not is_in_download_history(video_items[0].url):
+                    video_item = video_items[0]
+
+                    # Comprueba que esté disponible
+                    video_urls, puedes, motivo = servertools.resolve_video_urls_for_playing( video_item.server , video_item.url , video_password="" , muestra_dialogo=False)
+
+                    # Lo añade a la lista de descargas
+                    if puedes:
+                        logger.info("tvalacarta.platformcode.launcher download_all_episodes, downloading mirror started...")
+                        
+                        # El vídeo de más calidad es el primero
+                        mediaurl = video_urls[0][1]
+
+                        if video_item.server=="descargavideos":
+                            from servers import descargavideos
+                            filetitle = show_title+" "+episode_title+idioma+" ["+descargavideos.get_real_server_name(video_item.url)+"]"
+                        elif video_item.server!="directo":
+                            filetitle = show_title+" "+episode_title+idioma+" ["+video_item.server+"]"
+                        else:
+                            filetitle = show_title+" "+episode_title+idioma+" ["+item.channel+"]"
+
+                        # Descarga el vídeo
+                        show_folder = os.path.join( config.get_setting("downloadpath") , show_title)
+                        if not os.path.exists(show_folder):
+                            os.mkdir(show_folder)
+
+                        # Genera el NFO
+                        try:
+                            nfofilepath = getfilefromtitle("sample.nfo",filetitle,folder=show_title)
+                            outfile = open(nfofilepath,"w")
+                            outfile.write("<movie>\n")
+                            outfile.write("<title>("+filetitle+")</title>\n")
+                            outfile.write("<originaltitle></originaltitle>\n")
+                            outfile.write("<rating>0.000000</rating>\n")
+                            outfile.write("<year>2009</year>\n")
+                            outfile.write("<top250>0</top250>\n")
+                            outfile.write("<votes>0</votes>\n")
+                            outfile.write("<outline></outline>\n")
+                            outfile.write("<plot>"+episode_item.plot+"</plot>\n")
+                            outfile.write("<tagline></tagline>\n")
+                            outfile.write("<runtime></runtime>\n")
+                            outfile.write("<thumb></thumb>\n")
+                            outfile.write("<mpaa>Not available</mpaa>\n")
+                            outfile.write("<playcount>0</playcount>\n")
+                            outfile.write("<watched>false</watched>\n")
+                            outfile.write("<id>tt0432337</id>\n")
+                            outfile.write("<filenameandpath></filenameandpath>\n")
+                            outfile.write("<trailer></trailer>\n")
+                            outfile.write("<genre></genre>\n")
+                            outfile.write("<credits></credits>\n")
+                            outfile.write("<director></director>\n")
+                            outfile.write("<actor>\n")
+                            outfile.write("<name></name>\n")
+                            outfile.write("<role></role>\n")
+                            outfile.write("</actor>\n")
+                            outfile.write("</movie>")
+                            outfile.flush()
+                            outfile.close()
+                            logger.info("core.descargas Creado fichero NFO")
+                        except:
+                            logger.info("core.descargas Error al crear NFO")
+                            for line in sys.exc_info():
+                                logger.error( "%s" % line )
+
+                        # Descarga el thumbnail
+                        if episode_item.thumbnail != "":
+                           logger.info("core.descargas thumbnail="+episode_item.thumbnail)
+                           thumbnailfile = getfilefromtitle(episode_item.thumbnail,filetitle,folder=show_title)
+                           thumbnailfile = thumbnailfile[:-4] + ".tbn"
+                           logger.info("core.descargas thumbnailfile="+thumbnailfile)
+                           try:
+                               downloadfile(episode_item.thumbnail,thumbnailfile)
+                               logger.info("core.descargas Thumbnail descargado")
+                           except:
+                               logger.info("core.descargas error al descargar thumbnail")
+                               for line in sys.exc_info():
+                                   logger.error( "%s" % line )
+
+                        devuelve = downloadbest(video_urls,filetitle,continuar=True,silent=silent,folder=show_title)
+
+                        if devuelve==0:
+                            logger.info("tvalacarta.platformcode.launcher download_all_episodes, download ok")
+                            descargado = True
+                            add_to_download_history(video_item.url,filetitle)
+                            break
+                        elif devuelve==-1:
+                            try:
+                                import xbmcgui
+                                advertencia = xbmcgui.Dialog()
+                                resultado = advertencia.ok("plugin" , "Descarga abortada")
+                            except:
+                                pass
+                            return
+                        else:
+                            logger.info("tvalacarta.platformcode.launcher download_all_episodes, download error, try another mirror")
+                            break
+
+                    else:
+                        logger.info("tvalacarta.platformcode.launcher download_all_episodes, downloading mirror not available... trying next")
+
+            if not descargado:
+                logger.info("tvalacarta.platformcode.launcher download_all_episodes, EPISODIO NO DESCARGADO "+episode_title)
+        except:
+           logger.info("core.descargas error no controlado al descargar episodio")
+           import traceback
+           logger.info(traceback.format_exc())

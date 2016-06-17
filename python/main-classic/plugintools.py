@@ -141,7 +141,7 @@ ALL_VIEW_CODES = {
         'skin.re-touched': 500, #Thumbnail
     },
     'tvshows': {
-        'skin.confluence': 515, # 500 Thumbnail # 515 Media Info 3
+        'skin.confluence': 504, # 500 Thumbnail # 515 Media Info 3
         'skin.aeon.nox': 500, # Wall
         'skin.droid': 51, # Big icons
         'skin.quartz': 52, # Media info
