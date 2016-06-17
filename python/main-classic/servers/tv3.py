@@ -30,14 +30,20 @@ def get_video_url(page_url, premium = False, user="", password="", video_passwor
         # http://www.tv3.cat/videos/5495372/La-baldana
         #
         if page_url.startswith("http://www.ccma.cat"):
-            patron = '/tv3/alacarta/.*?/.*?/video/(\d+)'
-        else:
-            patron = '/videos/(\d+)/.*?'
 
-        matches = re.compile(patron,re.DOTALL).findall(page_url)
-        data = scrapertools.cachePage(urlbase % matches[0])
-        response = jsontools.load_json(data.decode('iso-8859-1').encode('utf8'))
-        video.append([ "HTTP [mp4]", response['media']['url']])
+            id_video = scrapertools.find_single_match(page_url,'/tv3/alacarta/.*?/.*?/video/(\d+)')
+            if id_video=="":
+                id_video = scrapertools.find_single_match(page_url,'/tv3/super3/.*?/.*?/video/(\d+)')
+            if id_video=="":
+                id_video = scrapertools.find_single_match(page_url,'/video/(\d+)')
+        else:
+            id_video = scrapertools.find_single_match(page_url,'/videos/(\d+)/.*?')
+
+        if id_video<>"":
+            data = scrapertools.cachePage(urlbase % id_video)
+
+            response = jsontools.load_json(data.decode('iso-8859-1').encode('utf8'))
+            video.append([ "HTTP [mp4]", response['media']['url']])
 
     except:
         import traceback

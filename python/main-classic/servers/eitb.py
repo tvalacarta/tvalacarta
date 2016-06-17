@@ -8,10 +8,7 @@
 from core import logger
 from core import scrapertools
 
-try:
-    import youtube_dl
-except:
-    from lib import youtube_dl
+from lib import youtube_dl
 
 def get_video_url( page_url , premium = False , user="" , password="", video_password="", page_data="" ):
     logger.info("[eitb.py] get_video_url(page_url='%s')" % page_url)

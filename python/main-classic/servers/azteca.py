@@ -8,10 +8,7 @@
 from core import scrapertools
 from core import logger
 
-try:
-    import youtube_dl
-except:
-    from lib import youtube_dl
+from lib import youtube_dl
 
 def get_video_url( page_url , premium = False , user="" , password="", video_password="", page_data="" ):
     logger.info("tvalacarta.servers.azteca get_video_url page_url="+page_url)

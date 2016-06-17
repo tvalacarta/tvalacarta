@@ -56,11 +56,12 @@ def get_video_url( page_url , premium = False , user="" , password="" , video_pa
 
     lista_videourls = []
 
+    if video_url_mp4_low!="":
+        lista_videourls.append([ 'LOW ('+scrapertools.get_filename_from_url(video_url_mp4_low)[-4:] + ') [cntv]' , video_url_mp4_low])
+
     if video_url_mp4_high!="":
         lista_videourls.append([ 'HIGH ('+scrapertools.get_filename_from_url(video_url_mp4_high)[-4:] + ') [cntv]' , video_url_mp4_high])
 
-    if video_url_mp4_low!="":
-        lista_videourls.append([ 'LOW ('+scrapertools.get_filename_from_url(video_url_mp4_low)[-4:] + ') [cntv]' , video_url_mp4_low])
 
     if ".m3u8" in video_url_m3u8:
         data_calidades = scrapertools.cache_page(video_url_m3u8)
@@ -75,18 +76,17 @@ def get_video_url( page_url , premium = False , user="" , password="" , video_pa
                 except:
                     kb = ""
 
-                if resolucion=="640x480":
-                    lista_videourls.insert(0,[ resolucion + kb + '('+scrapertools.get_filename_from_url(esta_url)[-4:] + ') [cntv]' , esta_url])
-                else:
-                    lista_videourls.append([ resolucion + kb + '('+scrapertools.get_filename_from_url(esta_url)[-4:] + ') [cntv]' , esta_url])
+                lista_videourls.append([ resolucion + kb + '('+scrapertools.get_filename_from_url(esta_url)[-4:] + ') [cntv]' , esta_url])
         else:
             lista_videourls.append([ '('+scrapertools.get_filename_from_url(video_url_m3u8)[-4:] + ') [cntv]' , video_url_m3u8])
 
     else:
         lista_videourls.append([ '('+scrapertools.get_filename_from_url(video_url_m3u8)[-4:] + ') [cntv]' , video_url_m3u8])
 
-    for video_url_m3u8 in lista_videourls:
-        logger.info("tvalacarta.servers.cntv %s - %s" % (video_url_m3u8[0],video_url_m3u8[1]))
+    lista_videourls.reverse()
+
+    for v in lista_videourls:
+        logger.info("tvalacarta.servers.cntv %s - %s" % (v[0],v[1]))
 
     return lista_videourls
 

@@ -65,19 +65,19 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
             if mediaurl.endswith("m3u8"):
                 title = "HLS"
             else:
-                title = "MP4"
+                title = ".mp4"
 
             if "ipad" in mediaurl.lower():
-                title = title + " ipad"
+                title = title + " (ipad)"
 
             if "iphone" in mediaurl.lower():
-                title = title + " iphone"
+                title = title + " (iphone)"
 
             if "360p" in mediaurl.lower():
-                title = title + " 360p"
+                title = title + " (360p)"
 
             if "720p" in mediaurl.lower():
-                title = title + " 720p"
+                title = title + " (720p)"
 
             video_urls.append( [ title , mediaurl ] )
 

@@ -8,10 +8,7 @@
 from core import logger
 from core import scrapertools
 
-try:
-    import youtube_dl
-except:
-    from lib import youtube_dl
+from lib import youtube_dl
 
 import urllib
 
