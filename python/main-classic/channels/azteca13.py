@@ -48,7 +48,7 @@ def programas(item):
         plot = ""
         url = "http://www.aztecatrece.com/"+scrapedurl+"/historico/capitulos"
         if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-        itemlist.append( Item( channel=item.channel , title=title , action="episodios", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail ) )
+        itemlist.append( Item( channel=item.channel , title=title , action="episodios", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail, view="videos" ) )
 
     return itemlist
 
@@ -99,7 +99,7 @@ def episodios(item):
         plot = scrapedplot
         url = urlparse.urljoin(item.url,scrapedurl)
         if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-        itemlist.append( Item( channel=item.channel , title=title , action="play", server="azteca", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail, viewmode="movie_with_plot", folder=False ) )
+        itemlist.append( Item( channel=item.channel , title=title , action="play", server="azteca", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail, folder=False ) )
 
     return itemlist
 
@@ -110,7 +110,7 @@ def detalle_episodio(item):
     try:
         from servers import azteca as servermodule
         video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[-1][1]
+        item.media_url = video_urls[0][1]
     except:
         import traceback
         print traceback.format_exc()

@@ -93,7 +93,7 @@ def programas(item):
     for scrapedurl, scrapedthumbnail, scrapedtitle in matches:
         scrapedtitle = scrapedtitle.decode('unicode_escape').encode('utf8')
         scrapedthumbnail = scrapedthumbnail.decode('unicode_escape').encode('utf8')
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle, action="episodios", url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, folder=True) )
+        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle, action="episodios", url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, show=scrapedtitle, folder=True) )
 
     total_pages = int(scrapertools.find_single_match(data, '"total_pages":(\d+)'))
     current_page = int(scrapertools.find_single_match(data, '"current_page":"([^"]+)"'))
@@ -138,6 +138,14 @@ def alfabetico(item):
 
     return itemlist
 
+def detalle_programa(item):
+
+    data = scrapertools.cache_page(item.url.rsplit("/",2)[0]).replace("\n","")
+    item.plot = scrapertools.find_single_match(data, '<div class="cfct-mod-content">(.*?)</div>')
+    item.plot = scrapertools.htmlclean(item.plot)
+
+    return item
+
 def episodios(item):
     logger.info("tvalacarta.channels.discoverymax episodios")
 
@@ -168,7 +176,7 @@ def episodios(item):
     matches = scrapertools.find_multiple_matches(data, patron)
     for scrapedurl, scrapedthumbnail, scrapedtitle, scrapedplot in matches:
         scrapedurl = item.url + scrapedurl
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle, action="play", url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot, fanart=fanart, folder=False) )
+        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle, action="play", url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot, fanart=fanart, show=item.show, folder=False) )
 
     if len(itemlist) < 2:
         itemlist.append( Item(channel=CHANNELNAME, title="No hay episodios completos disponibles", action="", url="", thumbnail=fanart, plot=sinopsis, fanart=fanart, folder=False) )

@@ -27,6 +27,7 @@ def mainlist(item):
     logger.info("tvalacarta.channels.canalantigua mainlist")
 
     item.url="https://canalantigua.tv/programas/"
+    item.view="programs"
     return programas(item)
 
 def programas(item):
@@ -57,7 +58,7 @@ def programas(item):
         title = title.replace("-"," ").capitalize()
         plot = ""
 
-        itemlist.append( Item(channel=__channel__, action="episodios", title=title, show=title, url=url, thumbnail=thumbnail,  plot=plot, viewmode="movie", folder=True))
+        itemlist.append( Item(channel=__channel__, action="episodios", title=title, show=title, url=url, thumbnail=thumbnail,  fanart=thumbnail,  plot=plot, view="videos", folder=True))
 
     return itemlist
 

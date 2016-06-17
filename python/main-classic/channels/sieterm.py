@@ -53,7 +53,7 @@ def categorias(item):
         if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
 
         # Añade al listado de XBMC
-        itemlist.append( Item(channel=CHANNELNAME, title=title , action=action , url=url, thumbnail=thumbnail, category=title, plot=plot ) )
+        itemlist.append( Item(channel=CHANNELNAME, title=title , action=action , url=url, thumbnail=thumbnail, category=title, plot=plot, view="programs" ) )
     
     return itemlist
 
@@ -97,12 +97,12 @@ def programas(item, load_all_pages=False):
         page = url
 
         # Añade al listado de XBMC
-        itemlist.append( Item(channel=CHANNELNAME, title=title , action="temporadas" , url=url, thumbnail=thumbnail, fanart=fanart, category=item.category, plot=plot, show=title, page=page, viewmode="movie_with_plot" ) )
+        itemlist.append( Item(channel=CHANNELNAME, title=title , action="temporadas" , url=url, thumbnail=thumbnail, fanart=fanart, category=item.category, plot=plot, show=title, page=page ) )
     
     next_page_url = scrapertools.find_single_match(data,'<li><a href="([^"]+)">SIGUIENTE</a><li>')
     if next_page_url!="":
         next_page_url = urlparse.urljoin(item.url,next_page_url)
-        next_page_item = Item(channel=CHANNELNAME, title=">> Página siguiente" , action="programas" , url=next_page_url, category=item.category)
+        next_page_item = Item(channel=CHANNELNAME, title=">> Página siguiente" , action="programas" , url=next_page_url, category=item.category, view="programs")
 
         if load_all_pages:
             itemlist.extend(programas(next_page_item,load_all_pages))
@@ -129,7 +129,7 @@ def temporadas(item, load_all_pages=False):
         fanart = thumbnail
 
         # Añade al listado de XBMC
-        temporadaitem = Item(channel=CHANNELNAME, title=title , action="videos" , url=url, thumbnail=thumbnail, fanart=fanart, plot=plot, category=item.category, show=item.show )
+        temporadaitem = Item(channel=CHANNELNAME, title=title , action="videos" , url=url, thumbnail=thumbnail, fanart=fanart, plot=plot, category=item.category, show=item.show, view="videos" )
         #itemlist.extend( videos(temporadaitem,load_all_pages) )
         itemlist.append(temporadaitem)
     
@@ -171,7 +171,7 @@ def videos(item, load_all_pages=False):
 
         # Y recompone la URL
         next_page_url = "/".join(trozos)
-        next_page_item = Item(channel=CHANNELNAME, title=">> Página siguiente" , action="videos" , url=next_page_url, thumbnail=thumbnail, fanart=fanart, show=item.show, viewmode="movie_with_plot" )
+        next_page_item = Item(channel=CHANNELNAME, title=">> Página siguiente" , action="videos" , url=next_page_url, thumbnail=thumbnail, fanart=fanart, show=item.show, view="videos" )
 
         if load_all_pages:
             itemlist.extend(videos(next_page_item, load_all_pages))
@@ -207,7 +207,7 @@ def programas_antiguos(item, load_all_pages=False):
         if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")
 
         # Añade al listado de XBMC
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , show=scrapedtitle , viewmode="movie_with_plot" ) )
+        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , show=scrapedtitle , view="videos" ) )
 
     # Busca la página siguiente
     next_page_url = scrapertools.find_single_match(data,'<a class="list-siguientes" href="([^"]+)" title="Ver siguientes a la cartas">Siguiente</a>')
@@ -277,7 +277,7 @@ def episodios(item, load_all_pages=False):
         #logger.info("aired_date="+aired_date)
 
         # Añade al listado de XBMC
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , server="sieterm" , url=scrapedpage, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , show = item.show , page=scrapedpage, viewmode="movie_with_plot", aired_date=aired_date, folder=False) )
+        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , server="sieterm" , url=scrapedpage, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , show = item.show , page=scrapedpage, aired_date=aired_date, folder=False) )
 
     # Busca la página siguiente
     next_page_url = scrapertools.find_single_match(data,'<a class="list-siguientes" href="([^"]+)" title="Ver siguientes archivos">')
@@ -301,7 +301,7 @@ def detalle_episodio(item):
     try:
         from servers import sieterm as servermodule
         video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[-1][1]
+        item.media_url = video_urls[0][1]
     except:
         import traceback
         print traceback.format_exc()

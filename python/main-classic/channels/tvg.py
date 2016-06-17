@@ -149,7 +149,22 @@ def programas(item):
 
     return itemlist
 
-def episodios(item):
+def detalle_programa(item):
+
+    #http://www.crtvg.es/tvg/a-carta/programa/vivir-aqui
+    #http://www.crtvg.es/tvg/programas/vivir-aqui
+    url = item.url.replace("a-carta/programa","programas")
+
+    data = scrapertools.cache_page(url)
+    
+    item.plot = scrapertools.find_single_match(data,'<meta name="description" content="([^"]+)"')
+    item.plot = scrapertools.htmlclean(item.plot).strip()
+
+    item.thumbnail = scrapertools.find_single_match(data,'<meta property="og:image" content="([^"]+)"')
+
+    return item
+
+def episodios(item, load_all_pages = False):
     logger.info("[tvg.py] episodios")
     itemlist = []
 
@@ -183,7 +198,7 @@ def episodios(item):
         data = data.replace("\\\"","\"")
         data = data.replace("\\/","/")
 
-    logger.info("data="+data)
+    #logger.info("data="+data)
 
     # Extrae los videos
     '''
@@ -200,18 +215,19 @@ def episodios(item):
     if DEBUG: scrapertools.printMatches(matches)
 
     for scrapedurl,scrapedtitle,fecha in matches:
-        title = scrapedtitle.strip()+" - "+fecha.strip()
+        title = scrapedtitle.strip()
         json_title = jsontools.load_json('{"title":"'+title+'"}')
         title = json_title["title"]
+        title = scrapertools.htmlclean(title)+" - "+fecha.strip()
 
         url = urlparse.urljoin(item.url,scrapedurl)
         thumbnail = ""
         plot = ""
+        aired_date = scrapertools.parse_date(fecha)
         if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
 
         # Añade al listado de XBMC
-        itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="tvg", url=url, thumbnail=thumbnail, plot=plot , show=item.show , folder=False) )
-
+        itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="tvg", url=url, thumbnail=thumbnail, plot=plot , show=item.show , aired_date=aired_date, folder=False) )
 
     #<a href=\"#\" title=\"Seguinte\" onclick=\"return posteriorpaginaclick(33517, 2, 294)
     patron  = '<a href="\#" title="Seguinte" onclick="return posteriorpaginaclick\((\d+), (\d+), (\d+)'
@@ -226,8 +242,35 @@ def episodios(item):
         scrapedplot = ""
         if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")
 
-        # Añade al listado de XBMC
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , show=item.show , category = item.category , folder=True) )
+        next_page_item = Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , show=item.show , category = item.category , folder=True)
+        if load_all_pages:
+            itemlist.extend( episodios(next_page_item, load_all_pages) )
+        else:
+            itemlist.append( next_page_item )
+
+        break
+
+    return itemlist
+
+def detalle_episodio(item):
+
+    item.geolocked = "0"
+    
+    try:
+        from servers import tvg as servermodule
+        video_urls = servermodule.get_video_url(item.url)
+        item.media_url = video_urls[0][1]
+    except:
+        import traceback
+        print traceback.format_exc()
+        item.media_url = ""
+
+    return item
+
+def play(item):
+
+    item.server="tvg";
+    itemlist = [item]
 
     return itemlist
 

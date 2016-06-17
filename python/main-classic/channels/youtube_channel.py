@@ -93,7 +93,12 @@ def videos(item,pageToken=""):
         
         title = entry["snippet"]["title"]
         plot = entry["snippet"]["description"]
-        thumbnail = entry["snippet"]["thumbnails"]["high"]["url"]
+
+        try:
+            thumbnail = entry["snippet"]["thumbnails"]["high"]["url"]
+        except:
+            thumbnail = ""
+
         url = entry["snippet"]["resourceId"]["videoId"]
 
         # Appends a new item to the xbmc item list

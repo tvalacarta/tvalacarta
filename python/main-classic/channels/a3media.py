@@ -70,7 +70,7 @@ def mainlist(item):
         eid = entry['idSection']
         scrapedtitle = entry['menuTitle']
         scrapedurl = url2 + str(eid)
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="secciones" , url=scrapedurl, folder=True) )
+        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="secciones" , url=scrapedurl, folder=True, view="programs") )
 
     itemlist.append( Item(channel=CHANNELNAME, title="A.....Z" , action="secciones" , url="http://servicios.atresplayer.com/api/sortedCategorySections", folder=True) )
 
@@ -103,7 +103,7 @@ def secciones(item):
 
         if entry['drm'] == False: ##solo añade las secciones con visualizacion no protegida
             # Añade al listado
-            itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="temporadas" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra=str(extra), folder=True) )
+            itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="temporadas" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , extra=str(extra), folder=True, view="videos") )
 
     return itemlist
 
@@ -141,7 +141,7 @@ def temporadas(item):
                     scrapedthumbnail = entry['urlImage'].replace('.jpg','03.jpg')
 
                     # Añade al listado
-                    itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra=str(extra), folder=True) )
+                    itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , extra=str(extra), folder=True, view="videos") )
 
                     ######## Añadido ##########################################
                     if temporada.has_key('subCategories'):
@@ -154,7 +154,7 @@ def temporadas(item):
                             scrapedthumbnail = temporada['urlImage'].replace('.jpg','03.jpg')
 
                             # Añade al listado
-                            itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra=str(extra2), folder=True) )
+                            itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra=str(extra2), folder=True, view="videos") )
                     ######## Fin Añadido ######################################
 
     if n == 1:  #si solo hay una temporada cargar los episodios

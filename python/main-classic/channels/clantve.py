@@ -23,7 +23,7 @@ def mainlist(item):
 
     itemlist = []
     #itemlist.append( Item(channel=__channel__, title="Últimos vídeos añadidos" , url="http://www.rtve.es/infantil/components/TE_INFDEF/videos/videos-1.inc" , action="ultimos_videos" , folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Todos los programas" , url=MAIN_URL , action="programas" , folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Todos los programas" , url=MAIN_URL , action="programas" , folder=True, view="programs") )
     return itemlist
 
 def programas(item, load_all_pages=False):
@@ -52,7 +52,7 @@ def programas(item, load_all_pages=False):
         fanart = json_item["imgPortada"]
         page = json_item["htmlUrl"]
         if (DEBUG): logger.info(" title=["+repr(title)+"], url=["+repr(url)+"], thumbnail=["+repr(thumbnail)+"] plot=["+repr(plot)+"]")
-        itemlist.append( Item(channel=__channel__, title=title , action="episodios" , url=url, thumbnail=thumbnail, plot=plot , page=page, show=title , fanart=fanart, viewmode="movie_with_plot", folder=True) )
+        itemlist.append( Item(channel=__channel__, title=title , action="episodios" , url=url, thumbnail=thumbnail, plot=plot , page=page, show=title , fanart=fanart, folder=True, view="videos") )
 
     # Añade el resto de páginas, siempre que haya al menos algún elemento
     if len(itemlist)>0:
@@ -64,7 +64,7 @@ def programas(item, load_all_pages=False):
             item.url = next_page_url
             itemlist.extend(programas(item,load_all_pages))
         else:
-            itemlist.append( Item(channel=__channel__, title=">> Página siguiente" , url=next_page_url,  action="programas") )
+            itemlist.append( Item(channel=__channel__, title=">> Página siguiente" , url=next_page_url,  action="programas", view="programs") )
 
     return itemlist
 
@@ -130,7 +130,7 @@ def detalle_episodio(item):
     try:
         from servers import rtve as servermodule
         video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[-1][1]
+        item.media_url = video_urls[0][1]
     except:
         import traceback
         print traceback.format_exc()

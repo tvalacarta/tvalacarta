@@ -24,10 +24,10 @@ def mainlist(item):
     logger.info("tvalacarta.channels.aragontv mainlist")
 
     itemlist = []
-    itemlist.append( Item(channel=CHANNELNAME, title="Últimos vídeos añadidos" , url="http://alacarta.aragontelevision.es/por-fecha/" , action="episodios" , folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Informativos" , url="http://alacarta.aragontelevision.es/informativos" , action="episodios" , folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Todos los programas" , url="http://alacarta.aragontelevision.es/programas" , action="programas" , folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Buscador" , action="search" , folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Últimos vídeos añadidos" , url="http://alacarta.aragontelevision.es/por-fecha/" , action="episodios" , folder=True, view="videos") )
+    itemlist.append( Item(channel=CHANNELNAME, title="Informativos" , url="http://alacarta.aragontelevision.es/informativos" , action="episodios" , folder=True, view="videos") )
+    itemlist.append( Item(channel=CHANNELNAME, title="Todos los programas" , url="http://alacarta.aragontelevision.es/programas" , action="programas" , folder=True, view="programs") )
+    itemlist.append( Item(channel=CHANNELNAME, title="Buscador" , action="search" , folder=True, view="videos") )
 
     return itemlist
 
@@ -85,7 +85,7 @@ def programas(item):
 
         if not "programas/vaughan" in scrapedurl:
             # Añade al listado
-            itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , show=scrapedtitle, viewmode="movie", folder=True) )
+            itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , show=scrapedtitle, folder=True) )
         else:
             itemlist.extend( subcategorias(scrapedurl) )
 
@@ -157,7 +157,7 @@ def episodios(item,data=""):
     matches = re.compile(patron,re.DOTALL).findall(data)
     scrapertools.printMatches(matches)
     if len(matches)>0:
-        pageitem = Item(channel=CHANNELNAME, title=">> Página siguiente" , action="episodios" , url=urlparse.urljoin(item.url,matches[0]), thumbnail=item.thumbnail, plot=item.plot , show=item.show, folder=True)
+        pageitem = Item(channel=CHANNELNAME, title=">> Página siguiente" , action="episodios" , url=urlparse.urljoin(item.url,matches[0]), thumbnail=item.thumbnail, plot=item.plot , show=item.show, folder=True, view="videos")
         itemlist.append( pageitem )
 
     return itemlist
@@ -168,13 +168,15 @@ def detalle_episodio(item):
 
     scrapedplot = scrapertools.find_single_match(data,'<span class="title">Resumen del v[^>]+</span>(.*?)</div>')
     item.plot = scrapertools.htmlclean( scrapedplot ).strip()
+    item.title = scrapertools.find_single_match(data,'<span class="activo"><strong>([^<]+)</strong></span>')
+    item.aired_date = scrapertools.parse_date( item.title )
 
     item.geolocked = "0"
     
     try:
         from servers import aragontv as servermodule
         video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[-1][1]
+        item.media_url = video_urls[0][1]
     except:
         import traceback
         print traceback.format_exc()
@@ -210,14 +212,7 @@ def subcategorias(pageurl):
         if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")
 
         # Añade al listado
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , show=scrapedtitle, folder=True) )
-
-    return itemlist
-
-def play(item):
-
-    item.server="aragontv";
-    itemlist = [item]
+        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , show=scrapedtitle, folder=True, view="videos") )
 
     return itemlist
 

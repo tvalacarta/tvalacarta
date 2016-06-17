@@ -22,6 +22,7 @@ def isGeneric():
 
 def mainlist(item):
     logger.info("tvalacarta.channels.acbtv.mainlist")
+    item.view="thumbnails"
     return programas(item)
 
 def programas(item):

@@ -238,10 +238,13 @@ def detalle_episodio(item):
 
     item.geolocked = "0"
 
+    if item.aired_date == "":
+        item.aired_date = scrapertools.parse_date(item.title,"mdy")
+
     try:
         from servers import cntv as servermodule
         video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[-1][1]
+        item.media_url = video_urls[0][1]
     except:
         import traceback
         print traceback.format_exc()

@@ -36,6 +36,7 @@ def mainlist(item):
 
 	itemlist.append( Item(channel=CHANNELNAME, title="", action="", folder=False) )
 	itemlist.append( Item(channel=CHANNELNAME, title="Preferencias", action="settings", folder=False) )
+	itemlist.append( Item(channel="api_programas", title="Configurar programas ocultos", action="get_hidden_programs", folder=True) )
 
 	return itemlist
 

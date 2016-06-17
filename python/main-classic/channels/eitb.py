@@ -155,6 +155,17 @@ def programas(item):
 
     return itemlist
 
+def detalle_programa(item):
+
+    data = scrapertools.cache_page(item.url)
+    data_json = load_json(data)
+
+    item.plot = data_json["desc_group"]
+
+    item.thumbnail = scrapertools.find_single_match(data,'<div class="col-xs-8 col-right"[^<]+<img src="([^"]+)"')
+
+    return item
+
 def episodios(item):
     logger.info("[eitb.py] episodios")
     itemlist=[]
@@ -169,7 +180,9 @@ def episodios(item):
     itemlist = []
 
     for video in episodios_json['web_media']:
-        scrapedthumbnail = video['THUMBNAIL_URL']
+        scrapedthumbnail = video['STILL_URL']
+        if scrapedthumbnail is None:
+            scrapedthumbnail = video['THUMBNAIL_URL']
         if scrapedthumbnail is None:
             scrapedthumbnail = ""
         logger.info("scrapedthumbnail="+scrapedthumbnail)

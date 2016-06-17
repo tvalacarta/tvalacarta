@@ -32,7 +32,7 @@ def isGeneric():
     return True
 
 def mainlist(item):
-    logger.info("[tv3.py] mainlist")
+    logger.info("tvalacarta.channels.tv3 mainlist")
 
     itemlist = []
 
@@ -55,7 +55,7 @@ def mainlist(item):
 
 # Cargar menú de directos
 def loadlives(item):
-    logger.info("[tv3.py] loadlives")
+    logger.info("tvalacarta.channels.tv3 loadlives")
 
     itemlist = []
 
@@ -97,7 +97,7 @@ def loadlives(item):
 
 # Carga entradas antigua web
 def loadoldwebentries(item):
-    logger.info("[tv3.py] loadoldwebentries")
+    logger.info("tvalacarta.channels.tv3 loadoldwebentries")
 
     itemlist = []
 
@@ -119,8 +119,9 @@ def loadoldwebentries(item):
 
 # Carga programas de una sección
 def loadprogram(item):
+
     try:
-        logger.info("[tv3.py] loadprogram")
+        logger.info("tvalacarta.channels.tv3 loadprogram")
 
         itemlist = []
 
@@ -143,8 +144,14 @@ def loadprogram(item):
                 try:
                     # Crea entradas
                     scrapedtitle = str(program[1]).replace("&quot;", "'").strip()
-                    urlallchapters = URLBASE + program[0] + "ultims-programes/"
-                    itemlist.append( Item(channel=item.channel, title=scrapedtitle, action="loadchapters", url=urlallchapters, folder=True) )
+
+                    if "fitxa-programa" in program[0]:
+                        urlallchapters = URLBASE + program[0]
+                        urlallchapters = urlallchapters.replace("fitxa-programa","fitxa-programa/ultims-programes")
+                    else:
+                        urlallchapters = URLBASE + program[0] + "ultims-programes/"
+
+                    itemlist.append( Item(channel=item.channel, title=scrapedtitle, show=scrapedtitle, action="loadchapters", url=urlallchapters, folder=True) )
 
                 except:
                     for line in sys.exc_info():
@@ -156,7 +163,16 @@ def loadprogram(item):
 
     return itemlist
 
+def detalle_programa(item):
 
+    data = scrapertools.cache_page(item.url)
+
+    item.plot = scrapertools.find_single_match(data,'<meta name="description" content="([^"]+)"')
+    item.plot = scrapertools.htmlclean(item.plot).strip()
+
+    item.thumbnail = scrapertools.find_single_match(data,'<meta property="og:image" content="([^"]+)"')
+
+    return item
 
 # Búsqueda en nueva web CCMA
 def search(item, texto, categoria="*"):
@@ -168,12 +184,10 @@ def search(item, texto, categoria="*"):
         searchURL = URLSEARCH + texto
         return pager(searchURL)
 
-
-
 # Carga capítulos de un programa
-def loadchapters(item):
-    logger.info("[tv3.py] loadchapters")
-    return pager(item.url, item.channel)
+def loadchapters(item, load_all_pages = False):
+    logger.info("tvalacarta.channels.tv3 loadchapters")
+    return pager(item.url, item.channel, load_all_pages, item)
 
 
 # Comprueba si hay secciones
@@ -184,10 +198,18 @@ def findsections(data):
 
 
 # Carga subsecciones (precondicion: llega una subpagina generada por "findsections")
-def loadsections(subpage, channel=__channel__):
+def loadsections(subpage, channel=__channel__,item=None):
+    logger.info("tvalacarta.channels.tv3 pager")
+
     itemlist = []
     patron = '<div class="R-infoDestacat">[\s]*<a title="([^"]+)" href="([^"]+)"'
     matches = re.compile(patron,re.DOTALL).findall(subpage[0])
+
+    if item is not None:
+        show = item.show
+    else:
+        show = ""
+
     if matches:
         for program in matches:
             try:
@@ -195,7 +217,7 @@ def loadsections(subpage, channel=__channel__):
                 scrapedtitle = str(program[0]).replace("&quot;", "'").strip()
                 import os.path
                 urlallchapters = URLBASE + "/" + os.path.dirname(os.path.dirname(program[1].strip("/"))) + "/programes/"
-                itemlist.append( Item(channel=channel, title=scrapedtitle, action="loadchapters", url=urlallchapters, folder=True) )
+                itemlist.append( Item(channel=channel, title=scrapedtitle, action="loadchapters", url=urlallchapters, show=show, folder=True) )
             except:
                 for line in sys.exc_info():
                     logger.error( "%s" % line )
@@ -204,8 +226,15 @@ def loadsections(subpage, channel=__channel__):
 
 
 # Carga excepción para los informativos "Comarques"
-def loadcomarques():
+def loadcomarques(item=None):
     itemlist = []
+
+    if item is not None:
+        show = item.show
+    else:
+        show = ""
+
+    logger.info("show="+show)
 
     url_bar = "http://www.ccma.cat/tv3/alacarta/telenoticies/tn-barcelona/programes/"
     url_tar = "http://www.ccma.cat/tv3/alacarta/telenoticies/tn-tarragona/programes/"
@@ -213,23 +242,24 @@ def loadcomarques():
     url_gir = "http://www.ccma.cat/tv3/alacarta/telenoticies/tn-girona/programes/"
     url_ara = "http://www.ccma.cat/tv3/alacarta/telenoticies/tn-aran/programes/"
 
-    itemlist.append( Item(channel=__channel__, title="TN Comarques Barcelona", action="loadchapters", url=url_bar, folder=True) )
-    itemlist.append( Item(channel=__channel__, title="TN Comarques Tarragona", action="loadchapters", url=url_tar, folder=True) )
-    itemlist.append( Item(channel=__channel__, title="TN Comarques Lleida", action="loadchapters", url=url_lle, folder=True) )
-    itemlist.append( Item(channel=__channel__, title="TN Comarques Girona", action="loadchapters", url=url_gir, folder=True) )
-    itemlist.append( Item(channel=__channel__, title="TN Comarques Arán", action="loadchapters", url=url_ara, folder=True) )
+    itemlist.append( Item(channel=__channel__, title="TN Comarques Barcelona", action="loadchapters", show=show, url=url_bar, folder=True) )
+    itemlist.append( Item(channel=__channel__, title="TN Comarques Tarragona", action="loadchapters", show=show, url=url_tar, folder=True) )
+    itemlist.append( Item(channel=__channel__, title="TN Comarques Lleida", action="loadchapters", show=show, url=url_lle, folder=True) )
+    itemlist.append( Item(channel=__channel__, title="TN Comarques Girona", action="loadchapters", show=show, url=url_gir, folder=True) )
+    itemlist.append( Item(channel=__channel__, title="TN Comarques Arán", action="loadchapters", show=show, url=url_ara, folder=True) )
 
     return itemlist
 
 
 # Dada una url de la web CCMA, pagina los resultados
 # Precondición: la url debe ser la de un programa o una búsqueda
-def pager(url, channel=__channel__):
+def pager(url, channel=__channel__, load_all_pages = False, item=None):
+    logger.info("tvalacarta.channels.tv3 pager")
 
     try:
         # Tratamiento de la excepción única que tienen en la web de informativos en la sección "Comarques"
         if "tn-comarques" in url:
-            return loadcomarques()
+            return loadcomarques(item)
 
         itemlist = []
         data = scrapertools.cachePage(url)
@@ -246,7 +276,7 @@ def pager(url, channel=__channel__):
         #
         sections = findsections(data)
         if sections:
-            return loadsections(sections, channel)
+            return loadsections(sections, channel,item)
 
         # --------------------------------------------------------
         # Extrae los videos
@@ -272,7 +302,12 @@ def pager(url, channel=__channel__):
 
                     patron= '<p class="entradeta">([^<]+)<'
                     matches = re.compile(patron,re.DOTALL).findall(chapter)
-                    scrapedplot = matches[0]
+                    scrapedplot = matches[0].strip()
+
+                    duration = scrapertools.find_single_match(chapter,'<time class="duration"[^<]+<span[^<]+</span>([^<]+)</time>')
+                    duration = duration.strip()
+
+                    aired_date = scrapertools.find_single_match(chapter,'<time class="data" datetime="([^"]+)">')
 
                     # Añade al listado de XBMC
                     itemlist.append(
@@ -283,6 +318,9 @@ def pager(url, channel=__channel__):
                              thumbnail = scrapedthumbnail,
                              plot = scrapedplot,
                              server = "tv3",
+                             duration = duration,
+                             aired_date = aired_date,
+                             show = item.show,
                              folder = False
                         )
                     )
@@ -299,23 +337,48 @@ def pager(url, channel=__channel__):
 
         if len(urlpager)>0 :
             urlsiguiente = url + urlpager[0]
+            next_page_item = Item(channel=channel,
+                         action = 'loadchapters',
+                         title = '>> Siguiente',
+                         url = urlsiguiente,
+                         thumbnail = '',
+                         show=item.show,
+                         plot = ""
+                    )
 
-            # Añade al listado de XBMC
-            itemlist.append(
-                Item(channel=channel,
-                     action = 'loadchapters',
-                     title = '>> Siguiente',
-                     url = urlsiguiente,
-                     thumbnail = '',
-                     plot = ""
-                )
-            )
+            if load_all_pages:
+                itemlist.extend(loadchapters(next_page_item,load_all_pages))
+            else:
+                # Añade al listado de XBMC
+                itemlist.append(next_page_item)
     except:
         for line in sys.exc_info():
             logger.error( "%s" % line )
 
     return itemlist
 
+
+def detalle_episodio(item):
+
+    item.geolocked = "0"
+    
+    try:
+        from servers import tv3 as servermodule
+        video_urls = servermodule.get_video_url(item.url)
+        item.media_url = video_urls[0][1]
+    except:
+        import traceback
+        print traceback.format_exc()
+        item.media_url = ""
+
+    return item
+
+def play(item):
+
+    item.server="tv3";
+    itemlist = [item]
+
+    return itemlist
 
 ##########################################################################################################
 # Funciones web antigua
@@ -324,7 +387,7 @@ def pager(url, channel=__channel__):
 # Carga secciones web antigua
 def loadsection(item):
     try:
-        logger.info("[tv3.py] loadsection")
+        logger.info("tvalacarta.channels.tv3 loadsection")
 
         itemlist = []
 
@@ -499,7 +562,7 @@ def dooldsearch(item):
 
 # Carga videos HD web antigua
 def hdvideolist(item):
-    logger.info("[tv3.py] hdvideolist")
+    logger.info("tvalacarta.channels.tv3 hdvideolist")
     itemlist = []
     try:
         # --------------------------------------------------------

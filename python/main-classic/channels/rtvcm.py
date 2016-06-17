@@ -122,10 +122,11 @@ def detalle_episodio(item):
         item.thumbnail = json_object["video_image_url"].split("?")[0]
         item.geolocked = "0"
         item.duration = scrapertools.parse_duration_secs( json_object["duration"] )
+        item.aired_date = scrapertools.parse_date(item.title)
 
         from servers import rtvcm as servermodule
         video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[-1][1]
+        item.media_url = video_urls[0][1]
 
     except:
         import traceback

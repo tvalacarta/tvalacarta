@@ -143,6 +143,7 @@ def detalle_episodio(item):
     item.plot = scrapertools.htmlclean(scrapertools.find_single_match(data,'<meta property="og:description" content="([^"]+)"')).strip()
     item.thumbnail = scrapertools.find_single_match(data,'<meta property="og:image" content="([^"]+)"')
     item.geolocked = "0"
+    item.aired_date = scrapertools.find_single_match(data,'<meta name="publish-date" content="([^\s]+)')
 
     media_item = play(item)
     try:
