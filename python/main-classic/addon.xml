@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.tvalacarta"
     name="tvalacarta"
-    version="4.0.1"
+    version="4.0.2"
     provider-name="tvalacarta">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
-    <import addon="script.module.youtube.dl" version="15.1223.0"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>video</provides>
