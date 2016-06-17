@@ -82,7 +82,7 @@ class EitbIE(InfoExtractor):
             'description': media.get('SHORT_DESC_ES') or video.get('desc_group') or media.get('SHORT_DESC_EU'),
             'thumbnail': media.get('STILL_URL') or media.get('THUMBNAIL_URL'),
             'duration': float_or_none(media.get('LENGTH'), 1000),
-            'timestamp': parse_iso8601(media.get('BROADCST_DATE'), ' '),
+            #'timestamp': parse_iso8601(media.get('BROADCST_DATE'), ' '),
             'tags': media.get('TAGS'),
             'formats': formats,
         }

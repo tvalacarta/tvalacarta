@@ -1419,7 +1419,7 @@ class YoutubeIE(YoutubeBaseInfoExtractor):
                 video_webpage, 'upload date', default=None)
             if upload_date:
                 upload_date = ' '.join(re.sub(r'[/,-]', r' ', mobj.group(1)).split())
-        upload_date = unified_strdate(upload_date)
+        #upload_date = unified_strdate(upload_date)
 
         video_license = self._html_search_regex(
             r'<h4[^>]+class="title"[^>]*>\s*License\s*</h4>\s*<ul[^>]*>\s*<li>(.+?)</li',
