@@ -28,14 +28,14 @@
 <project name="tvalacarta" default="package">
 	<description>tvalacarta</description>
 
-    <property name="oldversion" value="4.0.1"/>
-    <property name="oldversionboxee" value="10.12"/>
-    <property name="oldversiondate" value="23/05/2015"/>
+    <property name="oldversion" value="4.0.2"/>
+    <property name="oldversionboxee" value="10.13"/>
+    <property name="oldversiondate" value="17/06/2016"/>
 
-    <property name="version" value="4.0.2"/>
-    <property name="versionboxee" value="10.13"/>
-    <property name="versiondate" value="17/06/2016"/>
-    <property name="versionchanges" value="Nueva versión"/>
+    <property name="version" value="4.0.3"/>
+    <property name="versionboxee" value="10.14"/>
+    <property name="versiondate" value="18/06/2016"/>
+    <property name="versionchanges" value="Bugfix"/>
 
     <property name="target" value="../../target/python"/>
     <property file='${user.home}/build.properties'/>

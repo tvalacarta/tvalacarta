@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <version>
 	<name>tvalacarta</name>
-	<tag>4.0.2</tag>
-	<version>4002</version>
-	<date>17/06/2016</date>
-	<changes>New release</changes>
+	<tag>4.0.3</tag>
+	<version>4003</version>
+	<date>18/06/2016</date>
+	<changes>Bugfix release</changes>
 </version>

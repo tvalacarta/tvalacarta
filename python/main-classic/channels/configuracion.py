@@ -137,8 +137,8 @@ def reset_password(item):
 	canceled = plugintools.message("Olvidé mi contraseña","Te llegará un correo con un enlace","Haz click sobre él y luego pulsa OK para introducir tu nueva contraseña")
 
 	if not canceled:
-		password = plugintools.keyboard_input("","Introduce tu contraseña",hidden=True)
-		password_confirmation = plugintools.keyboard_input("","Confirma tu contraseña",hidden=True)
+		password = plugintools.keyboard_input("","Introduce tu nueva contraseña",hidden=True)
+		password_confirmation = plugintools.keyboard_input("","Confirma tu nueva contraseña",hidden=True)
 
 		result = api.accounts_reset_password_confirmation(request_id , password)
 

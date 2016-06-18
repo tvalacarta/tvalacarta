@@ -46,7 +46,7 @@ DEFAULT_HEADERS = [ ["User-Agent",config.PLUGIN_NAME+" "+config.PLATFORM_NAME] ]
 # ---------------------------------------------------------------------------------------------------------
 
 # Make a remote call using post, ensuring api key is here
-def remote_call(url,parameters={}):
+def remote_call(url,parameters={},require_session=True):
     plugintools.log("tvalacarta.core.api.remote_call url="+url+", parameters="+repr(parameters))
 
     if not url.startswith("http"):
@@ -56,7 +56,7 @@ def remote_call(url,parameters={}):
         parameters["api_key"] = API_KEY
 
     # Add session token if not here
-    if not "s" in parameters:
+    if not "s" in parameters and require_session:
         parameters["s"] = get_session_token()
 
     headers = DEFAULT_HEADERS
@@ -281,7 +281,7 @@ def get_anonymous_account_or_request_new():
 def accounts_get_new_anonymous_account():
     plugintools.log("tvalacarta.core.api.accounts_get_new_anonymous_account")
 
-    return remote_call( "accounts/get_new_anonymous_account.php" )
+    return remote_call( "accounts/get_new_anonymous_account.php" , require_session=False )
 
 def accounts_login( account_email="" , account_password="" ):
     plugintools.log("tvalacarta.core.api.accounts_login")
@@ -291,7 +291,7 @@ def accounts_login( account_email="" , account_password="" ):
     else:
         parameters = { "a":get_anonymous_account_or_request_new() }
 
-    return remote_call( "accounts/login.php" , parameters )
+    return remote_call( "accounts/login.php" , parameters , require_session=False )
 
 def accounts_logout(session):
     plugintools.log("tvalacarta.core.api.accounts_logout")
@@ -303,25 +303,25 @@ def accounts_register(email,password):
     plugintools.log("tvalacarta.core.api.accounts_register")
 
     parameters = { "u":email , "p":password }
-    return remote_call( "accounts/register.php" , parameters )
+    return remote_call( "accounts/register.php" , parameters , require_session=False )
 
 def accounts_reset_password_request(email):
     plugintools.log("tvalacarta.core.api.accounts_reset_password_request")
 
     parameters = { "u":email }
-    return remote_call( "accounts/reset_password_request.php" , parameters )
+    return remote_call( "accounts/reset_password_request.php" , parameters , require_session=False )
 
 def accounts_reset_password_confirmation(request_id,password):
     plugintools.log("tvalacarta.core.api.accounts_reset_password_confirmation")
 
     parameters = { "id":request_id , "p":password }
-    return remote_call( "accounts/reset_password_confirmation.php" , parameters )
+    return remote_call( "accounts/reset_password_confirmation.php" , parameters , require_session=False )
 
 def accounts_change_password(old_password,new_password):
     plugintools.log("tvalacarta.core.api.accounts_change_password")
 
     parameters = { "s":plugintools.get_setting("account_session") , "old_password":old_password , "new_password":new_password }
-    return remote_call( "accounts/change_password.php" , parameters )
+    return remote_call( "accounts/change_password.php" , parameters , require_session=False )
 
 # ---------------------------------------------------------------------------------------------------------
 #  navigation service calls
