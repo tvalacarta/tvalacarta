@@ -38,7 +38,13 @@ def mainlist(item):
 	itemlist.append( Item(channel=CHANNELNAME, title="Preferencias", action="settings", folder=False) )
 	itemlist.append( Item(channel="api_programas", title="Configurar programas ocultos", action="get_hidden_programs", folder=True) )
 
+	itemlist.append( Item(channel=CHANNELNAME, title="Comprobar actualizaciones", action="check_for_updates", folder=False) )
+
 	return itemlist
+
+def check_for_updates(item):
+	from core import updater
+	updater.checkforupdates(plugin_mode=False)
 
 def settings(item):
     config.open_settings( )
