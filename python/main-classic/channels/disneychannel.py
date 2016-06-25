@@ -73,6 +73,12 @@ def detalle_episodio(item):
     except:
         item.duration = ""
 
+    aired_date_timestamp = scrapertools.find_single_match(data,'"createdAt":"(\d+)"')
+
+    if aired_date_timestamp<>"":
+        import datetime
+        item.aired_date = datetime.datetime.fromtimestamp( int(aired_date_timestamp) ).strftime('%Y-%m-%d')
+
     item.geolocked = "1"
 
     '''

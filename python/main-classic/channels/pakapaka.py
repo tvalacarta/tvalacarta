@@ -134,6 +134,20 @@ def episodios(item,load_all_pages=True):
 
 def detalle_episodio(item):
 
+    # Saca de conectate la duración y fecha
+    rec_id = scrapertools.find_single_match(item.url,"videos/(\d+)")
+    data = scrapertools.cache_page("http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id="+rec_id)
+    scrapeddate = scrapertools.find_single_match(data,'"fecha_creacion"\:"([^"]+)"')
+
+    if scrapeddate=="":
+        scrapeddate = scrapertools.find_single_match(data,'"fecha"\:"([^"]+)"')
+
+    item.aired_date = scrapertools.parse_date(scrapeddate.replace("\\/","/"))
+
+    scrapedduration = scrapertools.find_single_match(data,'"duracion_segundos":"(\d+)"')
+    item.duration = scrapertools.parse_duration_secs(scrapedduration)
+
+    # Ahora saca de PakaPaka la URL
     data = scrapertools.cache_page(item.url)
 
     item.geolocked = "0"    

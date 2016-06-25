@@ -255,10 +255,14 @@ def episodios(item, load_all_pages = False):
 def detalle_episodio(item):
 
     item.geolocked = "0"
-    
+
+    data = scrapertools.cache_page(item.url)
+    item.plot = scrapertools.find_single_match(data,'<div class="destacado-info-resumen">(.*?)</div>')
+    item.plot = scrapertools.htmlclean(item.plot).strip()
+
     try:
         from servers import tvg as servermodule
-        video_urls = servermodule.get_video_url(item.url)
+        video_urls = servermodule.get_video_url(item.url,page_data=data)
         item.media_url = video_urls[0][1]
     except:
         import traceback
