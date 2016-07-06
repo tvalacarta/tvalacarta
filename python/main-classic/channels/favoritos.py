@@ -7,7 +7,6 @@
 import urllib
 import os
 import sys
-import xbmc
 
 from core import downloadtools
 from core import config
@@ -15,6 +14,9 @@ from core import logger
 from core import samba
 from core import api
 from core.item import Item
+
+if config.is_xbmc():
+    import xbmc
 
 CHANNELNAME = "favoritos"
 DEBUG = True

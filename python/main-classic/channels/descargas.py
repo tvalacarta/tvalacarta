@@ -17,6 +17,9 @@ from core import scrapertools
 from core import downloadtools
 from core import suscription
 
+if config.is_xbmc():
+    import xbmc
+
 import favoritos
 
 CHANNELNAME = "descargas"
