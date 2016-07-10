@@ -139,10 +139,10 @@ def resolve_video_urls_for_playing(server,url,video_password="",muestra_dialogo=
             if muestra_dialogo:
                 import xbmcgui
                 progreso = xbmcgui.DialogProgress()
-                progreso.create( "pelisalacarta" , "Conectando con "+server)
+                progreso.create(config.PLUGIN_NAME, "Conectando con " + server)
 
             exec "from servers import "+server+" as server_connector"
-    
+
             if muestra_dialogo:
                 progreso.update( 25 , "Conectando con "+server)
 

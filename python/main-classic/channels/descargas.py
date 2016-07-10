@@ -17,14 +17,38 @@ from core import scrapertools
 from core import downloadtools
 from core import suscription
 
+if config.is_xbmc():
+    import xbmc
+
 import favoritos
 
 CHANNELNAME = "descargas"
 DEBUG = True
 
-DOWNLOAD_LIST_PATH = config.get_setting("downloadlistpath")
-IMAGES_PATH = os.path.join( config.get_runtime_path(), 'resources' , 'images' )
-ERROR_PATH = os.path.join( DOWNLOAD_LIST_PATH, 'error' )
+if config.is_xbmc():
+    if config.get_setting("downloadlistpath").startswith("special://"):
+        DOWNLOAD_LIST_PATH = xbmc.translatePath(config.get_setting("downloadlistpath"))
+        logger.info("channels.descargas DOWNLOAD_LIST_PATH convertido=" +
+                    DOWNLOAD_LIST_PATH)
+    else:
+        DOWNLOAD_LIST_PATH = config.get_setting("downloadlistpath")
+        logger.info("channels.descargas DOWNLOAD_LIST_PATH=" +
+                    DOWNLOAD_LIST_PATH)
+    # Lee la ruta de descargas
+    if config.get_setting("downloadpath").startswith("special://"):
+        downloadpath = xbmc.translatePath(config.get_setting("downloadpath"))
+        logger.info("channels.descargas downloadpath convertido=" + downloadpath)
+    else:
+        downloadpath = config.get_setting("downloadpath")
+        logger.info("channels.descargas downloadpath=" + downloadpath)
+else:
+    DOWNLOAD_LIST_PATH = config.get_setting("downloadlistpath")
+    logger.info("channels.descargas DOWNLOAD_LIST_PATH (no Kodi)=" + DOWNLOAD_LIST_PATH)
+    downloadpath = config.get_setting("downloadpath")
+    logger.info("channels.descargas downloadpath (no Kodi)=" + downloadpath)
+
+IMAGES_PATH = os.path.join(config.get_runtime_path(), 'resources', 'images')
+ERROR_PATH = os.path.join(DOWNLOAD_LIST_PATH, 'error')
 usingsamba = DOWNLOAD_LIST_PATH.upper().startswith("SMB://")
 
 def isGeneric():
