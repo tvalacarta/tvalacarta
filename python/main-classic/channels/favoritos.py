@@ -15,13 +15,21 @@ from core import samba
 from core import api
 from core.item import Item
 
+if config.is_xbmc():
+    import xbmc
+
 CHANNELNAME = "favoritos"
 DEBUG = True
 BOOKMARK_PATH = config.get_setting( "bookmarkpath" )
 
 if not BOOKMARK_PATH.upper().startswith("SMB://"):
-    if BOOKMARK_PATH=="":
-        BOOKMARK_PATH = os.path.join( config.get_data_path() , "bookmarks" )
+    if BOOKMARK_PATH.startswith("special://") and config.is_xbmc():
+        logger.info("tvalacarta.channels.favoritos Se esta utilizando el protocolo 'special'")
+        # Se usa "translatePath" para que convierta la ruta a la completa.
+        # Usando esto se evitan todos los problemas relacionados con "special"
+        BOOKMARK_PATH = xbmc.translatePath(config.get_setting("bookmarkpath"))
+    if BOOKMARK_PATH == "":
+        BOOKMARK_PATH = os.path.join(config.get_data_path(), "bookmarks")
     if not os.path.exists(BOOKMARK_PATH):
         logger.debug("[favoritos.py] Path de bookmarks no existe, se crea: "+BOOKMARK_PATH)
         os.mkdir(BOOKMARK_PATH)
