@@ -893,8 +893,6 @@ def htmlclean(cadena):
     cadena = cadena.replace("</cite>","")
     cadena = cadena.replace("<em>","")
     cadena = cadena.replace("</em>","")
-    cadena = cadena.replace("<b>","")
-    cadena = cadena.replace("</b>","")
     cadena = cadena.replace("<u>","")
     cadena = cadena.replace("</u>","")
     cadena = cadena.replace("<li>","")
@@ -958,6 +956,12 @@ def htmlclean(cadena):
     
     cadena = re.compile("<p[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</p>","")
+
+    cadena = re.compile("<b[^>]*>",re.DOTALL).sub("",cadena)
+    cadena = cadena.replace("</b>","")
+
+    cadena = re.compile("<B[^>]*>",re.DOTALL).sub("",cadena)
+    cadena = cadena.replace("</B>","")
 
     cadena = re.compile("<P[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</P>","")

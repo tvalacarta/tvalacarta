@@ -1148,7 +1148,7 @@ def download_all_episodes(item,channel=None,first_episode="", silent=False):
             mirrors_itemlist = new_mirror_itemlist_1 + new_mirror_itemlist_2 + new_mirror_itemlist_3 + new_mirror_itemlist_4 + new_mirror_itemlist_5 + new_mirror_itemlist_6
 
             for mirror_item in mirrors_itemlist:
-                logger.info("tvalacarta.platformcode.launcher download_all_episodes, mirror="+mirror_item.title)
+                logger.info("tvalacarta.platformcode.launcher download_all_episodes, mirror="+mirror_item.tostring())
 
                 if "(Español)" in mirror_item.title:
                     idioma=" (Español)"
@@ -1165,105 +1165,123 @@ def download_all_episodes(item,channel=None,first_episode="", silent=False):
                 else:
                     video_items = [mirror_item]
 
-                if len(video_items)>0 and not is_in_download_history(video_items[0].url):
-                    video_item = video_items[0]
+                if len(video_items)==0:
+                    logger.info("tvalacarta.platformcode.launcher download_all_episodes, no mirrors found")
+                    continue
 
-                    # Comprueba que esté disponible
-                    video_urls, puedes, motivo = servertools.resolve_video_urls_for_playing( video_item.server , video_item.url , video_password="" , muestra_dialogo=False)
+                # Busca en el historial por la URL del vídeo o la de la página. Por ejemplo en RTVE no coinciden, y puede haber más de una página para el vídeo
+                if is_in_download_history(video_items[0].url) or (video_items[0].page!="" and is_in_download_history(video_items[0].page)):
+                    logger.info("tvalacarta.platformcode.launcher download_all_episodes, video already on download history")
+                    continue
 
-                    # Lo añade a la lista de descargas
-                    if puedes:
-                        logger.info("tvalacarta.platformcode.launcher download_all_episodes, downloading mirror started...")
-                        
-                        # El vídeo de más calidad es el primero
-                        mediaurl = video_urls[0][1]
+                # Si el video tiene una URL de página, es preferible para que el conector la encuentre
+                if video_items[0].page!="":
+                    video_items[0].url = video_items[0].page
 
-                        if video_item.server=="descargavideos":
-                            from servers import descargavideos
-                            filetitle = show_title+" "+episode_title+idioma+" ["+descargavideos.get_real_server_name(video_item.url)+"]"
-                        elif video_item.server!="directo":
-                            filetitle = show_title+" "+episode_title+idioma+" ["+video_item.server+"]"
-                        else:
-                            filetitle = show_title+" "+episode_title+idioma+" ["+item.channel+"]"
+                video_item = video_items[0]
 
-                        # Descarga el vídeo
-                        show_folder = os.path.join( config.get_setting("downloadpath") , show_title)
-                        if not os.path.exists(show_folder):
-                            os.mkdir(show_folder)
+                # Comprueba que esté disponible
+                video_urls, puedes, motivo = servertools.resolve_video_urls_for_playing( video_item.server , video_item.url , video_password="" , muestra_dialogo=False)
 
-                        # Genera el NFO
-                        try:
-                            nfofilepath = getfilefromtitle("sample.nfo",filetitle,folder=show_title)
-                            outfile = open(nfofilepath,"w")
-                            outfile.write("<movie>\n")
-                            outfile.write("<title>("+filetitle+")</title>\n")
-                            outfile.write("<originaltitle></originaltitle>\n")
-                            outfile.write("<rating>0.000000</rating>\n")
-                            outfile.write("<year>2009</year>\n")
-                            outfile.write("<top250>0</top250>\n")
-                            outfile.write("<votes>0</votes>\n")
-                            outfile.write("<outline></outline>\n")
-                            outfile.write("<plot>"+episode_item.plot+"</plot>\n")
-                            outfile.write("<tagline></tagline>\n")
-                            outfile.write("<runtime></runtime>\n")
-                            outfile.write("<thumb></thumb>\n")
-                            outfile.write("<mpaa>Not available</mpaa>\n")
-                            outfile.write("<playcount>0</playcount>\n")
-                            outfile.write("<watched>false</watched>\n")
-                            outfile.write("<id>tt0432337</id>\n")
-                            outfile.write("<filenameandpath></filenameandpath>\n")
-                            outfile.write("<trailer></trailer>\n")
-                            outfile.write("<genre></genre>\n")
-                            outfile.write("<credits></credits>\n")
-                            outfile.write("<director></director>\n")
-                            outfile.write("<actor>\n")
-                            outfile.write("<name></name>\n")
-                            outfile.write("<role></role>\n")
-                            outfile.write("</actor>\n")
-                            outfile.write("</movie>")
-                            outfile.flush()
-                            outfile.close()
-                            logger.info("core.descargas Creado fichero NFO")
-                        except:
-                            logger.info("core.descargas Error al crear NFO")
-                            for line in sys.exc_info():
-                                logger.error( "%s" % line )
+                # Lo añade a la lista de descargas
+                if not puedes:
+                    logger.info("tvalacarta.platformcode.launcher download_all_episodes, connector says that you can't download the mirror")
+                    continue
 
-                        # Descarga el thumbnail
-                        if episode_item.thumbnail != "":
-                           logger.info("core.descargas thumbnail="+episode_item.thumbnail)
-                           thumbnailfile = getfilefromtitle(episode_item.thumbnail,filetitle,folder=show_title)
-                           thumbnailfile = thumbnailfile[:-4] + ".tbn"
-                           logger.info("core.descargas thumbnailfile="+thumbnailfile)
-                           try:
-                               downloadfile(episode_item.thumbnail,thumbnailfile)
-                               logger.info("core.descargas Thumbnail descargado")
-                           except:
-                               logger.info("core.descargas error al descargar thumbnail")
-                               for line in sys.exc_info():
-                                   logger.error( "%s" % line )
+                logger.info("tvalacarta.platformcode.launcher download_all_episodes, downloading mirror started...")
+                
+                # El vídeo de más calidad es el primero
+                contador = 0
+                for video_url in video_urls:
+                    mediaurl = video_url[1]
+                    contador = contador + 1
+                    logger.info("tvalacarta.platformcode.launcher download_all_episodes, downloading mirror "+str(contador)+" de "+str(len(video_urls))+": "+mediaurl)
 
-                        devuelve = downloadbest(video_urls,filetitle,continuar=True,silent=silent,folder=show_title)
-
-                        if devuelve==0:
-                            logger.info("tvalacarta.platformcode.launcher download_all_episodes, download ok")
-                            descargado = True
-                            add_to_download_history(video_item.url,filetitle)
-                            break
-                        elif devuelve==-1:
-                            try:
-                                import xbmcgui
-                                advertencia = xbmcgui.Dialog()
-                                resultado = advertencia.ok("plugin" , "Descarga abortada")
-                            except:
-                                pass
-                            return
-                        else:
-                            logger.info("tvalacarta.platformcode.launcher download_all_episodes, download error, try another mirror")
-                            break
-
+                    if video_item.server=="descargavideos":
+                        from servers import descargavideos
+                        filetitle = show_title+" "+episode_title+idioma+" ["+descargavideos.get_real_server_name(video_item.url)+"]"
+                    elif video_item.server!="directo":
+                        filetitle = show_title+" "+episode_title+idioma+" ["+video_item.server+"]"
                     else:
-                        logger.info("tvalacarta.platformcode.launcher download_all_episodes, downloading mirror not available... trying next")
+                        filetitle = show_title+" "+episode_title+idioma+" ["+item.channel+"]"
+
+                    # Descarga el vídeo
+                    show_folder = os.path.join( config.get_setting("downloadpath") , show_title)
+                    if not os.path.exists(show_folder):
+                        os.mkdir(show_folder)
+
+                    # Genera el NFO
+                    try:
+                        nfofilepath = getfilefromtitle("sample.nfo",filetitle,folder=show_title)
+                        outfile = open(nfofilepath,"w")
+                        outfile.write("<movie>\n")
+                        outfile.write("<title>("+filetitle+")</title>\n")
+                        outfile.write("<originaltitle></originaltitle>\n")
+                        outfile.write("<rating>0.000000</rating>\n")
+                        outfile.write("<year>2009</year>\n")
+                        outfile.write("<top250>0</top250>\n")
+                        outfile.write("<votes>0</votes>\n")
+                        outfile.write("<outline></outline>\n")
+                        outfile.write("<plot>"+episode_item.plot+"</plot>\n")
+                        outfile.write("<tagline></tagline>\n")
+                        outfile.write("<runtime></runtime>\n")
+                        outfile.write("<thumb></thumb>\n")
+                        outfile.write("<mpaa>Not available</mpaa>\n")
+                        outfile.write("<playcount>0</playcount>\n")
+                        outfile.write("<watched>false</watched>\n")
+                        outfile.write("<id>tt0432337</id>\n")
+                        outfile.write("<filenameandpath></filenameandpath>\n")
+                        outfile.write("<trailer></trailer>\n")
+                        outfile.write("<genre></genre>\n")
+                        outfile.write("<credits></credits>\n")
+                        outfile.write("<director></director>\n")
+                        outfile.write("<actor>\n")
+                        outfile.write("<name></name>\n")
+                        outfile.write("<role></role>\n")
+                        outfile.write("</actor>\n")
+                        outfile.write("</movie>")
+                        outfile.flush()
+                        outfile.close()
+                        logger.info("core.descargas Creado fichero NFO")
+                    except:
+                        logger.info("core.descargas Error al crear NFO")
+                        for line in sys.exc_info():
+                            logger.error( "%s" % line )
+
+                    # Descarga el thumbnail
+                    if episode_item.thumbnail != "":
+                       logger.info("core.descargas thumbnail="+episode_item.thumbnail)
+                       thumbnailfile = getfilefromtitle(episode_item.thumbnail,filetitle,folder=show_title)
+                       thumbnailfile = thumbnailfile[:-4] + ".tbn"
+                       logger.info("core.descargas thumbnailfile="+thumbnailfile)
+                       try:
+                           downloadfile(episode_item.thumbnail,thumbnailfile)
+                           logger.info("core.descargas Thumbnail descargado")
+                       except:
+                           logger.info("core.descargas error al descargar thumbnail")
+                           for line in sys.exc_info():
+                               logger.error( "%s" % line )
+
+                    devuelve = downloadbest(video_urls,filetitle,continuar=True,silent=silent,folder=show_title)
+
+                    if devuelve==0:
+                        logger.info("tvalacarta.platformcode.launcher download_all_episodes, download ok")
+                        descargado = True
+                        add_to_download_history(video_item.url,filetitle)
+                        break
+                    elif devuelve==-1:
+                        try:
+                            import xbmcgui
+                            advertencia = xbmcgui.Dialog()
+                            resultado = advertencia.ok("plugin" , "Descarga abortada")
+                        except:
+                            pass
+                        return
+                    else:
+                        logger.info("tvalacarta.platformcode.launcher download_all_episodes, download error, try another mirror")
+
+                else:
+                    logger.info("tvalacarta.platformcode.launcher download_all_episodes, downloading mirror not available... trying next")
 
             if not descargado:
                 logger.info("tvalacarta.platformcode.launcher download_all_episodes, EPISODIO NO DESCARGADO "+episode_title)

@@ -17,7 +17,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
     param = urllib.urlencode({"web":page_url})
     data = scrapertools.cache_page("http://www.descargavideos.tv/?"+param)
-    logger.info("data="+data)
+    #logger.info("data="+data)
     url = scrapertools.get_match(data,'href="/player/\?img\=[^\&]+&ext=[^\&]+&video=([^"]+)"')
     url = urllib.unquote(url)
 
@@ -25,7 +25,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     video_urls.append( [ "["+get_real_server_name(page_url)+"]" , url ] )
 
     for video_url in video_urls:
-        logger.info("[descargavideos.py] %s - %s" % (video_url[0],video_url[1]))
+        logger.info("tvalacarta.servers.descargavideos %s - %s" % (video_url[0],video_url[1]))
 
     return video_urls
 
