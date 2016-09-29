@@ -5,10 +5,6 @@
 # http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
 #------------------------------------------------------------
 
-#import urlparse,urllib2,urllib,re
-#import os
-#from core import config
-
 import re
 from core import scrapertools
 from core import logger
@@ -22,7 +18,6 @@ def get_video_url(page_url, premium = False, user="", password="", video_passwor
     urlbase = "http://dinamics.ccma.cat/pvideo/media.jsp?media=video&version=0s&idint=%s&profile=tv"
 
     try:
-
         # Se mira si la URL tiene el formato nuevo o el antiguo y entonces se usa un patrón u otro para extraer
         # el número de video, que es lo único que importa para obtener en última instancia la URL del video en MP4.
         # Precondición: los dos únicos tipos de URLs que pueden llegar aquí son, por ejemplo:
@@ -44,6 +39,9 @@ def get_video_url(page_url, premium = False, user="", password="", video_passwor
 
             response = jsontools.load_json(data.decode('iso-8859-1').encode('utf8'))
             video.append([ "HTTP [mp4]", response['media']['url']])
+        else:
+            # Es URL de video en directo
+            video.append([ "HTTP [mp4]", page_url])
 
     except:
         import traceback
