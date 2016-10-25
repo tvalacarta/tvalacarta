@@ -108,7 +108,7 @@ def episodios(item):
                 duration = str(minutes)+":"+str(seconds)
 
         if (DEBUG): logger.info(" title=["+repr(title)+"], url=["+repr(url)+"], thumbnail=["+repr(thumbnail)+"] plot=["+repr(plot)+"]")
-        itemlist.append( Item(channel="rtve", title=title , action="play" , server="rtve", page=page, url=url, thumbnail=thumbnail, fanart=thumbnail, show=item.show , plot=plot , duration=duration, aired_date=aired_date, viewmode="movie_with_plot", folder=False) )
+        itemlist.append( Item(channel="rtve", title=title , action="play" , server="rtve", page=page, url=page, thumbnail=thumbnail, fanart=thumbnail, show=item.show , plot=plot , duration=duration, aired_date=aired_date, viewmode="movie_with_plot", folder=False) )
 
     from core import config
     if config.is_xbmc() and len(itemlist)>0:
