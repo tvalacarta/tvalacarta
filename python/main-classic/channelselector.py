@@ -139,6 +139,7 @@ def filterchannels(category):
 def channels_list():
     itemlist = []
     itemlist.append( Item( title="7RM (Murcia)"               , channel="sieterm"              , language="ES" , category="R"   , type="generic" ))
+    itemlist.append( Item( title="8TV (Cataluña)"             , channel="vuittv"               , language="ES" , category="R"   , type="generic" )) # fermin 29/09/2016
     itemlist.append( Item( title="ACB TV"                     , channel="acbtv"                , language="ES" , category="T"   , type="generic" )) # jesus 17/12/2012
     itemlist.append( Item( title="ADNStream"                  , channel="adnstream"            , language="ES" , category="I,T" , type="generic" ))
     itemlist.append( Item( title="Aragón TV"                  , channel="aragontv"             , language="ES" , category="R"   , type="generic", extra="rtmp" ))  # jesus 25/01/2012
@@ -201,7 +202,7 @@ def channels_list():
     #itemlist.append( Item( title="TV Pública (Argentina)"     , channel="tvpublica"            , language="ES" , category="N"   , type="generic" )) # rsantaella 07/06/2013
     itemlist.append( Item( title="TVE"                        , channel="rtve"                 , language="ES" , category="N"   , type="generic" ))
     #itemlist.append( Item( title="Tvolucion.com"              , channel="tvolucion"            , language="ES" , category="N"   , type="generic" )) # pedro 20/06/2012 
-    itemlist.append( Item( title="TV3 (Cataluña)"             , channel="tv3"                  , language="ES" , category="I,A" , type="generic" ))
+    itemlist.append( Item( title="TV3 (Cataluña)"             , channel="tv3"                  , language="ES" , category="R,I" , type="generic" ))
     itemlist.append( Item( title="TVC (Canarias)"             , channel="rtvc"                 , language="ES" , category="R"   , type="generic" ))
     itemlist.append( Item( title="TVG (Galicia)"              , channel="tvg"                  , language="ES" , category="R"   , type="generic" ))
     itemlist.append( Item( title="TVNPlayer (Chile)"                , channel="tvn"                  , language="ES" , category="N"   , type="generic" )) # jesus 04/08/2013

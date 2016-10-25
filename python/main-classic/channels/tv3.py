@@ -339,7 +339,7 @@ def pager(url, channel=__channel__, load_all_pages = False, item=None):
             urlsiguiente = url + urlpager[0]
             next_page_item = Item(channel=channel,
                          action = 'loadchapters',
-                         title = '>> Siguiente',
+                         title = '>> Següent',
                          url = urlsiguiente,
                          thumbnail = '',
                          show=item.show,
@@ -459,7 +459,7 @@ def loadsection(item):
             itemlist.append(
                 Item(channel=item.channel,
                      action = 'loadsection',
-                     title = '>> Siguiente',
+                     title = '>> Següent',
                      url = urlsiguiente,
                      thumbnail = '',
                      plot = "",
@@ -550,7 +550,7 @@ def dooldsearch(item):
                 itemlist.append(
                     Item(channel=item.channel,
                          action = 'dosearch',
-                         title = 'Siguiente',
+                         title = 'Següent',
                          extra = extrasiguiente
                     )
                 ) 
