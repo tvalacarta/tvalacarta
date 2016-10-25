@@ -5,81 +5,45 @@
 # http://blog.tvalacarta.info/plugin-xbmc/tvalacarta/
 #------------------------------------------------------------
 
-import urllib2,re,json
 
 from core import logger
+from core import scrapertools
+from lib import youtube_dl
 
 def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
     logger.info("[mitele.py] get_video_url(page_url='%s')" % page_url)
 
-    # Extrae codigo fuente de la web
-    videoWeb = urllib2.urlopen(page_url).read()
-    #logger.info(videoWeb)
+    video_urls = []
+    
+    ydl = youtube_dl.YoutubeDL({'outtmpl': u'%(id)s%(ext)s'})
+    result = ydl.extract_info(page_url, download=False)
+    logger.info("tvalacarta.server.mitele get_video_url result="+repr(result))
 
-    # Extraemos ciertos elementos
-    dataConfigURL = re.search('data-config[ ]*=[ ]*"(.*?)"', videoWeb).group(1)
-    if dataConfigURL.startswith("/"):
-        dataConfigURL = "http://www.mitele.es" + dataConfigURL
-    logger.info("[mitele.py] data-config = " + dataConfigURL)
+    if "ext" in result and "url" in result:
+        for entries in result["formats"]:
+            if entries["ext"] != "rtmp":
+                video_url = scrapertools.safe_unicode(entries['url']).encode('utf-8')
+                video_url = video_url.replace("http://ignore.mediaset.es", "http://miteleooyala-a.akamaihd.net")
+                if entries["ext"] != "mp4":
+                    title = scrapertools.safe_unicode(entries["format"]).encode('utf-8')
+                elif entries["ext"] == "mp4":
+                    if entries.has_key("vbr"):
+                        title = "mp4-" + scrapertools.safe_unicode(str(entries["vbr"])).encode('utf-8') + " " + scrapertools.safe_unicode(entries["format"]).encode('utf-8').rsplit("-",1)[1]
+                    else:
+                        title = scrapertools.safe_unicode(entries["format"]).encode('utf-8')
 
-    # Obenemos el JSON del data-config
-    videoJSON = json.load(urllib2.urlopen(dataConfigURL))
-    #logger.info(json.dumps(videoJSON, indent = 2))
-
-    if videoJSON["isLive"]:
-        logger.info("[mitele.py] Live Stream")
-
-        ua = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.99 Safari/537.36"
-        headers = { 'User-Agent' : ua }
-
-        # Obtenemos la url para el token y cambiamos "dir" por "directo"
-        tokenURL = videoJSON["services"]["token"].replace("dir", "directo")
-        logger.info("[mitele.py] tokenURL = " + tokenURL)
-
-        # Obtenemos el token
-        tokenResult = urllib2.urlopen(urllib2.Request(tokenURL, headers = headers)).read()
-        #logger.info(tokenResult)
-
-        videoURL = re.search('videoTokenizer\({"liveUrl":"(.*?)"}\);', tokenResult).group(1).replace("\/", "/")
-        logger.info("[mitele.py] Tokenized = " + videoURL)
-
-        # Hacemos una petición a la URL tokenizada para obtener las cookies
-        videoResponse = urllib2.urlopen(urllib2.Request(videoURL, headers = headers))
-        logger.info("[mitele.py] Received Set-Cookie = " + videoResponse.info().getheader("Set-Cookie"))
-
-        cookieElements = re.search('.*hdntl=(.+?);.*_alid_=(.+?);.*', videoResponse.info().getheader("Set-Cookie"))
-        hdntl = cookieElements.group(1)
-        alid = cookieElements.group(2)
-
-        setCookie = "_alid_={alid}; hdntl={hdntl}".format(alid = alid, hdntl = hdntl)
-        logger.info("[mitele.py] Cookie = " + setCookie)
-
-        # Ponemos la cookie y el user-agent a la URL del vídeo
-        videoURL += "|Cookie={0}&User-Agent={1}".format(setCookie, ua)
-    else:
-        # Y sacamos la URL del mmc
-        mmcURL = videoJSON["services"]["mmc"]
-        logger.info("[mitele.py] mmc = " + mmcURL)
-
-        mmcJSON = json.load(urllib2.urlopen(mmcURL))
-        #logger.info(json.dumps(mmcJSON, indent = 2))
-
-        # Obtenemos el token
-        basURL = mmcJSON["locations"][0]["bas"].partition(",")[0] + ".mp4"
-        basID = basURL.split("/", 4)[4]
-        logger.info("[mitele.py] basID = " + basID)
-
-        tokenURL = "http:{gat}/?id={basID}".format(gat = mmcJSON["locations"][0]["gat"], basID = basID)
-        logger.info("[mitele.py] tokenURL = " + tokenURL)
-
-        # videoTokenizer({"tokenizedUrl":"URL"});
-        tokenResult = urllib2.urlopen(tokenURL).read()
-        #logger.info(tokenResult)
-        videoURL = re.search('videoTokenizer\({"tokenizedUrl":"(.*?)"}\);', tokenResult).group(1).replace("\/", "/")
-
-    video_urls = [[ "[mitele]" , videoURL ]]
-
-    logger.info("[mitele.py] %s - %s" % (video_urls[0][0],video_urls[0][1]))
+                try:
+                    calidad = int(scrapertools.safe_unicode(str(entries["vbr"])))
+                except:
+                    try:
+                        calidad = int(title.split("-")[1].strip())
+                    except:
+                        calidad = 3000
+                video_urls.append(["%s" % title, video_url, 0, False, calidad])
+                
+    video_urls.sort(key=lambda video_urls: video_urls[4], reverse=True)
+    for url in video_urls:
+        logger.info("[mitele.py] %s - %s" % (url[0],url[1]))
 
     return video_urls
 
