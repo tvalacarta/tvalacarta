@@ -16,14 +16,7 @@ from core.item import Item
 from servers import servertools
 from core import jsontools
 
-__channel__ = "dwspan"
-__category__ = "F"
-__type__ = "generic"
-__title__ = "dwspan"
-__language__ = "ES"
-__creationdate__ = "20121130"
-__vfanart__ = "http://www.dw.de/cssi/dwlogo-print.gif"
-
+CHANNELNAME = "dwspan"
 DEBUG = config.get_setting("debug")
 
 def isGeneric():
@@ -34,45 +27,102 @@ def mainlist(item):
     return programas(Item())
 
 def programas(item):
-    logger.info("tvalacarta.channels.dwspan programas")    
-    
-    # Descarga la página
-    data = scrapertools.cache_page("http://mediacenter.dw.de/ajax/spanish/programm/interval/all/")
-    logger.info(data)
-
-    programas_json = jsontools.load_json(data)
-    if programas_json == None:
-        return []
-
+    logger.info("tvalacarta.channels.dwspan programas")
     itemlist = []
-    for programa in programas_json:
-        logger.info(repr(programa))
-        title = programa['_name']
-        url = 'http://mediacenter.dw.de/ajax/spanish/mediaselect/video/?programm='+str(programa['_id'])
-        itemlist.append( Item(channel=__channel__, title=title , action="episodios" , url=url, show=title, folder=True) )
+
+    if item.url=="":
+        item.url = "http://www.dw.com/es/tv/emisiones-tv/s-9134"
+
+    '''
+    <div class="col1 mc">
+    <div class="news epg">
+    <div class="teaserImg">
+    <a href="/es/tv/claves/s-30468">
+    <img width="220"
+    height="124" border="0"
+    src="/image/15682255_301.jpg"/>
+    </a>
+    </div>
+    <div class="teaserContentWrap">
+    <a href="/es/tv/claves/s-30468">
+    <h2>Claves</h2>
+    <p>El mundo desde América Latina</p>
+    </a>
+    </div>
+    <ul class="smallList">
+    <li>
+    <strong>Actual</strong>
+    <a href="/es/claves-chile-educación-sexual-inhibida/av-36127035">Claves</a>
+    24.10.2016<span class="icon tv"></span> </li>
+    <li>
+    <a href="/es/multimedia/todos-los-contenidos/s-100838?type=18&programs=15605312">Todos los videos</a>
+
+
+    <div class="col1 mc">
+    <div class="news epg">
+    <div class="teaserImg">
+    <a href="/es/tv/life-links/s-101481">
+    <img width="220"
+    height="124" border="0"
+    src="/image/17923250_301.png"/>
+    </a>
+    </div>
+    <div class="teaserContentWrap">
+    <a href="/es/tv/life-links/s-101481">
+    <h2>Life Links</h2>
+    <p>Compartir realidades. Cambiar perspectivas.</p>
+    </a>
+    </div>
+    <ul class="smallList">
+    <li>
+    <strong>Actual</strong>
+    <a href="/es/life-links-headabovewater-con-el-agua-al-cuello-trabajar-en-un-barco/av-35880794">Life Links</a>
+    24.09.2016<span class="icon tv"></span> </li>
+    <li>
+    <a href="/es/multimedia/todos-los-contenidos/s-100838?type=18&programs=18365568">Todos los videos</a>
+    </li>
+    </ul>
+    </div>
+    </div>
+    '''
+
+    # Descarga la página
+    data = scrapertools.cache_page(item.url)
+    #logger.info(data)
+
+
+    pattern  = '<div class="col1 mc[^<]+'
+    pattern += '<div class="news epg[^<]+'
+    pattern += '<div class="teaserImg[^<]+'
+    pattern += '<a href="([^"]+)">[^<]+'
+    pattern += '<img\s+width="\d+"\s+height="\d+"\s+border="\d+"\s+src="([^"]+)"[^<]+'
+    pattern += '</a[^<]+'
+    pattern += '</div[^<]+'
+    pattern += '<div class="teaserContentWrap"[^<]+'
+    pattern += '<a[^<]+'
+    pattern += '<h2>([^<]+)</h2>[^<]+'
+    pattern += '<p>([^<]+)</p'
+    matches = re.compile(pattern,re.DOTALL).findall(data)
+    
+    for scrapedurl, scrapedthumbnail, scrapedtitle, scrapedplot in matches:
+        title = scrapedtitle
+        thumbnail = urlparse.urljoin( item.url , scrapedthumbnail )
+        url = urlparse.urljoin( item.url , scrapedurl.strip() )
+        plot = scrapedplot
+
+        # Appends a new item to the xbmc item list
+        itemlist.append( Item(channel=CHANNELNAME, title=title , action="episodios" , url=url, thumbnail=thumbnail, fanart=thumbnail, plot=plot , show = title, view="programs", folder=True) )
 
     return itemlist
 
 def detalle_programa(item):
     logger.info("tvalacarta.channels.dwspan detalle_programa")    
 
-    id_programa = scrapertools.find_single_match(item.url,"programm=(\d+)")
-    url = "http://www.dw.com/es/programa/a/s-"+id_programa+"-1"
-
     try:
-        item.page = scrapertools.get_header_from_response(url,header_to_get="location")
-        data = scrapertools.cache_page(item.page)
+        data = scrapertools.cache_page(item.url)
 
-        item.plot = scrapertools.find_single_match(data,'<div class="longText">(.*?)</div>')
+        item.plot = scrapertools.find_single_match(data,'<div class="col2 programClaimTeaser">.*?<p>(.*?)</div>')
         item.plot = scrapertools.htmlclean( item.plot ).strip()
-        if item.plot=="":
-            item.plot = scrapertools.find_single_match(data,'<div class="news"[^<]+<h2[^<]+</h2>(.*?)</div>')
-            item.plot = scrapertools.htmlclean( item.plot ).strip()
-
-        item.thumbnail = scrapertools.find_single_match(data,'<input type="hidden" name="preview_image" value="([^"]+)"')
-        if item.thumbnail.strip()=="":
-            item.thumbnail = scrapertools.find_single_match(data,'<img class="stillImage" src="([^"]+)"')
-        item.thumbnail = urlparse.urljoin(item.page,item.thumbnail)
     except:
         import traceback
         logger.info(traceback.format_exc())
@@ -81,62 +131,90 @@ def detalle_programa(item):
 
 def episodios(item):
     logger.info("tvalacarta.channels.dwspan episodios")
-
-    id_programa = scrapertools.find_single_match(item.url,"programm=(\d+)")
-    data = scrapertools.cache_page(item.url)
-    
-    import json
-    episodios_json = json.loads(data)
-    if episodios_json == None : episodios_json = []
-    
     itemlist = []
-    last_episodio = ''
-    for ep in episodios_json['mediaselect']:
-        last_episodio = ep
 
-        episodio = episodios_json['items'][ep]
-        #logger.info("episodio="+repr(episodio))
+    # 
 
-        if episodio["getCSSClass"]=="audio":
-            continue
+    '''
+    <div class="col1">
 
-        if episodio["parent_id"] is not None:
-            continue
+    <div class="news searchres hov">
+    <a href="/es/life-links-readytofight-listos-para-pelear/av-19224025">
+    <div class="teaserImg tv">
+    <img border="0" width="220" height="124" src="/image/18378218_301.jpg" title="Life Links - #readytofight: Listos para pelear" alt="default" /> </div>
+    <h2>Life Links - #readytofight: Listos para pelear
+    <span class="date">30.04.2016
+    | 26:06 Minutos
+    </span>
+    <span class='icon tv'></span> </h2>
+    <p>Un imán, un exsalafista, un ex marine de EE. UU. A todos ellos les une una meta: luchar contra el extremismo y “Estado Islámico”.</p>
+    </a>
+    </div>
+    </div>
+    '''
+    if "pagenumber=" in item.url:
+        data_url = item.url
+    else:
+        data = scrapertools.cache_page(item.url)
+        # http://www.dw.com/es/multimedia/todos-los-contenidos/s-100838?type=18&programs=15535663
+        # http://www.dw.com/mediafilter/research?lang=es&type=18&programs=15535663&sort=date&results=32&showteasers=true&pagenumber=1
+        program_id = scrapertools.find_single_match(data,'<a href="http://www.dw.com/es/multimedia/todos-los-contenidos/s-100838.type=18&programs=([^"]+)"')
+        data_url = "http://www.dw.com/mediafilter/research?lang=es&type=18&programs="+program_id+"&sort=date&results=32&showteasers=true&pagenumber=1"
 
-        title = episodio['title'].encode("utf8","ignore") + ' ' + episodio['getPublicationDate'].encode("utf8","ignore")
-        thumbnail = episodio['getImages']['medium']['src'].replace("\\", "")
-        plot = episodio['getDescription'].encode("utf8","ignore")
+    data = scrapertools.cache_page(data_url)
+    pattern  = '<div class="col1"[^<]+'
+    pattern += '<div class="news searchres hov"[^<]+'
+    pattern += '<a href="([^"]+)"[^<]+'
+    pattern += '<div class="teaserImg tv"[^<]+'
+    pattern += '<img.*?src="([^"]+)"[^<]+</div>[^<]+'
+    pattern += '<h2>([^<]+)'
+    pattern += '<span class="date">(\d+\.\d+\.\d+)\s+\|\s+(\d+\:\d+)[^<]+'
+    pattern += '</span>[^<]+'
+    pattern += '<span[^<]+</span[^<]+</h2[^<]+'
+    pattern += '<p>([^<]+)</p>'
+    matches = re.compile(pattern,re.DOTALL).findall(data)
+    logger.info( repr(matches) )
 
-        aired_date = episodio['getPublicationDate'] or ""
-        duration = episodio['getMetaInformation'] or ""
-        duration = duration.replace("min.","").strip()
-        url = episodio["ref_url"] or ""
-        url = url.encode("utf8","ignore")
+    for scrapedurl, scrapedthumbnail, scrapedtitle, aired_date, duration, scrapedplot in matches:
+        title = scrapedtitle.strip()
+        thumbnail = urlparse.urljoin( item.url , scrapedthumbnail )
+        url = urlparse.urljoin( item.url , scrapedurl.strip() )
+        plot = scrapedplot
 
-        media_url = episodio["getDirectAvLink"] or ""
-        media_url = media_url.encode("utf8","ignore")
-
-        if media_url == "":
-            playpath = "mp4:%s_sor.mp4" % episodio["getFlvFile"].replace("\\", "")
-            media_url= "rtmp://tv-od.dw.de/flash/ playpath=%s" % playpath
-            media_url = media_url.encode("utf8","ignore")
-
-        logger.info("tvalacarta.channels.dwspan episodios title="+title+", media_url="+media_url)
-
-        itemlist.append( Item(channel=__channel__, action="play", title=title , url=url, media_url=media_url, plot=plot, thumbnail=thumbnail, aired_date=aired_date, duration=duration, show=item.show, folder=False) )
+        # Appends a new item to the xbmc item list
+        itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="dwspan", url=url, thumbnail=thumbnail, fanart=thumbnail, plot=plot , aired_date=aired_date, duration=duration, show=item.show, view="videos", folder=False) )
 
     if len(itemlist)>0:
-        next_page_url = 'http://mediacenter.dw.de/ajax/spanish/mediaselect/video/item/%s/after/true/nochildren/true/?programm=%s' % (last_episodio, id_programa)
-        itemlist.append( Item(channel=__channel__, action="episodios", title=">> Página siguiente" , url=next_page_url, show=item.show, folder=True) ) 
-    
+        current_page = scrapertools.find_single_match(data_url,"pagenumber=(\d+)")
+        logger.info("current_page="+current_page)
+        next_page = str(int(current_page)+1)
+        logger.info("next_page="+next_page)
+        next_page_url = data_url.replace("pagenumber="+current_page,"pagenumber="+next_page)
+        logger.info("next_page_url="+next_page_url)
+
+        itemlist.append(Item(channel=CHANNELNAME, title=">> Página siguiente" , action="episodios" , url=next_page_url, show=item.show) )
+
+
     return itemlist
 
-def play(item,page_data=""):
-    logger.info("tvalacarta.channels.dwspan play")
+def detalle_episodio(item):
 
-    item.server = "directo"
-    item.url = item.media_url
-    logger.info("tvalacarta.channels.dwspan play item.url="+item.url)
+    item.geolocked = "0"
+
+    try:
+        from servers import dwspan as servermodule
+        video_urls = servermodule.get_video_url(item.url)
+        item.media_url = video_urls[0][1]
+    except:
+        import traceback
+        print traceback.format_exc()
+        item.media_url = ""
+
+    return item
+
+def play(item):
+
+    item.server="dwspan";
     itemlist = [item]
 
     return itemlist

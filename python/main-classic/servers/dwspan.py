@@ -15,10 +15,11 @@ from core import config
 def get_video_url( page_url , premium = False , user="" , password="", video_password="", page_data="" ):
     logger.info("tvalacarta.servers.dwspan get_video_url(page_url='%s')" % page_url)
 
-    data = scrapertools.cache_page(page_url)
+    code = scrapertools.find_single_match(page_url,"/a(v-\d+)")
 
-    media_url = scrapertools.find_single_match(data,'<a href="([^"]+)" class="download"')
-    
+    data = scrapertools.cache_page("http://www.dw.com/html5Resource/"+code)
+    media_url = data[1:-1]
+
     video_urls = []
     if media_url<>"":
         video_urls.append( [ "("+scrapertools.get_filename_from_url(media_url)[-4:]+") [dwspan]" , media_url ] )
