@@ -16,20 +16,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     logger.info("tvalacarta.channels.extremaduratv get_video_url(page_url='%s')" % page_url)
     video_urls = []
 
-    # Descarga la página como navegador web
-    data = scrapertools.cache_page(page_url)
-
-    '''
-    <div 
-    id="mediaplayer"
-    data-vidUrl="rtmp://canalextremadura.cdn.canalextremadura.es/canalextremadura/tv/PROG00103641.mp4#535#300#/sites/default/files/los_ultimos_exclavos.jpg"
-    data-iosUrl="http://iphonevod.canalextremadura.es/PROG00103641.mp4#535#300#/sites/default/files/los_ultimos_exclavos.jpg">
-    </div>         
-    '''
-
-    # Descarga la página como ipad
-    url = scrapertools.find_single_match(data,'data-iosUrl="([^\#]+)')
-    logger.info("url="+url)
+    logger.info("url="+page_url)
     video_urls.append( [ "para iOS (mp4) [extremaduratv]" , url[0:7]+urllib.quote(url[7:]) ] )
 
     #http://www.canalextremadura.es/alacarta/tv/videos/extremadura-desde-el-aire
