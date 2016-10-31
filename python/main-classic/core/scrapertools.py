@@ -1414,6 +1414,17 @@ def parse_date(cadena,formato="dmy"):
         aired_date = scrapedyear+"-"+scrapedmonth+"-"+scrapedday
         return aired_date
 
+    # 30.04.2016
+    scrapeddate = find_single_match(cadena,"(\d\d\.\d\d\.\d\d\d\d)")
+
+    if scrapeddate!="":
+        scrapedday = find_single_match(scrapeddate,"(\d+)\.\d+\.\d+")
+        scrapedmonth = find_single_match(scrapeddate,"\d+\.(\d+)\.\d+")
+        scrapedyear = find_single_match(scrapeddate,"\d+\.\d+\.(\d+)")
+
+        aired_date = scrapedyear+"-"+scrapedmonth+"-"+scrapedday
+        return aired_date
+
     # 16 de septiembre de 2015
     scrapeddate = find_single_match(cadena,"(\d+ de [^\s]+ de \d+)")
     if scrapeddate!="":
