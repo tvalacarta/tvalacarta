@@ -71,24 +71,13 @@ def episodios(item):
 
     data = scrapertools.cache_page(item.url)
 
-    '''
-    <div>
-    <a href="/videos/escapeperfecto/302470/mira-nuestro-detras-de-camaras">
-    <img width="186" height="105" src="http://static.azteca.com/crop/crop.php?width=180&height=100&img=http://static.azteca.com/imagenes/2016/05/2042193--mira-nuestro-detras-de-camaras-.jpg&coordinates=50,50">
-    </a>
-    <a href="/videos/escapeperfecto/302470/mira-nuestro-detras-de-camaras"><i class="icon-play-circle"></i>¡Mira nuestro detrás de cámaras!</a>
-    <h4>2016-02-02 21:36:00 hrs</h4>
-    <p>Conoce algunas cosas curiosas que pasan detrás de las cámaras de Escape Perfecto</p>
-    </div>
-    '''
-
     patron  = '<div[^<]+'
     patron += '<a href="([^"]+)"[^<]+'
     patron += '<img width="\d+" height="\d+" src="([^"]+)"[^<]+'
     patron += '</a[^<]+'
-    patron += '<a href="[^"]+"><i[^<]+</i>([^<]+)</a[^<]+'
+    patron += '<a href="[^"]+"><i[^<]+</i><h2[^>]+>([^<]+)</h2></a[^<]+'
     patron += '<h4>([^<]+)</h4[^<]+'
-    patron += '<p>([^<]+)</p>'
+    patron += '<p>([^<]+)</p'
 
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
