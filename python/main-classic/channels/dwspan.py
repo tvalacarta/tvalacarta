@@ -134,7 +134,6 @@ def episodios(item):
     itemlist = []
 
     # 
-
     '''
     <div class="col1">
 
@@ -175,11 +174,12 @@ def episodios(item):
     matches = re.compile(pattern,re.DOTALL).findall(data)
     logger.info( repr(matches) )
 
-    for scrapedurl, scrapedthumbnail, scrapedtitle, aired_date, duration, scrapedplot in matches:
+    for scrapedurl, scrapedthumbnail, scrapedtitle, scrapeddate, duration, scrapedplot in matches:
         title = scrapedtitle.strip()
         thumbnail = urlparse.urljoin( item.url , scrapedthumbnail )
         url = urlparse.urljoin( item.url , scrapedurl.strip() )
         plot = scrapedplot
+        aired_date = scrapertools.parse_date(scrapeddate)
 
         # Appends a new item to the xbmc item list
         itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="dwspan", url=url, thumbnail=thumbnail, fanart=thumbnail, plot=plot , aired_date=aired_date, duration=duration, show=item.show, view="videos", folder=False) )
