@@ -49,7 +49,7 @@ class OoyalaBaseIE(InfoExtractor):
                     formats.extend(self._extract_m3u8_formats(
                         re.sub(r'/ip(?:ad|hone)/', '/all/', s_url), embed_code, 'mp4', 'm3u8_native',
                         m3u8_id='hls', fatal=False))
-                elif delivery_type == 'hds' or ext == 'f4m' or delivery_type == 'akamai_hd2_vod_hls':
+                elif delivery_type == 'hds' or ext == 'f4m':
                     formats.extend(self._extract_f4m_formats(
                         s_url + '?hdcore=3.7.0', embed_code, f4m_id='hds', fatal=False))
                 elif ext == 'smil':

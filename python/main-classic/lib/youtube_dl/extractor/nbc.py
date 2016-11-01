@@ -9,15 +9,11 @@ from ..utils import (
     lowercase_escape,
     smuggle_url,
     unescapeHTML,
-    update_url_query,
-    int_or_none,
-    HEADRequest,
-    parse_iso8601,
 )
 
 
 class NBCIE(InfoExtractor):
-    _VALID_URL = r'https?://www\.nbc\.com/(?:[^/]+/)+(?P<id>n?\d+)'
+    _VALID_URL = r'https?://(?:www\.)?nbc\.com/(?:[^/]+/)+(?P<id>n?\d+)'
 
     _TESTS = [
         {
@@ -142,7 +138,7 @@ class NBCSportsVPlayerIE(InfoExtractor):
 
 class NBCSportsIE(InfoExtractor):
     # Does not include https because its certificate is invalid
-    _VALID_URL = r'https?://www\.nbcsports\.com//?(?:[^/]+/)+(?P<id>[0-9a-z-]+)'
+    _VALID_URL = r'https?://(?:www\.)?nbcsports\.com//?(?:[^/]+/)+(?P<id>[0-9a-z-]+)'
 
     _TEST = {
         'url': 'http://www.nbcsports.com//college-basketball/ncaab/tom-izzo-michigan-st-has-so-much-respect-duke',
@@ -165,7 +161,7 @@ class NBCSportsIE(InfoExtractor):
 
 
 class CSNNEIE(InfoExtractor):
-    _VALID_URL = r'https?://www\.csnne\.com/video/(?P<id>[0-9a-z-]+)'
+    _VALID_URL = r'https?://(?:www\.)?csnne\.com/video/(?P<id>[0-9a-z-]+)'
 
     _TEST = {
         'url': 'http://www.csnne.com/video/snc-evening-update-wright-named-red-sox-no-5-starter',
@@ -192,9 +188,9 @@ class CSNNEIE(InfoExtractor):
 
 
 class NBCNewsIE(ThePlatformIE):
-    _VALID_URL = r'''(?x)https?://(?:www\.)?(?:nbcnews|today)\.com/
+    _VALID_URL = r'''(?x)https?://(?:www\.)?(?:nbcnews|today|msnbc)\.com/
         (?:video/.+?/(?P<id>\d+)|
-        ([^/]+/)*(?P<display_id>[^/?]+))
+        ([^/]+/)*(?:.*-)?(?P<mpx_id>[^/?]+))
         '''
 
     _TESTS = [
@@ -216,13 +212,16 @@ class NBCNewsIE(ThePlatformIE):
                 'ext': 'mp4',
                 'title': 'How Twitter Reacted To The Snowden Interview',
                 'description': 'md5:65a0bd5d76fe114f3c2727aa3a81fe64',
+                'uploader': 'NBCU-NEWS',
+                'timestamp': 1401363060,
+                'upload_date': '20140529',
             },
         },
         {
             'url': 'http://www.nbcnews.com/feature/dateline-full-episodes/full-episode-family-business-n285156',
             'md5': 'fdbf39ab73a72df5896b6234ff98518a',
             'info_dict': {
-                'id': 'Wjf9EDR3A_60',
+                'id': '529953347624',
                 'ext': 'mp4',
                 'title': 'FULL EPISODE: Family Business',
                 'description': 'md5:757988edbaae9d7be1d585eb5d55cc04',
@@ -237,6 +236,9 @@ class NBCNewsIE(ThePlatformIE):
                 'ext': 'mp4',
                 'title': 'Nightly News with Brian Williams Full Broadcast (February 4)',
                 'description': 'md5:1c10c1eccbe84a26e5debb4381e2d3c5',
+                'timestamp': 1423104900,
+                'uploader': 'NBCU-NEWS',
+                'upload_date': '20150205',
             },
         },
         {
@@ -245,10 +247,12 @@ class NBCNewsIE(ThePlatformIE):
             'info_dict': {
                 'id': '529953347624',
                 'ext': 'mp4',
-                'title': 'Volkswagen U.S. Chief: We \'Totally Screwed Up\'',
-                'description': 'md5:d22d1281a24f22ea0880741bb4dd6301',
+                'title': 'Volkswagen U.S. Chief:\xa0 We Have Totally Screwed Up',
+                'description': 'md5:c8be487b2d80ff0594c005add88d8351',
+                'upload_date': '20150922',
+                'timestamp': 1442917800,
+                'uploader': 'NBCU-NEWS',
             },
-            'expected_warnings': ['http-6000 is not available']
         },
         {
             'url': 'http://www.today.com/video/see-the-aurora-borealis-from-space-in-stunning-new-nasa-video-669831235788',
@@ -260,6 +264,22 @@ class NBCNewsIE(ThePlatformIE):
                 'description': 'md5:74752b7358afb99939c5f8bb2d1d04b1',
                 'upload_date': '20160420',
                 'timestamp': 1461152093,
+                'uploader': 'NBCU-NEWS',
+            },
+        },
+        {
+            'url': 'http://www.msnbc.com/all-in-with-chris-hayes/watch/the-chaotic-gop-immigration-vote-314487875924',
+            'md5': '6d236bf4f3dddc226633ce6e2c3f814d',
+            'info_dict': {
+                'id': '314487875924',
+                'ext': 'mp4',
+                'title': 'The chaotic GOP immigration vote',
+                'description': 'The Republican House votes on a border bill that has no chance of getting through the Senate or signed by the President and is drawing criticism from all sides.',
+                'thumbnail': 're:^https?://.*\.jpg$',
+                'timestamp': 1406937606,
+                'upload_date': '20140802',
+                'uploader': 'NBCU-NEWS',
+                'categories': ['MSNBC/Topics/Franchise/Best of last night', 'MSNBC/Topics/General/Congress'],
             },
         },
         {
@@ -290,105 +310,68 @@ class NBCNewsIE(ThePlatformIE):
             }
         else:
             # "feature" and "nightly-news" pages use theplatform.com
-            display_id = mobj.group('display_id')
-            webpage = self._download_webpage(url, display_id)
-            info = None
-            bootstrap_json = self._search_regex(
-                [r'(?m)(?:var\s+(?:bootstrapJson|playlistData)|NEWS\.videoObj)\s*=\s*({.+});?\s*$',
-                 r'videoObj\s*:\s*({.+})', r'data-video="([^"]+)"'],
-                webpage, 'bootstrap json', default=None)
-            bootstrap = self._parse_json(
-                bootstrap_json, display_id, transform_source=unescapeHTML)
-            if 'results' in bootstrap:
-                info = bootstrap['results'][0]['video']
-            elif 'video' in bootstrap:
-                info = bootstrap['video']
-            else:
-                info = bootstrap
-            video_id = info['mpxId']
-            title = info['title']
-
-            subtitles = {}
-            caption_links = info.get('captionLinks')
-            if caption_links:
-                for (sub_key, sub_ext) in (('smpte-tt', 'ttml'), ('web-vtt', 'vtt'), ('srt', 'srt')):
-                    sub_url = caption_links.get(sub_key)
-                    if sub_url:
-                        subtitles.setdefault('en', []).append({
-                            'url': sub_url,
-                            'ext': sub_ext,
-                        })
-
-            formats = []
-            for video_asset in info['videoAssets']:
-                video_url = video_asset.get('publicUrl')
-                if not video_url:
-                    continue
-                container = video_asset.get('format')
-                asset_type = video_asset.get('assetType') or ''
-                if container == 'ISM' or asset_type == 'FireTV-Once':
-                    continue
-                elif asset_type == 'OnceURL':
-                    tp_formats, tp_subtitles = self._extract_theplatform_smil(
-                        video_url, video_id)
-                    formats.extend(tp_formats)
-                    subtitles = self._merge_subtitles(subtitles, tp_subtitles)
+            video_id = mobj.group('mpx_id')
+            if not video_id.isdigit():
+                webpage = self._download_webpage(url, video_id)
+                info = None
+                bootstrap_json = self._search_regex(
+                    [r'(?m)(?:var\s+(?:bootstrapJson|playlistData)|NEWS\.videoObj)\s*=\s*({.+});?\s*$',
+                     r'videoObj\s*:\s*({.+})', r'data-video="([^"]+)"'],
+                    webpage, 'bootstrap json', default=None)
+                bootstrap = self._parse_json(
+                    bootstrap_json, video_id, transform_source=unescapeHTML)
+                if 'results' in bootstrap:
+                    info = bootstrap['results'][0]['video']
+                elif 'video' in bootstrap:
+                    info = bootstrap['video']
                 else:
-                    tbr = int_or_none(video_asset.get('bitRate') or video_asset.get('bitrate'), 1000)
-                    format_id = 'http%s' % ('-%d' % tbr if tbr else '')
-                    video_url = update_url_query(
-                        video_url, {'format': 'redirect'})
-                    # resolve the url so that we can check availability and detect the correct extension
-                    head = self._request_webpage(
-                        HEADRequest(video_url), video_id,
-                        'Checking %s url' % format_id,
-                        '%s is not available' % format_id,
-                        fatal=False)
-                    if head:
-                        video_url = head.geturl()
-                        formats.append({
-                            'format_id': format_id,
-                            'url': video_url,
-                            'width': int_or_none(video_asset.get('width')),
-                            'height': int_or_none(video_asset.get('height')),
-                            'tbr': tbr,
-                            'container': video_asset.get('format'),
-                        })
-            self._sort_formats(formats)
+                    info = bootstrap
+                video_id = info['mpxId']
 
             return {
+                '_type': 'url_transparent',
                 'id': video_id,
-                'title': title,
-                'description': info.get('description'),
-                'thumbnail': info.get('thumbnail'),
-                'duration': int_or_none(info.get('duration')),
-                'timestamp': parse_iso8601(info.get('pubDate') or info.get('pub_date')),
-                'formats': formats,
-                'subtitles': subtitles,
+                # http://feed.theplatform.com/f/2E2eJC/nbcnews also works
+                'url': 'http://feed.theplatform.com/f/2E2eJC/nnd_NBCNews?byId=%s' % video_id,
+                'ie_key': 'ThePlatformFeed',
             }
 
 
-class MSNBCIE(InfoExtractor):
-    # https URLs redirect to corresponding http ones
-    _VALID_URL = r'https?://www\.msnbc\.com/[^/]+/watch/(?P<id>[^/]+)'
+class NBCOlympicsIE(InfoExtractor):
+    _VALID_URL = r'https?://www\.nbcolympics\.com/video/(?P<id>[a-z-]+)'
+
     _TEST = {
-        'url': 'http://www.msnbc.com/all-in-with-chris-hayes/watch/the-chaotic-gop-immigration-vote-314487875924',
-        'md5': '6d236bf4f3dddc226633ce6e2c3f814d',
+        # Geo-restricted to US
+        'url': 'http://www.nbcolympics.com/video/justin-roses-son-leo-was-tears-after-his-dad-won-gold',
+        'md5': '54fecf846d05429fbaa18af557ee523a',
         'info_dict': {
-            'id': 'n_hayes_Aimm_140801_272214',
+            'id': 'WjTBzDXx5AUq',
+            'display_id': 'justin-roses-son-leo-was-tears-after-his-dad-won-gold',
             'ext': 'mp4',
-            'title': 'The chaotic GOP immigration vote',
-            'description': 'The Republican House votes on a border bill that has no chance of getting through the Senate or signed by the President and is drawing criticism from all sides.',
-            'thumbnail': 're:^https?://.*\.jpg$',
-            'timestamp': 1406937606,
-            'upload_date': '20140802',
-            'uploader': 'NBCU-NEWS',
-            'categories': ['MSNBC/Topics/Franchise/Best of last night', 'MSNBC/Topics/General/Congress'],
+            'title': 'Rose\'s son Leo was in tears after his dad won gold',
+            'description': 'Olympic gold medalist Justin Rose gets emotional talking to the impact his win in men\'s golf has already had on his children.',
+            'timestamp': 1471274964,
+            'upload_date': '20160815',
+            'uploader': 'NBCU-SPORTS',
         },
     }
 
     def _real_extract(self, url):
-        video_id = self._match_id(url)
-        webpage = self._download_webpage(url, video_id)
-        embed_url = self._html_search_meta('embedURL', webpage)
-        return self.url_result(embed_url)
+        display_id = self._match_id(url)
+
+        webpage = self._download_webpage(url, display_id)
+
+        drupal_settings = self._parse_json(self._search_regex(
+            r'jQuery\.extend\(Drupal\.settings\s*,\s*({.+?})\);',
+            webpage, 'drupal settings'), display_id)
+
+        iframe_url = drupal_settings['vod']['iframe_url']
+        theplatform_url = iframe_url.replace(
+            'vplayer.nbcolympics.com', 'player.theplatform.com')
+
+        return {
+            '_type': 'url_transparent',
+            'url': theplatform_url,
+            'ie_key': ThePlatformIE.ie_key(),
+            'display_id': display_id,
+        }
