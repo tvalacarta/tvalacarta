@@ -104,7 +104,7 @@ def play_video(item,desdefavoritos=False,desdedescargados=False,desderrordescarg
     
     # Si no puedes ver el vídeo te informa
     else:
-        alert_no_puedes_ver_video(item.server,url,motivo)
+        alert_no_puedes_ver_video(item.server,"",motivo)
 
         if item.channel=="favoritos": 
             opciones.append(config.get_localized_string(30154)) # "Quitar de favoritos"
