@@ -14,8 +14,8 @@ from core.item import Item
 from core import jsontools
 
 DEBUG = False
-CHANNELNAME = "rtvcm"
-MAIN_URL = "http://www.rtvcm.es/television/programas/"
+__channel__ = "rtvcm"
+MAIN_URL = "http://www.cmmedia.es/wp-json/web/v1/programas/tv/alphab/null"
 
 def isGeneric():
     return True
@@ -30,14 +30,55 @@ def programas(item):
     itemlist = []
 
     # Descarga la página
-    data = scrapertools.cache_page(MAIN_URL,post="action=filterProgramas&filter=alphab&cat=")
-    json_object = jsontools.load_json(data)
-    for entry in json_object:
-        title = entry["titulo"]
-        url = entry["link"]
-        thumbnail = ""
+    data = scrapertools.cache_page(MAIN_URL)
+
+    '''
+    <li class="col-sm-6 col-md-4">
+    <article>
+    <figure>
+    <img src="http://www.cmmedia.es/television/wp-content/uploads/2016/10/A-los-ojos_miniatura
+    .jpg" alt="A los ojos">
+    <a class="" href="http://www.cmmedia.es/programas/tv/a-los-ojos" title="A los ojos"
+    ><span class="sr-only">A los ojos</span></a>
+    </figure>
+    <h3><a href="http://www.cmmedia.es/programas/tv/a-los-ojos" title="A
+    los ojos">A los ojos</a></h3>
+    <p>Cine</p>
+    </article>
+    </li>
+
+
+    <li class="col-sm-6 col-md-4">
+    <article>
+    <figure>
+    <img src="http://www.cmmedia.es/television/wp-content/uploads/2015/03/ATV16_MINIATURA-FICHA-copia
+    .png" alt="A tu vera">
+    <a class="icon-play-circle" href="http://www.cmmedia.es/programas/tv/a-tu-vera" title
+    ="A tu vera"><span class="sr-only">A tu vera</span></a>
+    </figure>
+    <h3><a href="http://www.cmmedia.es/programas/tv/a-tu-vera" title="A tu
+    vera">A tu vera</a></h3>
+    <p>Entretenimiento</p>
+    </article>
+    </li>
+    '''
+
+    patron  = '<li class="col[^<]+'
+    patron += '<article[^<]+'
+    patron += '<figure[^<]+'
+    patron += '<img src="([^"]+)"[^<]+'
+    patron += '<a class="icon-play-circle" href="([^"]+)"[^<]+'
+    patron += '<span class="sr-only">([^<]+)</span></a>'
+
+    matches = re.compile(patron,re.DOTALL).findall(data)
+    
+    for scrapedthumbnail,scrapedurl,scrapedtitle in matches:
+        thumbnail = urlparse.urljoin(item.url,scrapedthumbnail)
+        url = urlparse.urljoin(item.url,scrapedurl)+"/videos"
+        title = scrapedtitle
         plot = ""
-        itemlist.append( Item(channel=CHANNELNAME, title=title , url=url,  thumbnail=thumbnail , action="episodios" , show=title, folder=True) )
+
+        itemlist.append( Item(channel=__channel__, action="episodios", title=title, show=title, url=url, thumbnail=thumbnail,  plot=plot, view="videos", folder=True))
 
     return itemlist
 
@@ -46,17 +87,6 @@ def detalle_programa(item):
     data = scrapertools.cache_page(item.url)
 
     item.plot = scrapertools.find_single_match(data,'<meta property="og:description" content="([^"]+)"')
-
-    url = scrapertools.find_single_match(data,'<li><a class="" href="([^"]+)[^>]+>El programa</a></li>')
-
-    if url=="":
-        url = item.url
-
-    data = scrapertools.cache_page(url)
-
-    item.thumbnail = scrapertools.find_single_match(data,'<div class="img-container[^<]+<img src="([^"]+)"')
-    if item.thumbnail=="":
-        item.thumbnail = scrapertools.find_single_match(data,'<div class="box mini-destacado"[^<]+<img src="([^"]+)"')
 
     return item
 
@@ -67,61 +97,54 @@ def episodios(item):
 
     # Descarga la página
     data = scrapertools.cache_page(item.url)
-    page_url = scrapertools.find_single_match(data,'<li><a class="" href="([^"]+)[^>]+>Programas Completos</a></li>')
-    
-    if page_url=="":
-        page_url = scrapertools.find_single_match(data,'<li><a class="" href="([^"]+)[^>]+>Vídeos</a></li>')
-
-    if page_url=="":
-        return []
-
-    data = scrapertools.cache_page(page_url)
-    logger.info("data="+data)
-
-    bloque = scrapertools.find_single_match(data,'var videos = (\[\{.*?\}\])\;')
-    logger.info("bloque=#"+bloque+"#")
-    json_object = jsontools.load_json(bloque)
 
     '''
-    if bloque=="":
-        #var videos = {"":{"titulo":"CMXM: Washington","fecha":"29\/01\/2016","format_date":"2016-01-29 00:00","descripcion":"","video":"15060","imagen":"http:\/\/api.rtvcm.webtv.flumotion.com\/videos\/15060\/thumbnail.jpg","fecha-publicacion":"1454112600"}};
-        bloque = scrapertools.find_single_match(data,'var videos = (\{.*?\})\;')
-        bloque = bloque[4:-1]
-        logger.info("bloque2=#"+bloque+"#")
-        json_object = [jsontools.load_json(bloque)]
+    <article>
+    <figure>
+    <img src="http://api.rtvcm.webtv.flumotion.com/videos/31351/poster.jpg?w=7fe8fa22" alt="Cosecha propia">
+    <a class="icon-play-circle" href="http://www.cmmedia.es/programas/tv/cosecha-propia/videos/31351" title="Cosecha propia"><span class="sr-only">http://api.rtvcm.webtv.flumotion.com/videos/31351/poster.jpg?w=7fe8fa22</span></a>
+    </figure>
+    <p class="date"><time>24/09/2016</time></p>
+    <h3><a href="http://www.cmmedia.es/programas/tv/cosecha-propia/videos/31351" title="Cosecha propia">Cosecha propia</a></h3>
+    <p>Venta de Don Quijote</p>
+    </article>
     '''
 
-    #[
-    #{"titulo":"LCDM: Almendros, Cuenca",
-    #"video":"14453",
-    #"imagen":"http:\/\/api.rtvcm.webtv.flumotion.com\/videos\/14453\/thumbnail.jpg",
-    #"fecha":"16\/10\/2015",
-    #"format_date":"2015-10-16 00:00",
-    #"descripcion":"","fecha-publicacion":"1445006400"}
+    patron  = '<article[^<]+'
+    patron += '<figure[^<]+'
+    patron += '<img src="([^"]+)" alt="([^"]+)"[^<]+'
+    patron += '<a class="icon-play-circle" href="([^"]+)"[^<]+<span[^<]+</span></a[^<]+'
+    patron += '</figure[^<]+'
+    patron += '<p class="date"><time>([^<]+)</time></p[^<]+'
+    patron += '<h3><a[^<]+</a></h3[^<]+'
+    patron += '<p>([^<]+)</p>'
 
-    for entry in json_object:
-        title = entry["titulo"]+" ("+entry["fecha"]+")"
-        url = urlparse.urljoin( page_url , "video-"+str(entry["video"]) )
-        thumbnail = entry["imagen"]
-        plot = scrapertools.htmlclean(entry["descripcion"])
-        aired_date = entry["format_date"]
-        itemlist.append( Item(channel=CHANNELNAME, title=title , url=url, plot=plot, thumbnail=thumbnail , fanart=thumbnail , action="play" , server="rtvcm", show = item.title , aired_date=aired_date, viewmode="movie_with_plot", folder=False) )
+    matches = re.compile(patron,re.DOTALL).findall(data)
+
+    for scrapedthumbnail,scrapedtitle,scrapedurl,fecha,scrapedplot in matches:
+        thumbnail = urlparse.urljoin(item.url,scrapedthumbnail)
+        url = urlparse.urljoin(item.url,scrapedurl)
+        title = scrapedtitle+" "+fecha
+        plot = scrapedplot
+        aired_date = scrapertools.parse_date(fecha)
+
+        itemlist.append( Item(channel=__channel__, title=title , url=url, plot=plot, thumbnail=thumbnail , fanart=thumbnail , action="play" , server="rtvcm", show = item.title , aired_date=aired_date, folder=False) )
+
+    next_page_url = scrapertools.find_single_match(data,'<a href="([^"]+)" aria-label="Siguiente">')
+    if next_page_url!="":
+        itemlist.append( Item(channel=__channel__, action="episodios", title=">> Página siguiente" , url=urlparse.urljoin(item.url,next_page_url) ,  folder=True) )    
 
     return itemlist
 
 def detalle_episodio(item):
     logger.info("tvalacarta.rtvcm.detalle_episodio")
 
-    idvideo = scrapertools.find_single_match(item.url,"video-(\d+)$")
-    url = "http://api.rtvcm.webtv.flumotion.com/pods/"+idvideo+"?extended=true"
-    data = scrapertools.cache_page(url)
+    data = scrapertools.cache_page(item.url)
 
     try:
         json_object = jsontools.load_json(data)
 
-        item.thumbnail = json_object["video_image_url"].split("?")[0]
         item.geolocked = "0"
-        item.duration = scrapertools.parse_duration_secs( json_object["duration"] )
         item.aired_date = scrapertools.parse_date(item.title)
 
         from servers import rtvcm as servermodule

@@ -155,67 +155,32 @@ def detalle_episodio(item):
 
     return item
 
-def videos(item, load_all_pages=True):
+def videos(item, load_all_pages=False):
     logger.info("tvalacarta.channels.rtspan videos")    
     itemlist = []
 
     data = scrapertools.cachePage(item.url)
     '''
-    <a href="/programas/la_lista_de_erick/182394-lista-erick-revancha-tierra-osos-rusia">
-    <span class="ration_16-9">
-    <img src="http://esp.rt.com/actualidad/public_images/2015.08/thumbnail/55c4c67dc46188c01c8b462b.jpg" alt="lista de erick">
-    <i class="icond-video">
-    <span class="play">
-    &nbsp;
-    </span>
-    </i>
-    </span>
+    <div class="cover__media cover__media_ratio cover__image_type_video-normal"><a href="/programas/la_lista_de_erick/221709-lista-erick-vista-erick" class="cover__link link "><img src="https://cdn.rt.com/actualidad/public_images/2016.10/thumbnail/580a0014c4618891038b4587.jpg" alt="La lista de Erick: La vista de Erick" class="cover__image cover__image_ratio"></a></div></div></div><div class="card__heading card__heading_all-news"><a class="link " href="/programas/la_lista_de_erick/221709-lista-erick-vista-erick">
+    La lista de Erick: La vista de Erick
     </a>
-    </figure>
-    <time class="date">
-    07.08.2015
-    </time>
-    <span class="watches">
-    <span class="watches__counter js-dataid" data-id="182394"></span>
-    </span>
-    <h3>
-    <a href="/programas/la_lista_de_erick/182394-lista-erick-revancha-tierra-osos-rusia">La lista de Erick: La revancha en tierra de osos</a>
-    </h3>
     '''
-    patron  = '<a href="([^"]+)"[^<]+'
-    patron += '<span class="ration_16-9"[^<]+'
-    patron += '<img src="([^"]+)"[^<]+'
-    patron += '<i class="icond-video"[^<]+'
-    patron += '<span class="play"[^<]+'
-    patron += '</span[^<]+'
-    patron += '</i[^<]+'
-    patron += '</span[^<]+'
-    patron += '</a[^<]+'
-    patron += '</figure[^<]+'
-    patron += '<time class="date">([^<]+)</time[^<]+'
-    patron += '<span class="watches"[^<]+'
-    patron += '<span[^<]+</span[^<]+'
-    patron += '</span[^<]+'
-    patron += '<h3[^<]+'
-    patron += '<a[^>]+>([^<]+)</a>'
+    patron  = '<div class="cover__media[^<]+'
+    patron += '<a href="([^"]+)"[^<]+<img src="([^"]+)".*?'
+    patron += '<a class="link[^>]+>([^<]+)</a>'
 
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 	
-    for scrapedurl,scrapedthumbnail,fecha,scrapedtitle in matches:
+    for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
         title = scrapedtitle.strip()
         url = urlparse.urljoin(item.url,scrapedurl)
         thumbnail = scrapedthumbnail
         plot = ""
 
-        scrapedday = scrapertools.find_single_match(fecha,'(\d+)\.\d+\.\d+')
-        scrapedmonth = scrapertools.find_single_match(fecha,'\d+\.(\d+)\.\d+')
-        scrapedyear = scrapertools.find_single_match(fecha,'\d+\.\d+\.(\d+)')
-        scrapeddate = scrapedyear + "-" + scrapedmonth + "-" + scrapedday
+        itemlist.append( Item(channel=__channel__, action="play", title=title, url=url, thumbnail=thumbnail, show=item.show, folder=False) )
 
-        itemlist.append( Item(channel=__channel__, action="play", title=title, url=url, thumbnail=thumbnail, show=item.show, aired_date=scrapeddate, folder=False) )
-
-    next_page_url = scrapertools.find_single_match(data,'<button class="button-grey js-listing-more" style="[^"]+" data-href="([^"]+)">')
+    next_page_url = scrapertools.find_single_match(data,'<div class="listing__button listing__button_all-news listing__button_js" data-href="([^"]+)"')
     if next_page_url!="":
         next_page_item = Item(channel=__channel__, action="videos", title=">> Página siguiente" , url=urlparse.urljoin(item.url,next_page_url) , show=item.show, folder=True)
 

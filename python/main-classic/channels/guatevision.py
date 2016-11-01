@@ -35,43 +35,44 @@ def programas(item):
         item.url=PROGRAMAS_URL
 
     data = scrapertools.cache_page(item.url)
-    data = scrapertools.find_single_match(data,'<div class="main">(.*?)</div[^<]+</div')
-    logger.info("tvalacarta.channels.guatevision data="+data)
-
 
     '''
-    <a href="http://www.guatevision.com/programas/sinfiltro-lunes-a-viernes-22hrs/" title="Programas anteriores de #SinFiltro Lunes a Viernes 22hrs">
-    <img width="300" height="100" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="http://multimedia.guatevision.com/2016/01/identificador-sinfiltro300x100.jpg" class="enlaceprograma wp-post-image" alt="#SinFiltro Lunes a Viernes 22hrs" title="#SinFiltro Lunes a Viernes 22hrs"/>
-    <noscript><img width="300" height="100" src="http://multimedia.guatevision.com/2016/01/identificador-sinfiltro300x100.jpg" class="enlaceprograma wp-post-image" alt="#SinFiltro Lunes a Viernes 22hrs" title="#SinFiltro Lunes a Viernes 22hrs"/></noscript></a>
+    <div class="col-md-4">
+    <div class="card card-raised card-background" style="background-image:url(http://s3-us-west-2.amazonaws.com/guatevision/wp-content/uploads/2016/10/05144725/TUTI-LANDING-WEB.jpg)">
+    <div class="content">
+    <h6 class="category text-info">Entretenimiento</h6>
+    <a href="http://www.guatevision.com/programas/un-show-con-tuti/">
+    <h4 class="card-title">Un Show con Tuti</h4>
+    </a>
+    <p class="card-description">Lunes a Viernes 8:00 PM</p>
+    <a href="http://www.guatevision.com/programas/un-show-con-tuti/" class="btn btn-rose btn-round">
+    <i class="material-icons">tv</i> &nbsp;VER
+    </a>
+    </div>
+    </div>
     '''
 
-    patron  = '<a href="([^"]+)"[^<]+'
-    patron += '<img width="\d+" height="\d+" src="[^"]+" data-src="([^"]+)" class="[^"]+" alt="([^"]+)"[^<]+'
+    patron  = '<div class="col-md-4"[^<]+'
+    patron += '<div class="card card-raised card-background" style="background-image.url\(([^\)]*)\)"[^<]+'
+    patron += '<div class="content"[^<]+'
+    patron += '<h6[^<]+</h6[^<]+'
+    patron += '<a href="([^"]+)"[^<]+'
+    patron += '<h4 class="card-title">([^<]+)</h4'
 
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 
-    for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
+    for scrapedthumbnail,scrapedurl,scrapedtitle in matches:
         title = scrapedtitle.strip()
         thumbnail = scrapedthumbnail
         plot = ""
         url = scrapedurl
         if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-        itemlist.append( Item( channel=item.channel , title=title , action="episodios", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail ) )
+        itemlist.append( Item( channel=item.channel , title=title , action="episodios", url=url , thumbnail=thumbnail , plot=plot , show=title , view="programs", fanart=thumbnail ) )
 
     return itemlist
 
 def detalle_programa(item):
-
-    data = scrapertools.cache_page(item.page)
-
-    item.plot = scrapertools.find_single_match(data,'<article class="span8"[^<]+<div class="contenido_noticia">(.*?)</div>')
-    item.plot = scrapertools.htmlclean(item.plot).strip()
-
-    item.thumbnail = scrapertools.find_single_match(data,'<img src="([^"]+)" alt="" class="img-det-not">')
-
-    #item.title = scrapertools.find_single_match(data,'<article class="span8"[^<]+<h2>([^<]+)</h2>')
-
     return item
 
 def episodios(item):
@@ -82,86 +83,74 @@ def episodios(item):
     #logger.info("tvalacarta.channels.guatevision data="+data)
 
     '''
-    <div class="video-wrapper">
-    <a href="http://www.guatevision.com/playeryt.php?dedonde=yt_api3_menugtv.php&plid=PLGZsJXyG6Xyi173rWMMulkGeeuyMvknS-">
-    <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="https://i.ytimg.com/vi/xh-smylIaUU/mqdefault.jpg" border="0"/><noscript>
-    <img src="https://i.ytimg.com/vi/xh-smylIaUU/mqdefault.jpg" border="0"/></noscript>
-    <br>Programa 20/04/2016</a>
+    <div class="col-xs-12 col-sm-4 col-md-4">
+    <div class = "card card-profile" style="background:#ffd131">   
+    <div class = "card-image">       
+    <a href = "#">           
+    <img class = "img" src = "https://i.ytimg.com/vi/ueYFvacVTmo/hqdefault.jpg">       
+    </a>       
+    <div id="btn-playlist-6" class = "btn-playlist">               
+    <i style="color:#FFFFFF;font-size:46px;" class="material-icons">play_circle_outline
+    </i>       
+    </div>   
+    </div>   
+    <div class = "content_title">       
+    <h4  class = "card-title" style="height:50px;color:#434343">Programa 1 Temporada 2016
+    </h4>   
     </div>
+    </div>
+    </div>
+    <div style="clear:both;">
+    </div>
+    <div id="items-playlist-6" >
+    <input type="hidden" class="titlelist" value="Programa 1 Temporada 2016" />
+    <input type="hidden" class="vlist" value="ueYFvacVTmo" />
+    <input type="hidden" class="vlist" value="iuFC6cpD8Xg" />
+    <input type="hidden" class="vlist" value="z_wTFBrqWM0" /></div>
     '''
 
-    patron  = '<div class="video-wrapper"[^<]+'
-    patron += '<a href="([^"]+)"[^<]+'
-    patron += '<img src="[^"]+" data-src="([^"]+)"[^<]+<noscript[^<]+'
-    patron += '<img src="[^<]+</noscript[^<]+'
-    patron += '<br>([^<]+)</a>'
+    patron  = '<div id="items-playlist[^<]+'
+    patron += '<input type="hidden" class="titlelist" value="([^"]+)"(.*?)</div>'
 
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 
-    for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
+    for scrapedtitle,extra in matches:
         title = scrapedtitle.strip()
-        thumbnail = scrapedthumbnail.replace("mqdefault","hqdefault")
+        thumbnail = ""
+        url = item.url+"?ep="
         plot = ""
-        url = urlparse.urljoin(item.url,scrapedurl)
+
+        url_matches = re.compile('<input type="hidden" class="vlist" value="([^"]+)"',re.DOTALL).findall(extra)
+        for url_match in url_matches:
+
+            if thumbnail=="":
+                thumbnail = "https://i.ytimg.com/vi/"+url_match+"/hqdefault.jpg"
+
+            url = url + url_match + "|"
+
+        url = url[:-1]
         if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-        itemlist.append( Item( channel=item.channel , title=title , action="playlist", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail, viewmode="movie_with_plot", folder=True ) )
-
-    '''
-    <div class="video-wrapper">
-    <a href="http://www.guatevision.com/playeryt.php?dedonde=yt_api3_sinreservasgtv.php&plid=PLd4wcfJeHB13ov0FrvnYrbuPNlmg3Kpl8">
-    <img src="https://i.ytimg.com/vi/BId8bVVNaGA/mqdefault.jpg" border="0"/><br>Programa 16/05/2016</a>
-    </div>
-    '''
-    patron  = '<div class="video-wrapper"[^<]+'
-    patron += '<a href="([^"]+)"[^<]+'
-    patron += '<img src="([^"]+)"[^<]+'
-    patron += '<br>([^<]+)</a>'
-
-    matches = re.compile(patron,re.DOTALL).findall(data)
-    if DEBUG: scrapertools.printMatches(matches)
-
-    for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
-        title = scrapedtitle.strip()
-        thumbnail = scrapedthumbnail.replace("mqdefault","hqdefault")
-        plot = ""
-        url = urlparse.urljoin(item.url,scrapedurl)
-        if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-        itemlist.append( Item( channel=item.channel , title=title , action="playlist", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail, viewmode="movie_with_plot", folder=True ) )
+        itemlist.append( Item( channel=item.channel , title=title , action="playlist", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail, view="videos", folder=True ) )
 
     return itemlist
 
 def detalle_episodio(item):
-
-    item.geolocked = "0"
-    
-    try:
-        from servers import azteca13 as servermodule
-        video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[0][1]
-    except:
-        import traceback
-        print traceback.format_exc()
-        item.media_url = ""
-
     return item
 
 def playlist(item):
+    logger.info("tvalacarta.channels.guatevision episodios")
+    itemlist = []
 
-    playlist_id = scrapertools.find_single_match(item.url,"plid=(.*?)$")
+    #http://www.guatevision.com/programas/bienes-inmuebles/?ep=e0NtgpW7Yng|kjWRm-zxU98|x1r_RLZkdi4|
+    episode_codes_string = scrapertools.find_single_match(item.url,"ep=(.*?)$")
+    logger.info("tvalacarta.channels.guatevision episode_codes_string="+episode_codes_string)
+    episode_codes_list = episode_codes_string.split("|")
 
-    import youtube_channel
-    itemlist = youtube_channel.videos(Item(url=playlist_id))
-
-    for item in itemlist:
-        logger.info("tvalacarta.channels.guatevision item="+item.tostring())
-
-    return itemlist
-
-def play(item):
-
-    item.server="guatevision";
-    itemlist = [item]
+    i=1
+    for episode_code in episode_codes_list:
+        itemlist.append( Item( channel=item.channel , title=item.title+" (parte "+str(i)+")" , action="play", server="youtube", url="https://www.youtube.com/watch?v="+episode_code , thumbnail="https://i.ytimg.com/vi/"+episode_code+"/hqdefault.jpg" , show=item.show , view="videos", folder=False ) )
+        i=i+1
 
     return itemlist
 

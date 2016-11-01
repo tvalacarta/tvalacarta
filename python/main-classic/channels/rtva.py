@@ -109,8 +109,8 @@ def episodios(item, load_all_pages=False):
     patron += '<div class="playP"[^<]+'
     patron += '</div[^<]+'
     patron += '</div[^<]+'
-    patron += '<div class="fecha hidde[^>]+>([^<]+)</div[^<]+'
     patron += '<span class="titulo">([^<]+)</span><br[^<]+'
+    patron += '<div class="fecha[^>]+><b><small>([^<]+)</small></b></div[^<]+'
     patron += '<div class="descripcion[^>]+>([^<]*)</div[^<]+'
     patron += '<div class="fecha_hora hidden">([^<]+)</div[^<]+'
     patron += '<div class="video[^>]+>([^<]+)</div>'
@@ -119,7 +119,7 @@ def episodios(item, load_all_pages=False):
     if DEBUG: scrapertools.printMatches(matches)
 
     itemlist = []
-    for scrapedthumbnail,fecha,scrapedtitle,scrapedplot,fechahora,media_url in matches:
+    for scrapedthumbnail,scrapedtitle,fecha,scrapedplot,fechahora,media_url in matches:
         try:
             dia = " ("+fecha.split(" ")[1]+")"
         except:

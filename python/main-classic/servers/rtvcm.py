@@ -18,9 +18,10 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
     video_urls = []
 
-    idvideo = scrapertools.find_single_match(page_url,"video-(\d+)$")
+    idvideo = scrapertools.find_single_match(page_url,"(\d+)$")
     url = "http://api.rtvcm.webtv.flumotion.com/pods/"+idvideo+"?extended=true"
     data = scrapertools.cache_page(url)
+    logger.info("data="+data)
     json_object = jsontools.load_json(data)
 
     mediaurl="http://ondemand.rtvcm.ondemand.flumotion.com/rtvcm/ondemand/video/mp4/med/"+json_object["name"]

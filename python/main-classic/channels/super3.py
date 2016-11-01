@@ -140,8 +140,8 @@ def episodios(item,load_all_pages=True):
 
     for match in matches:
         thumbnail = scrapertools.find_single_match(match,'<img class="foto" src="([^"]+)"')
-        url = urlparse.urljoin( item.url , scrapertools.find_single_match(match,'<a class="media-object" href="([^"]+)" title="[^"]+"') )
-        title = scrapertools.find_single_match(match,'<a class="media-object" href="[^"]+" title="([^"]+)"')
+        url = urlparse.urljoin( item.url , scrapertools.find_single_match(match,'<a class="media-object" href="([^"]+)"') )
+        title = scrapertools.find_single_match(match,'<h2 id="destacat_a[^>]+>([^<]+)</h2>')
         plot = ""
         logger.info("tvalacarta.channels.super3 episodios title="+title+", url="+url)
 
