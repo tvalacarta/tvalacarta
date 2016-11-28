@@ -35,11 +35,11 @@ def mainlist(item):
 
     itemlist = []
 
-    itemlist.append( Item(channel=__channel__, title="8tv directe",              action="play",         url = URL_LIVE,                               folder=False) )
-    itemlist.append( Item(channel=__channel__, title="8aldia Inici (destacat)",  action="loadprogram",  url = "http://www.8tv.cat/8aldia/",           folder=True) )
-    itemlist.append( Item(channel=__channel__, title="8aldia Reflexió Cuní",     action="loadprogram",  url = "http://www.8tv.cat/8aldia/opinio/",    folder=True) )
-    itemlist.append( Item(channel=__channel__, title="8aldia Seccions",          action="loadsections",                                               folder=True) )
-    itemlist.append( Item(channel=__channel__, title="8aldia Programes sencers", action="loadprogram",  url = "http://www.8tv.cat/8aldia/programes/", folder=True) )
+    itemlist.append( Item(channel=__channel__, title="8tv directe",              action="play",         url = URL_LIVE,                                            folder=False) )
+    itemlist.append( Item(channel=__channel__, title="8aldia Inici (destacat)",  action="loadprogram",  url = "http://www.8tv.cat/8aldia/",                        folder=True) )
+    itemlist.append( Item(channel=__channel__, title="8aldia Reflexió Cuní",     action="loadprogram",  url = "http://www.8tv.cat/8aldia/reflexio-de-josep-cuni/", folder=True) )
+    itemlist.append( Item(channel=__channel__, title="8aldia Seccions",          action="loadsections",                                                            folder=True) )
+    itemlist.append( Item(channel=__channel__, title="8aldia Programes sencers", action="loadprogram",  url = "http://www.8tv.cat/8aldia/programes-sencers/",      folder=True) )
 
     return itemlist
 
@@ -50,16 +50,19 @@ def loadsections(item):
 
     itemlist = []
 
-    itemlist.append( Item(channel=__channel__, title="Política",      action="loadprogram", url="http://www.8tv.cat/8aldia/category/videos/politica/",        folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Internacional", action="loadprogram", url="http://www.8tv.cat/8aldia/category/videos/internacional/",   folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Economia",      action="loadprogram", url="http://www.8tv.cat/8aldia/category/videos/economia-videos/", folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Societat",      action="loadprogram", url="http://www.8tv.cat/8aldia/category/videos/societat/",        folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Successos",     action="loadprogram", url="http://www.8tv.cat/8aldia/category/successos/",              folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Tribunals",     action="loadprogram", url="http://www.8tv.cat/8aldia/category/tribunals/",              folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Cultura",       action="loadprogram", url="http://www.8tv.cat/8aldia/category/videos/cultura/",         folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Esports",       action="loadprogram", url="http://www.8tv.cat/8aldia/category/videos/esports/",         folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Opinió",        action="loadprogram", url="http://www.8tv.cat/8aldia/category/opinio/",                 folder=True) )
-    itemlist.append( Item(channel=__channel__, title="La Tertúlia",   action="loadprogram", url="http://www.8tv.cat/8aldia/category/videos/tertulia/",        folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Entrevistes",   action="loadprogram", url="http://www.8tv.cat/8aldia/category/entrevistes/",     folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Pilar Rahola",  action="loadprogram", url="http://www.8tv.cat/8aldia/category/pilar-rahola/",    folder=True) )
+    itemlist.append( Item(channel=__channel__, title="La Tertúlia",   action="loadprogram", url="http://www.8tv.cat/8aldia/category/tertulia/",        folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Opinió",        action="loadprogram", url="http://www.8tv.cat/8aldia/category/opinio/",          folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Política",      action="loadprogram", url="http://www.8tv.cat/8aldia/category/politica/",        folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Internacional", action="loadprogram", url="http://www.8tv.cat/8aldia/category/internacional/",   folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Economia",      action="loadprogram", url="http://www.8tv.cat/8aldia/category/economia-videos/", folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Societat",      action="loadprogram", url="http://www.8tv.cat/8aldia/category/societat/",        folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Successos",     action="loadprogram", url="http://www.8tv.cat/8aldia/category/successos/",       folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Tribunals",     action="loadprogram", url="http://www.8tv.cat/8aldia/category/tribunals/",       folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Cultura",       action="loadprogram", url="http://www.8tv.cat/8aldia/category/cultura/",         folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Tecnologia",    action="loadprogram", url="http://www.8tv.cat/8aldia/category/tecnologia/",      folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Esports",       action="loadprogram", url="http://www.8tv.cat/8aldia/category/esports/",         folder=True) )
 
     return itemlist
 
