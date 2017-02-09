@@ -45,6 +45,10 @@ def mainlist(params,url,category):
         logger.info("channelselector item="+repr(elemento))
         addfolder(elemento.title , elemento.channel , elemento.action , thumbnailname=elemento.thumbnail, folder=elemento.folder)
 
+    if config.get_platform()=="kodi-krypton":
+        import plugintools
+        plugintools.set_view( plugintools.TV_SHOWS )
+
     # Label (top-right)...
     import xbmcplugin
     #xbmcplugin.setPluginCategory( handle=int( sys.argv[ 1 ] ), category="" )
@@ -74,6 +78,10 @@ def channeltypes(params,url,category):
     for item in lista:
         addfolder(item.title,item.channel,item.action,category=item.category,thumbnailname=item.thumbnail)
 
+    if config.get_platform()=="kodi-krypton":
+        import plugintools
+        plugintools.set_view( plugintools.TV_SHOWS )
+
     # Label (top-right)...
     import xbmcplugin
     xbmcplugin.setPluginCategory( handle=int( sys.argv[ 1 ] ), category="" )
@@ -95,6 +103,10 @@ def listchannels(params,url,category):
 
         elif config.get_platform()=="boxee" and channel.extra!="rtmp":
             addfolder(channel.title , channel.channel , "mainlist" , channel.channel)
+
+    if config.get_platform()=="kodi-krypton":
+        import plugintools
+        plugintools.set_view( plugintools.TV_SHOWS )
 
     # Label (top-right)...
     import xbmcplugin
@@ -148,7 +160,8 @@ def channels_list():
     itemlist.append( Item( title="Azteca 13 (México)"         , channel="azteca13"             , language="ES" , category="N"   , type="generic" )) # jesus 23/05/2016
     #itemlist.append( Item( title="Boing"                      , channel="boing"                , language="ES" , category="I"   , type="generic" )) # juanfran 07/02/2011
     #itemlist.append( Item( title="Cadena Tres (México)"       , channel="cadenatres"           , language="ES" , category="N"   , type="generic" )) # rsantaella 22/03/2013
-    itemlist.append( Item( title="Canal Antigua (Guatemala)"  , channel="canalantigua"         , language="ES" , category="N"   , type="generic" ))
+    #itemlist.append( Item( title="Canal Antigua (Guatemala)"  , channel="canalantigua"         , language="ES" , category="N"   , type="generic" ))
+    itemlist.append( Item( title="Canal 22 (México)"          , channel="canal22"              , language="ES" , category="N"   , type="generic" )) # jesus 18/01/2017
     itemlist.append( Item( title="Canal Trece (Colombia)"     , channel="canal13co"            , language="ES" , category="N"   , type="generic" )) # jesus 17/06/2016
     #itemlist.append( Item( title="Cartoonito"                 , channel="cartoonito"           , language="ES" , category="I"   , type="generic" )) # jesus 05/04/2012
     itemlist.append( Item( title="CCTV Español (China)"       , channel="cctvspan"             , language="ES" , category="N"   , type="generic" )) # richard 29/01/2013
@@ -168,13 +181,14 @@ def channels_list():
     itemlist.append( Item( title="elgourmet.com"              , channel="elgourmet"            , language="ES" , category="R"   , type="generic" )) # richard 29/01/2013
     itemlist.append( Item( title="Euronews"                   , channel="euronews"             , language="ES" , category="T"   , type="generic" ))
     itemlist.append( Item( title="Extremadura TV"             , channel="extremaduratv"        , language="ES" , category="R"   , type="generic", extra="rtmp" ))
-    itemlist.append( Item( title="Fútbol para todos (Argentina)", channel="fpt"                , language="ES" , category="N"   , type="generic" ))
+    #itemlist.append( Item( title="Fútbol para todos (Argentina)", channel="fpt"                , language="ES" , category="N"   , type="generic" ))
     itemlist.append( Item( title="Giralda TV (Sevilla)"       , channel="giraldatv"            , language="ES" , category="R"   , type="generic" )) # jesus 20/01/2010
     itemlist.append( Item( title="Guatevisión (Guatemala)"    , channel="guatevision"          , language="ES" , category="R"   , type="generic" )) # jesus 23/05/2016
     itemlist.append( Item( title="HispanTV (Irán)"            , channel="hispantv"             , language="ES" , category="N"   , type="generic" )) # richard 29/01/2013
     itemlist.append( Item( title="Hogarutil"                  , channel="hogarutil"            , language="ES" , category="T"   , type="generic", extra="background" ))
     itemlist.append( Item( title="IB3 (Islas Baleares)"       , channel="ib3"                  , language="ES" , category="R"   , type="generic" )) # jesus 20/01/2010
     #itemlist.append( Item( title="Internautas TV"             , channel="internautastv"        , language="ES" , category="T"   , type="generic" ))
+    itemlist.append( Item( title="Intereconomía"              , channel="intereconomia"        , language="ES" , category="N"   , type="generic" )) # jesus 15/01/2017
     itemlist.append( Item( title="La Red (Chile)"             , channel="laredcl"              , language="ES" , category="N"   , type="generic" )) 
     itemlist.append( Item( title="Kideos"                     , channel="kideos"               , language="ES" , category="I"   , type="generic" )) # jesus 05/04/2012
     itemlist.append( Item( title="Mitele"                     , channel="mitele"               , language="ES" , category="N"   , type="generic" )) # jesus, truenon, boludiko 05/04/2012
@@ -205,7 +219,8 @@ def channels_list():
     itemlist.append( Item( title="TV3 (Cataluña)"             , channel="tv3"                  , language="ES" , category="R,I" , type="generic" ))
     itemlist.append( Item( title="TVC (Canarias)"             , channel="rtvc"                 , language="ES" , category="R"   , type="generic" ))
     itemlist.append( Item( title="TVG (Galicia)"              , channel="tvg"                  , language="ES" , category="R"   , type="generic" ))
-    itemlist.append( Item( title="TVNPlayer (Chile)"                , channel="tvn"                  , language="ES" , category="N"   , type="generic" )) # jesus 04/08/2013
+    itemlist.append( Item( title="TVR (La Rioja)"             , channel="tvr"                  , language="ES" , category="A"   , type="generic" ))
+    itemlist.append( Item( title="TVNPlayer (Chile)"          , channel="tvn"                  , language="ES" , category="N"   , type="generic" )) # jesus 04/08/2013
     itemlist.append( Item( title="UPV TV"                     , channel="upvtv"                , language="ES" , category="T"   , type="generic" )) # beesop 29/03/2011
     itemlist.append( Item( title="V Televisión (Galicia)"     , channel="vtelevision"          , language="ES" , category="T"   , type="generic" )) # jesus 23/05/2016
     itemlist.append( Item( title="xip/tv"                     , channel="xiptv"                , language="ES" , category="R"   , type="generic" )) # jesus 30/07/2011

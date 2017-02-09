@@ -32,49 +32,18 @@ def programas(item):
     # Descarga la página
     data = scrapertools.cache_page(MAIN_URL)
 
-    '''
-    <li class="col-sm-6 col-md-4">
-    <article>
-    <figure>
-    <img src="http://www.cmmedia.es/television/wp-content/uploads/2016/10/A-los-ojos_miniatura
-    .jpg" alt="A los ojos">
-    <a class="" href="http://www.cmmedia.es/programas/tv/a-los-ojos" title="A los ojos"
-    ><span class="sr-only">A los ojos</span></a>
-    </figure>
-    <h3><a href="http://www.cmmedia.es/programas/tv/a-los-ojos" title="A
-    los ojos">A los ojos</a></h3>
-    <p>Cine</p>
-    </article>
-    </li>
-
-
-    <li class="col-sm-6 col-md-4">
-    <article>
-    <figure>
-    <img src="http://www.cmmedia.es/television/wp-content/uploads/2015/03/ATV16_MINIATURA-FICHA-copia
-    .png" alt="A tu vera">
-    <a class="icon-play-circle" href="http://www.cmmedia.es/programas/tv/a-tu-vera" title
-    ="A tu vera"><span class="sr-only">A tu vera</span></a>
-    </figure>
-    <h3><a href="http://www.cmmedia.es/programas/tv/a-tu-vera" title="A tu
-    vera">A tu vera</a></h3>
-    <p>Entretenimiento</p>
-    </article>
-    </li>
-    '''
-
     patron  = '<li class="col[^<]+'
     patron += '<article[^<]+'
     patron += '<figure[^<]+'
     patron += '<img src="([^"]+)"[^<]+'
-    patron += '<a class="icon-play-circle" href="([^"]+)"[^<]+'
-    patron += '<span class="sr-only">([^<]+)</span></a>'
+    patron += '<a class="[^"]*" href="([^"]+)" title="([^"]+)"'
 
     matches = re.compile(patron,re.DOTALL).findall(data)
     
     for scrapedthumbnail,scrapedurl,scrapedtitle in matches:
         thumbnail = urlparse.urljoin(item.url,scrapedthumbnail)
-        url = urlparse.urljoin(item.url,scrapedurl)+"/videos"
+        #http://www.cmmedia.es/programas/tv/a-tu-vera/programas-completos/
+        url = urlparse.urljoin(item.url,scrapedurl)
         title = scrapedtitle
         plot = ""
 
@@ -96,39 +65,53 @@ def episodios(item):
     itemlist = []
 
     # Descarga la página
-    data = scrapertools.cache_page(item.url)
+    prueba_urls = []
+    if "?pagina=" in item.url:
+        prueba_urls.append(item.url)
+    else:
+        prueba_urls.append(item.url+"/programas-completos")
+        prueba_urls.append(item.url+"/videos")
+    
+    for prueba_url in prueba_urls:
+        data = scrapertools.cache_page(prueba_url)
+        logger.info("tvalacarta.rtvcm.episodios data="+data)
 
-    '''
-    <article>
-    <figure>
-    <img src="http://api.rtvcm.webtv.flumotion.com/videos/31351/poster.jpg?w=7fe8fa22" alt="Cosecha propia">
-    <a class="icon-play-circle" href="http://www.cmmedia.es/programas/tv/cosecha-propia/videos/31351" title="Cosecha propia"><span class="sr-only">http://api.rtvcm.webtv.flumotion.com/videos/31351/poster.jpg?w=7fe8fa22</span></a>
-    </figure>
-    <p class="date"><time>24/09/2016</time></p>
-    <h3><a href="http://www.cmmedia.es/programas/tv/cosecha-propia/videos/31351" title="Cosecha propia">Cosecha propia</a></h3>
-    <p>Venta de Don Quijote</p>
-    </article>
-    '''
+        '''
+        <article>
+        <figure>
+        <img src="http://api.rtvcm.webtv.flumotion.com/videos/30531/poster.jpg?w=f720f390" alt="Promo A tu vera Mini">
+        <a class="icon-play-circle" href="http://www.cmmedia.es/programas/tv/a-tu-vera//programas-completos/30531?pagina=2" title="Promo A tu vera Mini">
+        <span class="sr-only">http://api.rtvcm.webtv.flumotion.com/videos/30531/poster.jpg?w=f720f390</span></a>
+        </figure>
+        <p class="date"><time></time></p>
+        <h3><a href="http://www.cmmedia.es/programas/tv/a-tu-vera//programas-completos/30531?pagina=2" title="Promo A tu vera Mini">Promo A tu vera Mini</a></h3>
+        <p>La novena edición de A Tu Vera Mini ya está en marcha. Participa en los casting llamando al 905 447 366</p>
+        </article>
+        '''
 
-    patron  = '<article[^<]+'
-    patron += '<figure[^<]+'
-    patron += '<img src="([^"]+)" alt="([^"]+)"[^<]+'
-    patron += '<a class="icon-play-circle" href="([^"]+)"[^<]+<span[^<]+</span></a[^<]+'
-    patron += '</figure[^<]+'
-    patron += '<p class="date"><time>([^<]+)</time></p[^<]+'
-    patron += '<h3><a[^<]+</a></h3[^<]+'
-    patron += '<p>([^<]+)</p>'
+        patron  = '<article[^<]+'
+        patron += '<figure[^<]+'
+        patron += '<img src="([^"]+)" alt="([^"]+)"[^<]+'
+        patron += '<a class="icon-play-circle" href="([^"]+)"[^<]+'
+        patron += '<span[^<]+</span></a[^<]+'
+        patron += '</figure[^<]+'
+        patron += '<p class="date"><time>([^<]*)</time></p[^<]+'
+        patron += '<h3><a[^<]+</a></h3[^<]+'
+        patron += '<p>(.*?)</p>'
 
-    matches = re.compile(patron,re.DOTALL).findall(data)
+        matches = re.compile(patron,re.DOTALL).findall(data)
 
-    for scrapedthumbnail,scrapedtitle,scrapedurl,fecha,scrapedplot in matches:
-        thumbnail = urlparse.urljoin(item.url,scrapedthumbnail)
-        url = urlparse.urljoin(item.url,scrapedurl)
-        title = scrapedtitle+" "+fecha
-        plot = scrapedplot
-        aired_date = scrapertools.parse_date(fecha)
+        for scrapedthumbnail,scrapedtitle,scrapedurl,fecha,scrapedplot in matches:
+            thumbnail = urlparse.urljoin(item.url,scrapedthumbnail)
+            url = urlparse.urljoin(item.url,scrapedurl)
+            title = scrapedtitle+" "+fecha
+            plot = scrapedplot
+            aired_date = scrapertools.parse_date(fecha)
 
-        itemlist.append( Item(channel=__channel__, title=title , url=url, plot=plot, thumbnail=thumbnail , fanart=thumbnail , action="play" , server="rtvcm", show = item.title , aired_date=aired_date, folder=False) )
+            itemlist.append( Item(channel=__channel__, title=title , url=url, plot=plot, thumbnail=thumbnail , fanart=thumbnail , action="play" , server="rtvcm", show = item.title , aired_date=aired_date, folder=False) )
+
+        if len(itemlist)>0:
+            break
 
     next_page_url = scrapertools.find_single_match(data,'<a href="([^"]+)" aria-label="Siguiente">')
     if next_page_url!="":

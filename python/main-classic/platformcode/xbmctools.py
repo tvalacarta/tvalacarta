@@ -323,18 +323,21 @@ def play_video(item,desdefavoritos=False,desdedescargados=False,desderrordescarg
             playersettings = config.get_setting('player_type')
             logger.info("tvalacarta.platformcode.xbmctools playersettings="+playersettings)
         
-            player_type = xbmc.PLAYER_CORE_AUTO
-            if playersettings == "0":
+            if config.get_system_platform() == "xbox":
                 player_type = xbmc.PLAYER_CORE_AUTO
-                logger.info("tvalacarta.platformcode.xbmctools PLAYER_CORE_AUTO")
-            elif playersettings == "1":
-                player_type = xbmc.PLAYER_CORE_MPLAYER
-                logger.info("tvalacarta.platformcode.xbmctools PLAYER_CORE_MPLAYER")
-            elif playersettings == "2":
-                player_type = xbmc.PLAYER_CORE_DVDPLAYER
-                logger.info("tvalacarta.platformcode.xbmctools PLAYER_CORE_DVDPLAYER")
+                if playersettings == "0":
+                    player_type = xbmc.PLAYER_CORE_AUTO
+                    logger.info("tvalacarta.platformcode.xbmctools PLAYER_CORE_AUTO")
+                elif playersettings == "1":
+                    player_type = xbmc.PLAYER_CORE_MPLAYER
+                    logger.info("tvalacarta.platformcode.xbmctools PLAYER_CORE_MPLAYER")
+                elif playersettings == "2":
+                    player_type = xbmc.PLAYER_CORE_DVDPLAYER
+                    logger.info("tvalacarta.platformcode.xbmctools PLAYER_CORE_DVDPLAYER")
+                xbmcPlayer = xbmc.Player( player_type )
+            else:
+                xbmcPlayer = xbmc.Player()
         
-            xbmcPlayer = xbmc.Player( player_type )
             xbmcPlayer.play(playlist)
 
         elif config.get_setting("player_mode")=="1":
@@ -419,7 +422,11 @@ def add_items_to_kodi_directory(itemlist,parent_item):
         elif parent_item.view=="programs":
             plugintools.set_view( plugintools.TV_SHOWS )
         elif parent_item.view=="channels" or parent_item.view=="thumbnails":
-            plugintools.set_view( plugintools.THUMBNAIL )
+
+            if config.get_platform()=="kodi-krypton":
+                plugintools.set_view( plugintools.TV_SHOWS )
+            else:
+                plugintools.set_view( plugintools.THUMBNAIL )
         elif parent_item.view=="videos":
             plugintools.set_view( plugintools.EPISODES )
 

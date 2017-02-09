@@ -11,6 +11,7 @@ import os
 from core import scrapertools
 from core import logger
 from core import config
+from core import jsontools
 
 def get_video_url( page_url , premium = False , user="" , password="", video_password="", page_data="" ):
     logger.info("tvalacarta.servers.telefe get_video_url(page_url='%s')" % page_url)
@@ -18,55 +19,15 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
     # Descarga la página del vídeo
     data = scrapertools.cache_page(page_url)
+    data = scrapertools.find_single_match(data,'T3.content.cache = \{\s*"[^"]+"\:\s*(.*?)\}\;')
+    logger.info("tvalacarta.servers.telefe videos data="+data)
 
-    # Esquema normal
-    bloque = scrapertools.get_match(data,'sources(.*?)\]')
-    patron = '"file"\s*\:\s*"([^"]+)"'
-    matches = re.compile(patron,re.DOTALL).findall(bloque)
-    scrapertools.printMatches(matches)
+    json_data = jsontools.load_json(data)
 
-    for match in matches:
-        tipo = match[:4]
-        url = match
-        if tipo=="rtmp":
-            url=url.replace("mp4:TOK","TOK")
-
-        video_urls.append( [ tipo+" [telefe]" , url ] )
-
-        '''
-        00:55:30 T:2955980800   ERROR: Valid RTMP options are:
-        00:55:30 T:2955980800   ERROR:      socks string   Use the specified SOCKS proxy
-        00:55:30 T:2955980800   ERROR:        app string   Name of target app on server
-        00:55:30 T:2955980800   ERROR:      tcUrl string   URL to played stream
-        00:55:30 T:2955980800   ERROR:    pageUrl string   URL of played media's web page
-        00:55:30 T:2955980800   ERROR:     swfUrl string   URL to player SWF file
-        00:55:30 T:2955980800   ERROR:   flashver string   Flash version string (default MAC 10,0,32,18)
-        00:55:30 T:2955980800   ERROR:       conn AMF      Append arbitrary AMF data to Connect message
-        00:55:30 T:2955980800   ERROR:   playpath string   Path to target media on server
-        00:55:30 T:2955980800   ERROR:   playlist boolean  Set playlist before play command
-        00:55:30 T:2955980800   ERROR:       live boolean  Stream is live, no seeking possible
-        00:55:30 T:2955980800   ERROR:  subscribe string   Stream to subscribe to
-        00:55:30 T:2955980800   ERROR:        jtv string   Justin.tv authentication token
-        00:55:30 T:2955980800   ERROR:       weeb string   Weeb.tv authentication token
-        00:55:30 T:2955980800   ERROR:      token string   Key for SecureToken response
-        00:55:30 T:2955980800   ERROR:     swfVfy boolean  Perform SWF Verification
-        00:55:30 T:2955980800   ERROR:     swfAge integer  Number of days to use cached SWF hash
-        00:55:30 T:2955980800   ERROR:    swfsize integer  Size of the decompressed SWF file
-        00:55:30 T:2955980800   ERROR:    swfhash string   SHA256 hash of the decompressed SWF file
-        00:55:30 T:2955980800   ERROR:      start integer  Stream start position in milliseconds
-        00:55:30 T:2955980800   ERROR:       stop integer  Stream stop position in milliseconds
-        00:55:30 T:2955980800   ERROR:     buffer integer  Buffer time in milliseconds
-        00:55:30 T:2955980800   ERROR:    timeout integer  Session timeout in seconds
-        '''
-
-    if len(video_urls)>0:
-        for video_url in video_urls:
-            logger.info("tvalacarta.servers.telefe %s - %s" % (video_url[0],video_url[1]))
-        return video_urls
+    for json_item in json_data["children"]["top"]["model"]["videos"][0]["sources"]:
+        video_urls.append([ json_item["type"] , json_item["url"] ])
 
     for video_url in video_urls:
-        for video_url in video_urls:
-            logger.info("tvalacarta.servers.telefe %s - %s" % (video_url[0],video_url[1]))
         logger.info("tvalacarta.servers.telefe %s - %s" % (video_url[0],video_url[1]))
 
     return video_urls

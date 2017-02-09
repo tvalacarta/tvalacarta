@@ -166,12 +166,12 @@ ALL_VIEW_CODES = {
 # Write something on XBMC log
 def log(message):
     if application_log_enabled:
-        xbmc.log(message)
+        xbmc.log(message, xbmc.LOGNOTICE)
 
 # Write this module messages on XBMC log
 def _log(message):
     if module_log_enabled:
-        xbmc.log("plugintools."+message)
+        xbmc.log("plugintools."+message, xbmc.LOGNOTICE)
 
 # Parse XBMC params - based on script.module.parsedom addon    
 def get_params():

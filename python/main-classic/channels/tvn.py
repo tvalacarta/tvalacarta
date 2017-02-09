@@ -34,51 +34,20 @@ def programas(item):
     itemlist = []
 
     data = scrapertools.cache_page(item.url)
-    patron = '<ul class="nav_videos_destacados">(.*?)</ul>'
-    bloques = re.compile(patron,re.DOTALL).findall(data)
-    if DEBUG: scrapertools.printMatches(bloques)
 
-    for bloque in bloques:
+    patron  = '<figure id[^<]+'
+    patron += '<a href="([^"]+)"[^<]+'
+    patron += '<img class="img-responsive" alt="([^"]+)" src="([^"]+)"'
+    matches = re.compile(patron,re.DOTALL).findall(data)
+    if DEBUG: scrapertools.printMatches(matches)
 
-        '''
-        <li id='comcont11808009_1'>
-        <a href="http://www.tvn.cl/programas/kunga/" >
-        <img alt="Kunga" src="http://www.tvn.cl/incoming/afiche-kungapng-1852994/ALTERNATES/w620h450/Afiche-Kunga.png" />
-        <div class="nav_videos_destacados_txt">
-        <span>Sábado 22:30 horas</span>
-        <h3>Kunga</h3>
-        <p>Actitud Animal</p>
-        '''
-        '''
-        <li id='comcont11807952_6'>
-        <a href="http://www.tvn.cl/programas/mientrastanto/" >
-        <img alt="Mientras Tanto" src="http://www.tvn.cl/incoming/afiche-mientrastantopng-1853001/ALTERNATES/w620h450/Afiche-MientrasTanto.png" />
-        <div class="nav_videos_destacados_txt">
-        <span></span>
-        <h3>Mientras Tanto</h3>
-        <p>#MientrasTantoTVN</p>
-        </div>
-        </a>
-        </li>
-        '''
-
-        patron  = '<li[^<]+'
-        patron += '<a href="([^"]+)"[^<]+'
-        patron += '<img alt="[^"]+" src="([^"]+)"[^<]+'
-        patron += '<div class="nav_videos_destacados_txt"[^<]+'
-        patron += '<span>[^<]*</span[^<]+'
-        patron += '<h3>([^<]+)</h3[^<]+'
-        patron += '<p>([^<]*)</p>'
-        matches = re.compile(patron,re.DOTALL).findall(bloque)
-        if DEBUG: scrapertools.printMatches(matches)
-
-        for scrapedurl,scrapedthumbnail,scrapedtitle,scrapedplot in matches:
-            title = scrapedtitle.strip()
-            thumbnail = urlparse.urljoin(item.url,scrapedthumbnail)
-            plot = scrapedplot
-            url = urlparse.urljoin(item.url,scrapedurl)
-            if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-            itemlist.append( Item( channel=item.channel , title=title , action="episodios" , url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail , folder=True ) )
+    for scrapedurl,scrapedtitle,scrapedthumbnail in matches:
+        title = scrapedtitle.strip()
+        thumbnail = urlparse.urljoin(item.url,scrapedthumbnail)
+        plot = ""
+        url = urlparse.urljoin(item.url,scrapedurl)
+        if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
+        itemlist.append( Item( channel=item.channel , title=title , action="episodios" , url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail , folder=True ) )
 
     return itemlist
 

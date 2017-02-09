@@ -50,34 +50,37 @@ def programas(item):
     data = scrapertools.cache_page(item.url)
     #logger.info("data="+data)
     '''
-    <a href="/programas/keiser_report">
-    <span class="ration_16-9">
-    <img src="http://esp.rt.com/actualidad/public_images/2014.12/original/5485ccd571139e90488b4584.jpg" alt="Keiser report">
-    </span>
+    <a href="/programas/zoom" class="ration_16-9 bg-img " style="background-image: url('https://esp.rt.com/actualidad/public_images/2015.08/original/55c0cba3c46188265e8b458a.jpg');">
     </a>
-    </figure>
+    </div>
     <p class="watches watches_bg-black">
-    <span class="watches__counter watches__counter_not-margin js-dataid" data-id="22"></span>
+    <span class="watches__counter" data-component="CounterEye" onclick=" return {
+    publicId: '182111'
+    };"></span> 
     </p>            
     <div class="summary js-programs-summary">
     <div class="summary-wrapper">
     <h3 class="header">
-    <a href="/programas/keiser_report">
-    Keiser report
+    <a href="/programas/zoom">
+    El Zoom
     </a>                        
     </h3>
     <p>
-    <a href="/programas/keiser_report">
-    Keiser report &ndash; Mercados, finanzas, esc&aacute;ndalos. Keiser report es una mirada a los esc&aacute;ndalos detr&aacute;s de los titulares financieros globales.
-    Sean las colusiones entre Wall...
+    <a href="/programas/zoom">
+    &iquest;Qu&eacute; nos pretenden ense&ntilde;ar las fotos del actual escenario internacional? &iquest;Est&aacute;n retocadas, trucadas o desenfocadas? &iquest;Qu&eacute; imagen nos quieren mostrar?...
     </a>
+    </p>
+    </div>
+    </div>
+    <span class="js-programs-info icon-i">
+    i
+    </span>
+    </div>
     '''
-    patron  = '<a href="([^"]+)"[^<]+'
-    patron += '<span class="ration_16-9"[^<]+'
-    patron += '<img src="([^"]+)"[^<]+'
-    patron += '</span[^<]+'
+    patron  = '<a href="([^"]+)" class="ration_16-9[^"]+" style="background-image: url\('
+    patron += "'([^']+)'\)[^<]+"
     patron += '</a[^<]+'
-    patron += '</figure[^<]+'
+    patron += '</div[^<]+'
     patron += '<p class="watches watches_bg-black"[^<]+'
     patron += '<span[^<]+</span[^<]+'
     patron += '</p[^<]+'
@@ -88,7 +91,6 @@ def programas(item):
     patron += '</h3[^<]+'
     patron += '<p[^<]+'
     patron += '<a[^>]+>([^<]+)</a>'
-
 
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
@@ -159,15 +161,26 @@ def videos(item, load_all_pages=False):
     logger.info("tvalacarta.channels.rtspan videos")    
     itemlist = []
 
-    data = scrapertools.cachePage(item.url)
     '''
-    <div class="cover__media cover__media_ratio cover__image_type_video-normal"><a href="/programas/la_lista_de_erick/221709-lista-erick-vista-erick" class="cover__link link "><img src="https://cdn.rt.com/actualidad/public_images/2016.10/thumbnail/580a0014c4618891038b4587.jpg" alt="La lista de Erick: La vista de Erick" class="cover__image cover__image_ratio"></a></div></div></div><div class="card__heading card__heading_all-news"><a class="link " href="/programas/la_lista_de_erick/221709-lista-erick-vista-erick">
-    La lista de Erick: La vista de Erick
+    <div class="cover">
+    <a href="/programas/keiser_report/223832-eeuu-estado-puerto-rico" class="cover__media bg-img cover__media_ratio cover__image_type_video-normal"
+    style="background-image: url('https://esp.rt.com/actualidad/public_images/2016.11/thumbnail/582d9f22c461884a098b45b3.jpg');">
     </a>
+    </div>
+    </div>
+    <div class="card__heading card__heading_all-news">
+    <a class="link " href="/programas/keiser_report/223832-eeuu-estado-puerto-rico">
+    ¿Tendrá pronto EE. UU. un 51.º estado?
+    </a></div><div class="card__date-time card__date-time_all-news"><time class="date ">
+    17 noviembre 2016 | 14:19
+    </time>
     '''
-    patron  = '<div class="cover__media[^<]+'
-    patron += '<a href="([^"]+)"[^<]+<img src="([^"]+)".*?'
-    patron += '<a class="link[^>]+>([^<]+)</a>'
+
+    data = scrapertools.cachePage(item.url)
+    patron  = '<div class="cover"[^<]+'
+    patron += '<a href="([^"]+)".*?'
+    patron += "url\('([^']+)'.*?"
+    patron += '<a class="link[^>]+>([^<]+)</a'
 
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
 # tvalacarta - XBMC Plugin
-# Canal para Azteca 7 (México)
+# Canal para Canal 22 (México)
 # http://blog.tvalacarta.info/plugin-xbmc/tvalacarta/
 #------------------------------------------------------------
 import urlparse,re
@@ -15,19 +15,19 @@ from core import jsontools
 from core.item import Item
 
 DEBUG = config.get_setting("debug")
-CHANNELNAME = "azteca7"
-PROGRAMAS_URL = "http://www.azteca7.com/"
+CHANNELNAME = "canal22"
+PROGRAMAS_URL = "http://canal22.org.mx/alacarta/"
 
 def isGeneric():
     return True
 
 def mainlist(item):
-    logger.info("tvalacarta.channels.azteca7 mainlist")
+    logger.info("tvalacarta.channels.canal22 mainlist")
 
     return programas(Item(channel=CHANNELNAME))
 
 def programas(item):
-    logger.info("tvalacarta.channels.azteca7 programas")
+    logger.info("tvalacarta.channels.canal22 programas")
 
     itemlist = []
 
@@ -35,25 +35,20 @@ def programas(item):
         item.url=PROGRAMAS_URL
 
     data = scrapertools.cache_page(item.url)
-    logger.info("tvalacarta.channels.azteca7 data="+data)
+    data = scrapertools.find_single_match(data,'<section class="int_programas">(.*?)</section')
 
-    '''
-    <!-- MENU DEL SITIO -->
-    <a href="javascript:" class="ztkTbAcTog"><i class="fa "></i>NUESTROS ESTRENOS<i class="fa fa-angle-down"></i></a><div class="ztkTbAcEl"><a href="http://www.azteca7.com/cocinerosmexicanos">Cocineros Mexicanos</a><a href="http://www.azteca7.com/despuesdetodo">Después de Todo</a>...<!-- FIN MENU DEL SITIO -->
-    </div>
-    '''
-    data = scrapertools.find_single_match(data,'<!-- MENU DEL SITIO -->(.*?)<!-- FIN MENU DEL SITIO -->')
-
-    patron = '<a href="([^"]+)">([^<]+)</a>'
+    patron  = '<a href="([^"]+)"[^<]+'
+    patron += '<div class="programas"[^<]+'
+    patron += '<img src="([^"]+)"[^<]+'
+    patron += '<div class="tit">([^<]+)</div>'
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 
-    for scrapedurl,scrapedtitle in matches:
-        title = scrapedtitle.strip()
-        thumbnail = ""
+    for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
+        title = unicode( scrapedtitle.strip() , "iso-8859-1" , errors="ignore").encode("utf-8")
+        thumbnail = scrapedthumbnail
         plot = ""
         url = urlparse.urljoin(item.url,scrapedurl)
-        url = url+"/historico/videos"
         if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
         itemlist.append( Item( channel=item.channel , title=title , action="episodios", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail, view="videos" ) )
 
@@ -73,43 +68,33 @@ def detalle_programa(item):
     return item
 
 def episodios(item):
-    logger.info("tvalacarta.channels.azteca7 episodios")
+    logger.info("tvalacarta.channels.canal22 episodios")
     itemlist = []
 
     data = scrapertools.cache_page(item.url)
-    logger.info("tvalacarta.channels.azteca7 data="+data)
 
     '''
-    <div>
-    <a href="/videos/masalladelchisme/342702/sergio-mayer-nos-cuenta-sobre-como-se-siente-al-convertirse-en-abuelo">
-    <img width="186" height="105" src="http://static.azteca.com/crop/crop.php?width=180&height=100&img=http://static.azteca.com/imagenes/2016/43/sergio-mayer,-mas-alla-del-chisme-2097468.jpg&coordinates=61,38">
-    </a>
-    <a href="/videos/masalladelchisme/342702/sergio-mayer-nos-cuenta-sobre-como-se-siente-al-convertirse-en-abuelo">
-    <i class="icon-play-circle"></i>
-    <h2 class="elemento_h2">Sergio Mayer nos cuenta sobre cómo se siente al convertirse en abuelo</h2></a>
-    <h4>2016-10-28 17:00:00 hrs</h4>
-    <p>Sergio Mayer nos cuenta sobre cómo se siente al convertirse en abuelo, además de contarnos de la abuela sexy que será Bárbara Mori</p>
-    </div>
+    <a class="itemgo" href="?c=d&p=13&n=0_uq0p39bt&ti=33">
+    <div class="programas" cap="214">
+    <img src="http://cdn.kaltura.com/p/1768131/sp/176813100/thumbnail/entry_id/0_uq0p39bt/width/256/height/154">
+    <div class="tit">Basura urbana</div>
     '''
 
-    patron  = '<div[^<]+'
-    patron += '<a href="([^"]+)"[^<]+'
-    patron += '<img width="\d+" height="\d+" src="([^"]+)"[^<]+'
-    patron += '</a[^<]+'
-    patron += '<a href="[^"]+"><i[^<]+</i><h2[^>]+>([^<]+)</h2></a[^<]+'
-    patron += '<h4>([^<]+)</h4[^<]+'
-    patron += '<p>([^<]+)</p'
+    patron  = '<a class="itemgo" href="([^"]+)"[^<]+'
+    patron += '<div class="programas"[^<]+'
+    patron += '<img src="([^"]+)"[^<]+'
+    patron += '<div class="tit">([^<]+)</div'
 
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 
-    for scrapedurl,scrapedthumbnail,scrapedtitle,fecha,scrapedplot in matches:
-        title = scrapedtitle.strip()+" "+fecha.strip()
+    for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
+        title = unicode( scrapedtitle.strip() , "iso-8859-1" , errors="ignore").encode("utf-8")
         thumbnail = scrapedthumbnail
-        plot = scrapedplot
+        plot = ""
         url = urlparse.urljoin(item.url,scrapedurl)
         if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-        itemlist.append( Item( channel=item.channel , title=title , action="play", server="azteca", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail, folder=False ) )
+        itemlist.append( Item( channel=item.channel , title=title , action="play", server="canal22", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail, folder=False ) )
 
     return itemlist
 
@@ -130,7 +115,7 @@ def detalle_episodio(item):
 
 def play(item):
 
-    item.server="azteca";
+    item.server="canal22";
     itemlist = [item]
 
     return itemlist

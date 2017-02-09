@@ -28,13 +28,9 @@
 <project name="tvalacarta" default="package">
 	<description>tvalacarta</description>
 
-    <property name="oldversion" value="4.0.2"/>
-    <property name="oldversionboxee" value="10.13"/>
-    <property name="oldversiondate" value="17/06/2016"/>
-
-    <property name="version" value="4.0.3"/>
-    <property name="versionboxee" value="10.14"/>
-    <property name="versiondate" value="18/06/2016"/>
+    <property name="version" value="4.0.4"/>
+    <property name="versionboxee" value="10.15"/>
+    <property name="versiondate" value="18/01/2017"/>
     <property name="versionchanges" value="Bugfix"/>
 
     <property name="target" value="../../target/python"/>
@@ -57,6 +53,7 @@
     <!-- package =============================================== -->
     <target name="package" depends="clean" description="Builds a package for each platform">
 
+        <antcall target="copy-kodi-17-krypton"/>
         <antcall target="copy-kodi-16-jarvis"/>
         <antcall target="copy-kodi-16-jarvis-ui"/>
         <antcall target="copy-kodi-15-isengard"/>
@@ -82,6 +79,12 @@
     
     <!-- upload =============================================== -->
     <target name="upload" description="Upload zip files to the web server">
+
+        <echo message="Subiendo tvalacarta-kodi-17-krypton-${version}.zip"/>
+        <exec executable="scp">
+            <arg value="${target}/kodi-17-krypton/tvalacarta-kodi-krypton-${version}.zip"/>
+            <arg value="${ruta_remota_descargas}"/>
+        </exec>
 
         <echo message="Subiendo tvalacarta-kodi-16-jarvis-${version}.zip"/>
         <exec executable="scp">
@@ -221,6 +224,29 @@
         <delete file="tvalacarta-version.xml"/>
     </target>
 
+    <!-- copy-kodi-17-krypton ============================================================ -->
+    <target name="copy-kodi-17-krypton">
+
+        <mkdir dir="${target}/kodi-17-krypton/plugin.video.tvalacarta"/>
+
+        <copy todir="${target}/kodi-17-krypton/plugin.video.tvalacarta">
+            <fileset dir="main-classic">
+                <exclude name="**/.*"/>
+                <exclude name="**/.*/**"/>
+                <exclude name="**/*.pyo"/>
+                <exclude name="**/*.pyc"/>
+                <exclude name="resources/images/bannermenu/**"/>
+                <exclude name="resources/images/banners/**"/>
+                <exclude name="resources/images/fanart/**"/>
+                <exclude name="resources/images/posters/**"/>
+                <exclude name="resources/images/squares/**"/>
+            </fileset>
+        </copy>
+
+        <zip destfile="${target}/kodi-17-krypton/tvalacarta-kodi-krypton-${version}.zip" basedir="${target}/kodi-17-krypton"/>
+
+    </target>
+
     <!-- copy-kodi-16-jarvis ============================================================ -->
     <target name="copy-kodi-16-jarvis">
 
@@ -237,6 +263,12 @@
                 <exclude name="resources/images/fanart/**"/>
                 <exclude name="resources/images/posters/**"/>
                 <exclude name="resources/images/squares/**"/>
+            </fileset>
+        </copy>
+        <copy overwrite="true" todir="${target}/kodi-16-jarvis/plugin.video.tvalacarta">
+            <fileset dir="version-kodi-16-jarvis">
+                <exclude name="**/.*"/>
+                <exclude name="**/.*/**"/>
             </fileset>
         </copy>
 
@@ -295,6 +327,12 @@
                 <exclude name="resources/images/squares/**"/>
             </fileset>
         </copy>
+        <copy overwrite="true" todir="${target}/kodi-15-isengard/plugin.video.tvalacarta">
+            <fileset dir="version-kodi-15-isengard">
+                <exclude name="**/.*"/>
+                <exclude name="**/.*/**"/>
+            </fileset>
+        </copy>
 
         <zip destfile="${target}/kodi-15-isengard/tvalacarta-kodi-isengard-${version}.zip" basedir="${target}/kodi-15-isengard"/>
 
@@ -316,6 +354,12 @@
                 <exclude name="resources/images/fanart/**"/>
                 <exclude name="resources/images/posters/**"/>
                 <exclude name="resources/images/squares/**"/>
+            </fileset>
+        </copy>
+        <copy overwrite="true" todir="${target}/kodi-14-helix/plugin.video.tvalacarta">
+            <fileset dir="version-kodi-14-helix">
+                <exclude name="**/.*"/>
+                <exclude name="**/.*/**"/>
             </fileset>
         </copy>
         <copy overwrite="true" todir="${target}/kodi-14-helix/plugin.video.tvalacarta">

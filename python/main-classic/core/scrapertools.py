@@ -1462,6 +1462,43 @@ def parse_date(cadena,formato="dmy"):
         aired_date = scrapedyear+"-"+scrapedmonth+"-"+scrapedday
         return aired_date
 
+    # 16 septiembre 2015
+    scrapeddate = find_single_match(cadena,"(\d+ [a-zA-Z]+ \d+)")
+    if scrapeddate!="":
+        scrapedday = find_single_match(scrapeddate,"(\d+) [a-zA-Z]+ \d+")
+        scrapedmonth = find_single_match(scrapeddate,"\d+ ([a-zA-Z]+) \d+")
+        scrapedyear = find_single_match(scrapeddate,"\d+ [a-zA-Z]+ (\d+)")
+
+        scrapedmonth = scrapedmonth.lower()[0:3]
+
+        if scrapedmonth=="ene":
+            scrapedmonth="01"
+        elif scrapedmonth=="feb":
+            scrapedmonth="02"
+        elif scrapedmonth=="mar":
+            scrapedmonth="03"
+        elif scrapedmonth=="abr":
+            scrapedmonth="04"
+        elif scrapedmonth=="may":
+            scrapedmonth="05"
+        elif scrapedmonth=="jun":
+            scrapedmonth="06"
+        elif scrapedmonth=="jul":
+            scrapedmonth="07"
+        elif scrapedmonth=="ago":
+            scrapedmonth="08"
+        elif scrapedmonth=="sep":
+            scrapedmonth="09"
+        elif scrapedmonth=="oct":
+            scrapedmonth="10"
+        elif scrapedmonth=="nov":
+            scrapedmonth="11"
+        elif scrapedmonth=="dic":
+            scrapedmonth="12"
+
+        aired_date = scrapedyear+"-"+scrapedmonth+"-"+scrapedday
+        return aired_date
+
     return ""
 
 def fixurl(url):

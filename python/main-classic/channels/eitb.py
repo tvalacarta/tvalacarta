@@ -94,8 +94,13 @@ def categorias(item):
     url = 'http://www.eitb.tv/es/'
 
     # Descarga la página
+    '''
+    <a href="" onclick="setPylstId('4104995165001','Vitoria-Gasteiz, capital de Euskadi','Vitoria-Gasteiz, capital de Euskadi');
+    hormigas.setHmigas('TV|Programas A-Z|TUV|Vitoria-Gasteiz, capital de Euskadi');return false;" title="Vitoria-Gasteiz, capital de Euskadi">Vitoria-Gasteiz, capital de Euskadi</a></li></ul></div><div id="bt_down" onmouseover="mnScrDown(this);" onmouseout="mnScrDwOut(this);"><img src="/resources/img/menu/bt_down.png" /></div></div></li><li class="submenu2" rel="wxyz"><a href="" onclick="return false;" title="wxyz">wxyz</a><img src="/resources/img/menu/flecha_item_sel.png" /><div class="ltrs" id="wxyz"><div id="bt_up" onmouseover="mnScrUp(this);" onmouseout="mnScrUpOut(this);"><img src="/resources/img/menu/bt_up.png" /></div><div class="scroll"><ul><li class="submenu3"><a href="" onclick="setPylstId('5561','Washington, ongi etorri','Washington, ongi etorri');hormigas.setHmigas('TV|Programas A-Z|WXYZ|Washington, ongi etorri');return false;" title="Washington, ongi etorri">Washington, ongi etorri</a></li><li class="submenu3"><a href="" onclick="setPylstId
+    '''
     data = scrapertools.cachePage(url)
-    patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('\d+','[^']+','[^']+'\)\;hormigas\.setHormigas\('TV\|Categorías\|([^\|]+)\|[^']+'\)"
+    patron = "<li[^<]+<a href=\"\" onclick\=\"setPylstId\('\d+','[^']+','[^']+'\)\;"
+    patron += "hormigas\.setHormigas\('TV\|Categorías\|([^\|]+)\|[^']+'\)"
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 
@@ -117,20 +122,20 @@ def programas(item):
     data = scrapertools.cachePage(url)
     if item.category == "categoria":
         categoria=urlparse.parse_qs(item.url[1:])["category"][0]
-        patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;hormigas\.setHormigas\('TV\|Categorías\|" + categoria + "\|[^']+'\)"
+        patron = "<li[^>]*><a href=\"\" onclick\=\"setPylstId\('(\d+)','([^']+)','([^']+)'\)\;hormigas\.setHormigas\('TV\|Categorías\|" + categoria + "\|[^']+'\)"
     elif item.category == "alfabetico":
         inicial=urlparse.parse_qs(item.url[1:])["inicial"][0]
         if inicial == "#":
             inicial="^A-Za-z"
         else:
             inicial += inicial.lower()
-        patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([" + inicial + "][^']+)','([^']+)'\)\;"
+        patron = "<li[^>]*><a href=\"\" onclick\=\"setPylstId\('(\d+)','([" + inicial + "][^']+)','([^']+)'\)\;"
     else:
         try:
             filtro=urlparse.parse_qs(item.url[1:])["filter"][0]
         except:
             filtro = False
-        patron = "<li[^>]*><a href=\"\" onclick\=\"setPlaylistId\('(\d+)','([^']+)','([^']+)'\)\;"
+        patron = "<li[^>]*><a href=\"\" onclick\=\"setPylstId\('(\d+)','([^']+)','([^']+)'\)\;"
 
 
     matches = re.compile(patron,re.DOTALL).findall(data)

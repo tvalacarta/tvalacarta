@@ -18,7 +18,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     video_urls = []
 
     data = scrapertools.cache_page(page_url)
-    json_data = scrapertools.find_single_match(data,'<div id="jsMainMediaArticle" class="media__video[^"]+" data-content="([^"]+)"></div>')
+    json_data = scrapertools.find_single_match(data,'<div\s+id="jsMainMediaArticle"\s+class="media__video[^"]+"\s+data-content="([^"]+)"')
     logger.info("json_data0="+repr(json_data))
 
     from HTMLParser import HTMLParser
@@ -36,7 +36,8 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     matches = re.findall('"quality"\:"([^"]+)"\,"url"\:"([^"]+)"',json_data,re.DOTALL)
     matches.reverse()
     for quality,media_url in matches:
-        video_urls.append( [ quality.upper()+" ["+scrapertools.get_filename_from_url(media_url)[-3:]+"] [euronews]" , media_url ] )
+        label = quality.upper()+" ["+scrapertools.get_filename_from_url(media_url)[-3:]+"] [euronews]"
+        video_urls.append( [ label.encode("utf-8") , media_url ] )
 
     for video_url in video_urls:
         logger.info("tvalacarta.servers.euronews %s - %s" % (video_url[0],video_url[1]))

@@ -50,6 +50,7 @@ def programas(item):
     </div>
     </li>
     '''
+    '''
     # Descarga la pȧina
     data = scrapertools.cachePage(item.url)
     logger.info("data="+data)
@@ -83,6 +84,28 @@ def programas(item):
         nuevo_item = Item(channel=__channel__, action="episodios", title="El mundo de la familia Tou-Paraíso de mascotas" , thumbnail="http://p1.img.cctvpic.com/photoAlbum/page/performance/img/2015/8/27/1440643997743_428.jpg", url=item_infantil.url , show="El mundo de la familia Tou-Paraíso de mascotas", category="infantil", folder=True)
         itemlist.append(nuevo_item)
         itemlist.extend(series(item_infantil,category="Infantil"))
+    '''
+
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/cctvnoticias/index.shtml", title="CCTV Noticias", show="CCTV Noticias", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/economiaaldia/index.shtml", title="Economía al Día", show="Economía al Día", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/nihaochina/index.shtml", title="Nihao China", show="Nihao China", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/dechinaatucocina/index.shtml", title="De China a Tu Cocina", show="De China a Tu Cocina", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/extranjerosenchina/index.shtml", title="Extranjeros en China", show="Extranjeros en China", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/documental/index.shtml", title="Documental", show="Documental", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/asieschina/index.shtml", title="Así es China", show="Así es China", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/diariosdeviaje/index.shtml", title="Diarios de Viaje", show="Diarios de Viaje", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/rondaartistica/index.shtml", title="Ronda Artística", show="Ronda Artística", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/americaahora/index.shtml", title="América Ahora", show="América Ahora", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/dialogo/index.shtml", title="Diálogo", show="Diálogo", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/puntosdevista/index.shtml", title="Puntos de Vista", show="Puntos de Vista", folder=True) )
+    itemlist.append( Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/prisma/index.shtml", title="Prisma", show="Prisma", folder=True) )
+
+    item_series = Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/elproyector/index.shtml", title="El Proyector", show="El Proyector", folder=True)
+    itemlist.extend(series(item_series))
+
+    item_infantil = Item(channel=__channel__, action="episodios", url="http://cctv.cntv.cn/lm/horainfantil/index.shtml", title="Hora Infantil", show="Hora Infantil", folder=True)
+    itemlist.extend(series(item_infantil,category="Infantil"))
+    itemlist.append( Item(channel=__channel__, action="episodios", title="El mundo de la familia Tou-Paraíso de mascotas" , thumbnail="http://p1.img.cctvpic.com/photoAlbum/page/performance/img/2015/8/27/1440643997743_428.jpg", url=item_infantil.url , show="El mundo de la familia Tou-Paraíso de mascotas", category="infantil", folder=True) )
 
     return itemlist
 
