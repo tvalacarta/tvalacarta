@@ -23,6 +23,7 @@ def mainlist(item, load_all_pages=False):
     itemlist = []
     itemlist.append( Item(channel=CHANNELNAME, title="Programas"      , action="programas"    , url="http://www.canalextremadura.es/tv/programas", category="programas") )
     itemlist.append( Item(channel=CHANNELNAME, title="Archivo"        , action="programas"      , url="http://www.canalextremadura.es/tv/archivo", category="programas") )
+    itemlist.append( Item(channel=CHANNELNAME, title="ExtremaduraTV SAT en directo"        , action="play"      , extra="http://hlstv.canalextremadura.es/livetv/smil:multistream.smil/playlist.m3u8", category="programas") )
 
     return itemlist
 
@@ -78,6 +79,10 @@ def detalle_programa(item):
 
 def detalle_episodio(item):
 
+    #data = scrapertools.cachePage(item.url)
+
+    item.media_url = item.extra #scrapertools.find_single_match(data,'file\:\s+"([^"]+)"')
+
     return item
 
 def episodios(item):
@@ -96,10 +101,21 @@ def episodios(item):
     data-video-id-nodo="33318"
     data-video-video-modal="rtmp://canalextremadura.cdn.canalextremadura.es/canalextremadura/tv/S-B4583-009.mp4"
     '''
-    patron  = '<div class="modal-video-ajax(.*?</blockquote>)'
+    patron  = '<div class="modal-video-ajax(.*?<div class="barra-cerrar-modal)'
     matches = re.findall(patron,data,re.DOTALL)
 
+    # Las páginas siguientes se saltan los dos primeros vídeos (son destacados que se repiten)
+    if "?page" in item.url:
+        saltar = 2
+    else:
+        saltar = 0
+
     for match in matches:
+
+        if saltar>0:
+            saltar = saltar - 1
+            continue
+
         title = scrapertools.find_single_match(match,'data-video-titulo-modal="([^"]+)"')
         url = urlparse.urljoin(item.url,scrapertools.find_single_match(match,'data-video-url="([^"]+)"'))
         thumbnail = urlparse.urljoin(item.url,scrapertools.find_single_match(match,'data-video-imagen-modal="([^"]+)"'))
@@ -108,6 +124,12 @@ def episodios(item):
         extra = urlparse.urljoin(item.url,scrapertools.find_single_match(match,'data-video-video-modal="([^"]+)"'))
 
         itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="extremaduratv" , plot=plot, url=url, thumbnail=thumbnail, fanart=thumbnail, show=item.show, aired_date=aired_date, extra=extra, view="videos", folder=False) )
+
+    if len(itemlist)>0:
+        next_page_url = scrapertools.find_single_match(data,'<li class="pager-next"><a title="[^"]+" href="([^"]+)"')
+        next_page_url = urlparse.urljoin(item.url,next_page_url)
+        next_page_item = Item(channel=CHANNELNAME, title=">> Página siguiente" , action="episodios" , url=next_page_url)
+        itemlist.append( next_page_item )
 
     return itemlist
 
