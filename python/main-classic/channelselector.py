@@ -14,7 +14,17 @@ def getmainlist(preferred_thumb=""):
     logger.info("channelselector.getmainlist")
     itemlist = []
 
-    itemlist.append( Item(title="Programas" , channel="api_programas" , action="mainlist", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
+    if config.get_setting("programs_enable_section")=="true":
+
+        if config.get_setting("programs_enable_subsections")!="true":
+            itemlist.append( Item(title="Programas" , channel="api_programas" , action="mainlist", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
+        else:
+            itemlist.append( Item(title="Programas" , channel="api_programas" , action="programas", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
+            itemlist.append( Item(title="Informativos" , channel="api_programas" , action="informativos", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
+            itemlist.append( Item(title="Series" , channel="api_programas" , action="series", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
+            itemlist.append( Item(title="Infantil" , channel="api_programas" , action="infantil", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
+            itemlist.append( Item(title="Cine" , channel="api_programas" , action="cine", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
+
     itemlist.append( Item(title="Canales" , channel="channelselector" , action="channeltypes", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/channels.png")) )
     #itemlist.append( Item(title="Buscador" , channel="buscador" , action="mainlist" , thumbnail = urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/search.png")) )
     itemlist.append( Item(title="Descargas" , channel="descargas" , action="mainlist", thumbnail = urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/downloads.png")) )

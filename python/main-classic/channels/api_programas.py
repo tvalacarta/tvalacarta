@@ -1,7 +1,28 @@
+#------------------------------------------------------------
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
-# tvalacarta - XBMC Plugin
-# http://blog.tvalacarta.info/plugin-xbmc/tvalacarta/
+# tvalacarta 4
+# Copyright 2015 tvalacarta@gmail.com
+#
+# Distributed under the terms of GNU General Public License v3 (GPLv3)
+# http://www.gnu.org/licenses/gpl-3.0.html
+#------------------------------------------------------------
+# This file is part of tvalacarta 4.
+#
+# tvalacarta 4 is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# tvalacarta 4 is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with tvalacarta 4.  If not, see <http://www.gnu.org/licenses/>.
+#------------------------------------------------------------
+# Channel for api listings
 #------------------------------------------------------------
 import urlparse,re
 import urllib
@@ -25,6 +46,26 @@ CHANNELNAME = "api_programas"
 def mainlist(item):
     logger.info("tvalacarta.channels.api_programas mainlist")
     return api.navigation_get_programs_menu(item)
+
+def programas(item):
+    logger.info("tvalacarta.channels.api_programas programas")
+    return api.navigation_get_programs_menu_by_section(item,"programas")
+
+def infantil(item):
+    logger.info("tvalacarta.channels.api_programas infantil")
+    return api.navigation_get_programs_menu_by_section(item,"infantil")
+
+def series(item):
+    logger.info("tvalacarta.channels.api_programas series")
+    return api.navigation_get_programs_menu_by_section(item,"series")
+
+def cine(item):
+    logger.info("tvalacarta.channels.api_programas cine")
+    return api.navigation_get_programs_menu_by_section(item,"cine")
+
+def informativos(item):
+    logger.info("tvalacarta.channels.api_programas informativos")
+    return api.navigation_get_programs_menu_by_section(item,"informativos")
 
 def get_items(item):
     logger.info("tvalacarta.channels.api_programas get_items")

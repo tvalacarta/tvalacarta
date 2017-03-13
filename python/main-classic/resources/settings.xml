@@ -22,16 +22,22 @@
     <setting id="youtube_special_formats" type="bool" label="Mostrar opciones solo audio / solo video en YouTube" default="false"/>
   </category>
 
-  <category label="Cuenta de usuario">
-    <setting id="account_type_registered" type="enum" label="Tipo de cuenta" default="0" values="Anónima|Registrada"/>
+  <category label="Cuentas de usuario">
+    <setting id="account_type_registered" type="enum" label="Cuenta para tvalacarta" default="0" values="Anónima|Registrada"/>
     <setting subsetting="true" id="account_email" type="text" label="E-Mail" enable="eq(-1,1)" default=""/>
     <setting subsetting="true" id="account_password" type="text" label="Contraseña" option="hidden" enable="!eq(-1,)+eq(-2,true)" default=""/>
     <setting id="account_session" type="text" label="Sesión" default="" visible="false"/>
     <setting id="account_anonymous_id" type="text" label="ID anónimo" default="" visible="false"/>
 
     <setting type="sep" />
-    <setting id="a3mediaaccount" type="bool" label="A3Media" default="false"/>
+    <setting id="a3mediaaccount" type="bool" label="Cuenta para a3media" default="false"/>
     <setting id="a3mediauser" type="text" label="E-Mail"  enable="eq(-1,true)" default=""/>
     <setting id="a3mediapassword" type="text" option="hidden" label="Password" enable="!eq(-1,)+eq(-2,true)" default=""/>
+  </category>
+
+  <category label="Sección programas">
+    <setting id="programs_enable_section" type="bool" label="Mostrar sección 'Programas'" default="true"/>
+    <setting subsetting="true" id="programs_enable_subsections" type="bool" label="Separar sección 'Programas' por tipos" enable="eq(-1,true)" default="true"/>
+    <setting subsetting="true" id="programs_num_elements_per_page" type="enum" values="10|20|30|40|50" label="Nº de elementos por página" enable="eq(-2,true)" default="0"/>
   </category>
 </settings>

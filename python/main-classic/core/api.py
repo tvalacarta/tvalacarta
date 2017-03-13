@@ -334,6 +334,13 @@ def navigation_get_programs_menu(item):
 
     return get_items(item)
 
+def navigation_get_programs_menu_by_section(item,section):
+    plugintools.log("tvalacarta.core.api.navigation_get_programs_menu")
+
+    item = Item(url=MAIN_URL+"/navigation/get_programs_menu_by_section.php?section="+section)
+
+    return get_items(item)
+
 def add_to_favorites(item):
     plugintools.log("tvalacarta.core.api.add_to_favorites")
 
