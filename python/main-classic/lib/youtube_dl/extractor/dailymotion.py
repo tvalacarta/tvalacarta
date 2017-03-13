@@ -58,7 +58,7 @@ class DailymotionIE(DailymotionBaseInfoExtractor):
                 'ext': 'mp4',
                 'title': 'Steam Machine Models, Pricing Listed on Steam Store - IGN News',
                 'description': 'Several come bundled with the Steam Controller.',
-                'thumbnail': 're:^https?:.*\.(?:jpg|png)$',
+                'thumbnail': r're:^https?:.*\.(?:jpg|png)$',
                 'duration': 74,
                 'timestamp': 1425657362,
                 'upload_date': '20150306',
@@ -66,7 +66,6 @@ class DailymotionIE(DailymotionBaseInfoExtractor):
                 'uploader_id': 'xijv66',
                 'age_limit': 0,
                 'view_count': int,
-                'comment_count': int,
             }
         },
         # Vevo video
@@ -140,7 +139,7 @@ class DailymotionIE(DailymotionBaseInfoExtractor):
         view_count = str_to_int(view_count_str)
         comment_count = int_or_none(self._search_regex(
             r'<meta[^>]+itemprop="interactionCount"[^>]+content="UserComments:(\d+)"',
-            webpage, 'comment count', fatal=False))
+            webpage, 'comment count', default=None))
 
         player_v5 = self._search_regex(
             [r'buildPlayer\(({.+?})\);\n',  # See https://github.com/rg3/youtube-dl/issues/7826
