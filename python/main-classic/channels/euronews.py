@@ -67,7 +67,7 @@ def programas(item):
     matches = re.findall(patron,data,re.DOTALL)
     
     for url,thumbnail,titulo,plot in matches:
-        itemlist.append( Item(channel=CHANNELNAME, title=titulo, action="videos", url=urlparse.urljoin(item.url,url), thumbnail=thumbnail, plot=plot, view="videos", fanart=thumbnail, folder=True) )
+        itemlist.append( Item(channel=CHANNELNAME, title=titulo, action="videos", url=urlparse.urljoin(item.url,url), thumbnail=thumbnail, plot=plot, view="videos", fanart=thumbnail, show=titulo, folder=True) )
 
     return itemlist
 
@@ -103,11 +103,28 @@ def videos(item):
             except:
                 duration = ""
 
-            itemlist.append( Item(channel=CHANNELNAME, action="play", server="euronews", title=title, url=url, thumbnail=thumbnail, plot=plot, aired_date=aired_date, duration=duration, folder=False) )
+            itemlist.append( Item(channel=CHANNELNAME, action="play", server="euronews", title=title, url=url, thumbnail=thumbnail, plot=plot, aired_date=aired_date, duration=duration, show=item.show, folder=False) )
         except:
             logger.info("Error al cargar "+title)
 
     return itemlist
+
+def detalle_episodio(item):
+
+    # Ahora saca de PakaPaka la URL
+    data = scrapertools.cache_page(item.url)
+
+    item.geolocked = "0"    
+    try:
+        from servers import euronews as servermodule
+        video_urls = servermodule.get_video_url(item.url)
+        item.media_url = video_urls[0][1]
+    except:
+        import traceback
+        print traceback.format_exc()
+        item.media_url = ""
+
+    return item
 
 # Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
 def test():

@@ -341,6 +341,13 @@ def navigation_get_programs_menu_by_section(item,section):
 
     return get_items(item)
 
+def other_videos_same_program(item):
+    plugintools.log("tvalacarta.core.api.other_videos_same_program")
+
+    item = Item(url=MAIN_URL+"/videos/get_other_videos_same_program.php?id="+item.id)
+
+    return get_items(item)
+
 def add_to_favorites(item):
     plugintools.log("tvalacarta.core.api.add_to_favorites")
 

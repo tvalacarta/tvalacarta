@@ -21,13 +21,13 @@ def mainlist(item):
     logger.info("tvalacarta.channels.ib3 mainlist")
 
     itemlist = []
-    itemlist.append( Item(channel=CHANNELNAME, title="Programes de producció pròpia"                    , action="categoria" , extra="Programes", url=MAIN_URL, folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Sèries de producció pròpia"                       , action="categoria" , extra="Sèries", url=MAIN_URL, folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Notícies / Programes d'actualitat"                , action="categoria" , extra="Informatius", url=MAIN_URL, folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Programes d'Esports / Retransmissions esportives" , action="categoria" , extra="Esports", url=MAIN_URL, folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Retransmissions"                                  , action="categoria" , extra="Retransm.", url=MAIN_URL, folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Documentals / Especials"                          , action="categoria" , extra="Documentals", url=MAIN_URL, folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Programes [A-Z] (thumbnail)"                      , action="programas" , url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Programes"       , action="categoria" , extra="Programes", url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Sèries"          , action="categoria" , extra="Sèries", url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Informatius".    , action="categoria" , extra="Informatius", url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Esports"         , action="categoria" , extra="Esports", url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Retransmissions" , action="categoria" , extra="Retransmissió", url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Arxiu"           , action="categoria" , extra="ARXIU", url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Programes [A-Z] (thumbnail)" , action="programas" , url=MAIN_URL, folder=True) )
 
     return itemlist
 

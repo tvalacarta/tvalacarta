@@ -106,6 +106,11 @@ def play(item):
 def videos_get_by_program(item):
     return get_items(item)
 
+def other_videos_same_program(item):
+    logger.info("tvalacarta.channels.api_programas other_videos_same_program item="+item.tostring())
+
+    return other_videos_same_program(item)
+
 #------------------------------------------------------------
 # Context menu
 #------------------------------------------------------------
@@ -121,28 +126,30 @@ def get_context_menu_for_item(item):
         else:
             context_commands.append( item.clone(command_title="Marcar vídeo como no visto", action="mark_as_unwatched") )
 
+        #context_commands.append( item.clone(command_title="Ver otros vídeos de '"+item.show_title+"'", action="other_videos_same_program") )
+        
         # Ver mas tarde
 
         # Añadir / quitar programa XXX de favoritos
         if item.is_favorite_show=="true":
-            context_commands.append( item.clone(command_title="Quitar programa de favoritos", action="remove_from_favorites") )
+            context_commands.append( item.clone(command_title="Quitar programa '"+item.show_title+"' de favoritos", action="remove_from_favorites") )
         else:
-            context_commands.append( item.clone(command_title="Añadir programa a favoritos", action="add_to_favorites") )
+            context_commands.append( item.clone(command_title="Añadir programa '"+item.show_title+"' a favoritos", action="add_to_favorites") )
 
         # Ocultar programa
-        context_commands.append( item.clone(command_title="Ocultar este programa", action="add_to_hidden") )
+        context_commands.append( item.clone(command_title="Ocultar programa '"+item.show_title+"'", action="add_to_hidden") )
 
     elif item.item_type == "program":
 
         if item.is_favorite=="true":
-            context_commands.append( item.clone(command_title="Quitar programa de favoritos", action="remove_from_favorites") )
+            context_commands.append( item.clone(command_title="Quitar programa '"+item.show_title+"' de favoritos", action="remove_from_favorites") )
         else:
-            context_commands.append( item.clone(command_title="Añadir programa a favoritos", action="add_to_favorites") )
+            context_commands.append( item.clone(command_title="Añadir programa '"+item.show_title+"' a favoritos", action="add_to_favorites") )
 
         if item.is_hidden=="true":
-            context_commands.append( item.clone(command_title="Dejar de ocultar este programa", action="remove_from_hidden") )
+            context_commands.append( item.clone(command_title="Dejar de ocultar programa '"+item.show_title+"'", action="remove_from_hidden") )
         else:
-            context_commands.append( item.clone(command_title="Ocultar este programa", action="add_to_hidden") )
+            context_commands.append( item.clone(command_title="Ocultar programa '"+item.show_title+"'", action="add_to_hidden") )
 
         if not suscription.already_suscribed(item):
             context_commands.append( item.clone(command_title="Activar descarga automática", action="subscribe_to_program") )

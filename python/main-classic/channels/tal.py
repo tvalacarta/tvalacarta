@@ -112,13 +112,27 @@ def series(item):
         url = scrapedurl
         thumbnail = scrapedthumbnail
         plot = scrapedplot
-        itemlist.append( Item(channel=__channel__, action="episodios", title=title, url=url, thumbnail=thumbnail, fanart=thumbnail, plot=plot, viewmode="movie_with_plot", folder=True))
+        itemlist.append( Item(channel=__channel__, action="episodios", title=title, url=url, thumbnail=thumbnail, fanart=thumbnail, plot=plot, viewmode="movie_with_plot", show=title, folder=True))
 
     next_page_url = scrapertools.find_single_match(data,'<li><a href="([^"]+)" class="next"')
     if next_page_url!="":
-        itemlist.append( Item(channel=__channel__, action="series", title=">> Página siguiente" , url=urlparse.urljoin(item.url,next_page_url) ,  folder=True) )    
+        itemlist.extend( series( Item(channel=__channel__, action="series", title=">> Página siguiente" , url=urlparse.urljoin(item.url,next_page_url) ,  folder=True) ) )
 
     return itemlist
+
+def detalle_programa(item):
+    logger.info("tvalacarta.channels.tal detalle_programa")    
+
+    try:
+        data = scrapertools.cache_page(item.url)
+
+        item.plot = scrapertools.find_single_match(data,'<div class="dados"[^<]+<p>(.*?)</p>')
+        item.plot = scrapertools.htmlclean( item.plot ).strip()
+    except:
+        import traceback
+        logger.info(traceback.format_exc())
+
+    return item
 
 def episodios(item):
     logger.info("tvalacarta.channels.tal episodios")    
@@ -162,7 +176,7 @@ def episodios(item):
         url = urlparse.urljoin(item.url,scrapedurl)
         thumbnail = urlparse.urljoin(item.url,scrapedthumbnail)
         plot = scrapedplot
-        itemlist.append( Item(channel=__channel__, action="play", title=title, url=url, thumbnail=thumbnail, fanart=thumbnail, plot=plot, viewmode="movie_with_plot", folder=False))
+        itemlist.append( Item(channel=__channel__, action="play", title=title, url=url, thumbnail=thumbnail, fanart=thumbnail, plot=plot, viewmode="movie_with_plot", show=item.show, folder=False))
 
     #<li><a href="http://tal.tv/es/mais-vistos/page/2/" class="next">&gt;</a>
     next_page_url = scrapertools.find_single_match(data,'<li><a href="([^"]+)" class="next"')
@@ -183,6 +197,20 @@ def play(item):
     itemlist.append( Item(channel=__channel__, action="play",  server="directo",  title=item.title, url=mediaurl, folder=False))
 
     return itemlist
+
+def detalle_episodio(item):
+
+    item.geolocked = "0"
+
+    try:
+        video_items = play(item)
+        item.media_url = video_items[0].url
+    except:
+        import traceback
+        print traceback.format_exc()
+        item.media_url = ""
+
+    return item
 
 # Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
 def test():
