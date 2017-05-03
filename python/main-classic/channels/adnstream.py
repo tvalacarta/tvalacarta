@@ -120,19 +120,18 @@ def get_video_detail(item):
 
 # Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
 def test():
-    bien = True
     
     # El canal tiene estructura canal -> subcanal -> videos
     canales = mainlist(Item())
     if len(canales)==0:
-        return False
+        return False,"No hay canales"
 
     subcanales = mainlist(canales[1])
     if len(subcanales)==0:
-        return False
+        return False,"No hay subcanales"
 
     videos = mainlist(Item(url="http://www.adnstream.com/canal/Dartacan/"))
     if len(videos)==0:
-        return False
+        return False,"No hay videos"
     
-    return bien
+    return True,""

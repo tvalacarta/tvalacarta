@@ -14,110 +14,123 @@ from core.item import Item
 
 DEBUG = False
 CHANNELNAME = "telemadrid"
-MAIN_URL = "http://www.telemadrid.es/tv_a_la_carta/listado_de_programas/"
 
 def isGeneric():
     return True
 
 def mainlist(item):
-    logger.info("[telemadrid.py] mainlist")
+    logger.info("tvalacarta.channels.telemadrid mainlist")
 
     itemlist = []
-    
-    # Descarga la página
-    data = scrapertools.cache_page(MAIN_URL)
-    
-    # Limita la página al bloque con las categorías
-    data = scrapertools.get_match(data,'<div class="anclasProgramas">(.*?)</div>')
-
-    # Extrae las categorias
-    patron = '<h2><a href="/tv_a_la_carta/listado_de_programas\#(portProgr[^"]+)">([^<]+)</a></h2>'
-    matches = re.compile(patron,re.DOTALL).findall(data)
-    for scrapedurl,scrapedtitle in matches:
-        title = scrapedtitle.strip()
-        url = scrapedurl
-        thumbnail = ""
-        
-        itemlist.append( Item(channel=CHANNELNAME, title=title , url=url,  thumbnail=thumbnail , action="programas" , folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Telemadrid" , url="http://www.telemadrid.es/programas/directorio_programas" , action="canal", folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="laOtra" , url="http://www.telemadrid.es/laotra/directorio_programas" , action="canal", folder=True) )
 
     return itemlist
 
-def programas(item):
-    logger.info("[telemadrid.py] programas")
+def canal(item):
+    logger.info("tvalacarta.channels.telemadrid canal")
 
     itemlist = []
-
+    
     # Descarga la página
-    data = scrapertools.cache_page(MAIN_URL)
+    data = scrapertools.cache_page(item.url)
     
-    # Limita la página al bloque con la categoría elegida (va en la url)
-    data = scrapertools.get_match(data,'<div id="'+item.url+'">(.*?)</ul>')
+    '''
+    <li class="views-row views-row-6 views-row-even">
+    <a href="/talcomoson" class="imagen">
+    <img src="http://www.telemadrid.es/sites/default/files/images/logo_talcomoson.jpg" alt="logo_talcomoson" title="logo_talcomoson"  class="image image-_original " width="230" height="190" />
+    </a>   
+    <a href="/talcomoson" class="titulo">Tal como Son</a>
+    <p><p>Un reportero de <B>Tal Como Son</b> pasa un día en la vida de un famoso. En cada programa aparecen cuatro personajes relevantes de la vida social. Personalidades del mundo de la cultura, la empresa, la aristocracia, el deporte. Conocemos aspectos desconocidos para el telespectador de la vida de estas celebridades de universos muy distintos.</p></p>
+    </li>
+    '''
 
     '''
-    <li class="views-row views-row-1 views-row-odd views-row-first">    
-    <a href="/tv_a_la_carta/listado_de_programas/566" class="imagen">
-    <img src="http://www.telemadrid.es/sites/default/files/images/logo_micamara_2012.destacado.jpg" alt="Logo Mi Cámara y Yo 2012" title="Logo Mi Cámara y Yo 2012"  class="image image-destacado " width="128" height="106" /></a>    
-    <a href="/tv_a_la_carta/listado_de_programas/566" class="titulo">Mi cámara y yo</a> <p><P>Cada semana, un reportero del programa recorre la Comunidad de Madrid con una minicámara, interfiriendo lo menos posible en el relato, para ofrecer la parte más desconocida y más cercana de la realidad, tratando siempre de ver las cosas desde otro ángulo, entrando con la cámara en la vida cotidiana de los espectadores.
+    <a class="playerIco imagen" href="http://www.telemadrid.es/ruta179" >
+    <img width="142" height="106" class="image image-destacado" title="Ruta 179" alt="Ruta 179 visita Piñuecar y Gandullas" src="http://www.telemadrid.es/sites/default/files/Images2015/pinuecar_gandullas.jpg">
+    </a>
+    <a class="titulo" href="http://www.telemadrid.es/ruta179" >Ruta 179</a>
+    <span>Nos vamos de ruta por la Comunidad de Madrid</span>                       
+    </li>
     '''
-    
-    # Extrae programas
-    patron  = '<li[^<]+'
-    patron += '<a href="([^"]+)"[^<]+'
-    patron += '<img src="([^"]+)"[^<]+</a[^<]+'
-    patron += '<a[^>]+>([^<]+)</a[^<]+<p>(.*?)</li'
+
+    # Extrae las zonas de los programas
+    patron = '<li class="views-row(.*?</li>)'
     matches = re.compile(patron,re.DOTALL).findall(data)
-    for scrapedurl,scrapedthumbnail,scrapedtitle,scrapedplot in matches:
-        title = scrapedtitle.strip()
-        url = urlparse.urljoin(MAIN_URL,scrapedurl)
-        thumbnail = scrapedthumbnail
-        plot = scrapedplot
-        itemlist.append( Item(channel=CHANNELNAME, title=title , url=url,  thumbnail=thumbnail , action="episodios" , show = item.title , folder=True) )
+    for bloque in matches:
+        title = scrapertools.find_single_match(bloque,'<a href="[^"]+" class="titulo">([^<]+)</a>')
+
+        # El titulo puede venir de dos formas (en telemadrid y en laotra)
+        if title=="":
+            title = scrapertools.find_single_match(bloque,'<a class="titulo" href="[^"]+" >([^<]+)</a>')
+            url = scrapertools.find_single_match(bloque,'<a class="titulo" href="([^"]+)"')
+            thumbnail = scrapertools.find_single_match(bloque,'<img.*?src="([^"]+)"')
+            plot = scrapertools.find_single_match(bloque,'<a class="titulo" href="[^"]+" >[^<]+</a>(.*?)</li>')
+        else:
+            url = scrapertools.find_single_match(bloque,'<a href="([^"]+)" class="titulo">')
+            thumbnail = scrapertools.find_single_match(bloque,'<img src="([^"]+)"')
+            plot = scrapertools.find_single_match(bloque,'<a href="[^"]+" class="titulo">[^<]+</a>(.*?)</li>')
+
+        # URL absoluta
+        url = urlparse.urljoin(item.url,url)
+
+        # Limpia el argumento
+        plot = scrapertools.htmlclean(plot)
+        plot = plot.replace("693 056 799","")
+        plot = plot.replace("680 116 002","")
+
+        if title!="":
+            itemlist.append( Item(channel=CHANNELNAME, title=title , url=url, thumbnail=thumbnail, plot=plot, action="episodios", show=title, folder=True) )
 
     return itemlist
 
 def episodios(item):
-    logger.info("[telemadrid.py] episodios")
+    logger.info("tvalacarta.channels.telemadrid episodios")
 
     itemlist = []
-
+    
     # Descarga la página
     data = scrapertools.cache_page(item.url)
-    
-    # Limita la página al bloque donde estan los episodios
-    data = scrapertools.get_match(data,'<div class="tituloTodosProgramas">(.*?)</ul>')
-    
-    # Extrae episodios
+
     '''
-    <li class="views-row views-row-4 views-row-even">
-    <a href="/?q=programas/madrilenos-por-el-mundo/madrilenos-por-el-mundo-washington-dc" class="playerIco imagen">
-    <img src="http://www.telemadrid.es/sites/default/files/images/thumb_mxm_C0156_20121119_1353361585428.destacado.png" alt="Madrileños por el Mundo: Washington D.C." title="Madrileños por el Mundo: Washington D.C."  class="image image-destacado " width="150" height="106" /></a>
-    <a href="/?q=programas/madrilenos-por-el-mundo/madrilenos-por-el-mundo-washington-dc" class="titulo">Madrileños por el Mundo: Washington D.C.</a>
-    <p class="fechaEmision"><span class="date-display-single">19.11.2012</span></p></li>
+    <li class="views-row views-row-2 views-row-even"> 
+    <a href="/programas/mi-camara-y-yo/mi-camara-y-yo-el-rastro" class="playerIco imagen">
+    <img src="http://www.telemadrid.es/sites/default/files/Images2016/thumb_P10000315_C0007HDP0_20170412_1492466104083.foto.png" alt="Mi cámara y yo: El Rastro" title="Mi cámara y yo: El Rastro"  class="image image-foto " width="300" height="169" />
+    </a> 
+    <a href="/programas/mi-camara-y-yo/mi-camara-y-yo-el-rastro" class="titulo">Mi cámara y yo: El Rastro</a>   
+    <span class="date-display-single">17.04.2017</span></li>
     '''
-    patron  = '<li[^<]+'
-    patron += '<a href="([^"]+)"[^<]+'
-    patron += '<img src="([^"]+)"[^<]+</a[^<]+'
-    patron += '<a[^>]+>([^<]+)</a[^<]+<p class="fechaEmision">(.*?)</p>'
+
+    # Intenta filtrar por "programas completos", si no saca todo
+    bloque = scrapertools.find_single_match(data,'<div class="headerView[^<]+<h3 class="titulo">Los programas</h3>(.*)</div[^<]+</div')
+    if bloque!="":
+        data = bloque
+
+    # Extrae las zonas de los videos
+    patron = '<li class="views-row(.*?</li>)'
     matches = re.compile(patron,re.DOTALL).findall(data)
-    for scrapedurl,scrapedthumbnail,scrapedtitle,scrapedplot in matches:
-        title = scrapedtitle.strip()
-        url = urlparse.urljoin(item.url,scrapedurl)
-        thumbnail = scrapedthumbnail
-        plot = scrapertools.htmlclean(scrapedplot)
-        itemlist.append( Item(channel=CHANNELNAME, title=title , url=url,  thumbnail=thumbnail , action="play" , server="telemadrid", show = item.title , folder=False) )
+    for bloque in matches:
+        title = scrapertools.find_single_match(bloque,'<a href="[^"]+" class="titulo">([^<]+)</a>')
+        url = scrapertools.find_single_match(bloque,'<a href="([^"]+)" class="titulo">')
+        thumbnail = scrapertools.find_single_match(bloque,'<img src="([^"]+)"')
+        plot = scrapertools.find_single_match(bloque,'<a href="[^"]+" class="titulo">[^<]+</a>(.*?)</li>')
+
+        # URL absoluta
+        url = urlparse.urljoin(item.url,url)
+
+        # Limpia el argumento
+        plot = scrapertools.htmlclean(plot)
+        plot = plot.replace("693 056 799","")
+        plot = plot.replace("680 116 002","")
+
+        if title!="":
+            itemlist.append( Item(channel=CHANNELNAME, title=title , url=url, thumbnail=thumbnail, plot=plot, action="play", server="telemadrid", show=item.show, folder=False) )
+
+    next_page_url = scrapertools.find_single_match(data,'<li class="pager-next"><a href="([^"]+)" title="Ir a la p')
+    if next_page_url!="":
+        itemlist.append( Item(channel=CHANNELNAME, title=">> Página siguiente" , url=urlparse.urljoin(item.url,next_page_url), action="episodios", show=item.show, folder=True) )
 
     return itemlist
-
-def get_video_detail(item):
-    logger.info("[telemadrid.py] get_video_detail")
-
-    data = scrapertools.cache_page(item.url)
-    
-    data = scrapertools.cache_page("http://pydowntv2.appspot.com/api?url="+page_url)
-    item.thumbnail = scrapertools.get_match(data,'"url_img"\: "([^"]+)"')
-    item.plot = scrapertools.get_match(data,'"descs"\: \["([^"]+)"\]')
-
-    return item
 
 # Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
 def test():

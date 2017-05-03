@@ -75,22 +75,38 @@ class OpenloadIE(InfoExtractor):
             '<span[^>]+id="[^"]+"[^>]*>([0-9A-Za-z]+)</span>',
             webpage, 'openload ID')
 
-        first_char = int(ol_id[0])
-        urlcode = []
-        num = 1
+        decoded = ''
+        a = ol_id[0:24]
+        b = []
+        for i in range(0, len(a), 8):
+            b.append(int(a[i:i + 8] or '0', 16))
+        ol_id = ol_id[24:]
+        j = 0
+        k = 0
+        while j < len(ol_id):
+            c = 128
+            d = 0
+            e = 0
+            f = 0
+            _more = True
+            while _more:
+                if j + 1 >= len(ol_id):
+                    c = 143
+                f = int(ol_id[j:j + 2] or '0', 16)
+                j += 2
+                d += (f & 127) << e
+                e += 7
+                _more = f >= c
+            g = d ^ b[k % 3]
+            for i in range(4):
+                char_dec = (g >> 8 * i) & (c + 127)
+                char = compat_chr(char_dec)
+                if char != '#':
+                    decoded += char
+            k += 1
 
-        while num < len(ol_id):
-            i = ord(ol_id[num])
-            key = 0
-            if i <= 90:
-                key = i - 65
-            elif i >= 97:
-                key = 25 + i - 97
-            urlcode.append((key, compat_chr(int(ol_id[num + 2:num + 5]) // int(ol_id[num + 1]) - first_char)))
-            num += 5
-
-        video_url = 'https://openload.co/stream/' + ''.join(
-            [value for _, value in sorted(urlcode, key=lambda x: x[0])])
+        video_url = 'https://openload.co/stream/%s?mime=true'
+        video_url = video_url % decoded
 
         title = self._og_search_title(webpage, default=None) or self._search_regex(
             r'<span[^>]+class=["\']title["\'][^>]*>([^<]+)', webpage,

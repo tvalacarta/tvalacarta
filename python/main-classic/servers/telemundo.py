@@ -12,27 +12,29 @@ from core import scrapertools
 from core import logger
 from core import config
 
+from lib import youtube_dl
+
 def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
-    logger.info("tvalacarta.servers.telemundo get_video_url(page_url='%s')" % page_url)
+    logger.info("tvalacarta.servers.telemundo get_video_url page_url="+page_url)
 
     video_urls = []
-    '''
-    linkHtml(
-    'http://telemundo-pmd.edgesuite.net/MPX/video/NBCU_Telemundo/670/531/150108_2839125_El_hijo_del_sicario_y_muerte_segura__Caso_Ce_4000.mp4?hdnea=st=1421188135~exp=1421189335~acl=/*~hmac=e6d744871714b5f94945354189d241cca25d82ce',
-    'Descargar en calidad 4000',
-    '''
-    param = urllib.urlencode({"web":page_url})
-    data = scrapertools.cache_page("http://www.descargavideos.tv/?"+param)
-    patron = "linkHtml\(\s+"
-    patron += "'([^']+)',\s+"
-    patron += "'([^']+)'"
-    matches = re.compile(patron,re.DOTALL).findall(data)
 
-    for url,title in matches:
-        video_urls.append( [ title.replace("Descargar en calidad ","")+"bps [telemundo]" , url ] )
+    ydl = youtube_dl.YoutubeDL({'outtmpl': u'%(id)s%(ext)s'})
+    result = ydl.extract_info(page_url, download=False)
+    logger.info("tvalacarta.servers.telemadrid get_video_url result="+repr(result))
+
+    video_urls = []
+
+    if "ext" in result and "url" in result:
+        video_urls.append(["[telemundo]", scrapertools.safe_unicode(result['url']).encode('utf-8')])
+    else:
+
+        if "entries" in result:
+            for entry in result["entries"]:
+                video_urls.append(["[telemundo]", scrapertools.safe_unicode(entry['url']).encode('utf-8')])
 
     for video_url in video_urls:
-        logger.info("[telemadrid.py] %s - %s" % (video_url[0],video_url[1]))
+        logger.info("tvalacarta.servers.telemundo %s - %s" % (video_url[0],video_url[1]))
 
     return video_urls
 

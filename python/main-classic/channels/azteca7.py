@@ -140,25 +140,19 @@ def play(item):
 def test():
     
     # Carga el menu principal
-    items_mainlist = mainlist(Item())
-
-    # Busca el item con la lista de programas
-    items_programas = []
-    for item_mainlist in items_mainlist:
-
-        if item_mainlist.action=="programas":
-            items_programas = programas(item_mainlist)
-            break
+    items_programas = mainlist(Item())
 
     if len(items_programas)==0:
         return False,"No hay programas"
 
-    # Carga los episodios
-    items_episodios = episodios(items_programas[0])
-    if len(items_episodios)==0:
-        return False,"No hay episodios en "+items_programas[0].title
+    for item_programa in items_programas:
+        items_episodios = episodios(item_programa)
+        if len(items_episodios)>0:
+            break
 
-    # Lee la URL del vídeo
+    if len(items_episodios)==0:
+        return False,"No hay episodios"
+
     item_episodio = detalle_episodio(items_episodios[0])
     if item_episodio.media_url=="":
         return False,"El conector no devuelve enlace para el vídeo "+item_episodio.title

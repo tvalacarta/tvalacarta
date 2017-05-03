@@ -13,8 +13,6 @@ from core import scrapertools
 from core.item import Item
 from core import jsontools
 
-logger.info("tvalacarta.channels.sieterm init")
-
 DEBUG = True
 CHANNELNAME = "sieterm"
 

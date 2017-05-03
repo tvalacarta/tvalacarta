@@ -28,9 +28,9 @@
 <project name="tvalacarta" default="package">
 	<description>tvalacarta</description>
 
-    <property name="version" value="4.0.4"/>
-    <property name="versionboxee" value="10.15"/>
-    <property name="versiondate" value="18/01/2017"/>
+    <property name="version" value="4.0.5"/>
+    <property name="versionboxee" value="10.16"/>
+    <property name="versiondate" value="30/04/2017"/>
     <property name="versionchanges" value="Bugfix"/>
 
     <property name="target" value="../../target/python"/>
@@ -76,128 +76,58 @@
         <zip destfile="${target}/dreambox/tvalacarta-dreambox-${version}.zip" basedir="${target}/dreambox"/>
         -->
     </target>
-    
-    <!-- upload =============================================== -->
+
     <target name="upload" description="Upload zip files to the web server">
 
-        <echo message="Subiendo tvalacarta-kodi-17-krypton-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/kodi-17-krypton/tvalacarta-kodi-krypton-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
+        <exec executable="scp"><arg value="${target}/tvalacarta-kodi-krypton-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-kodi-krypton-${version}.zip"/></exec>
+        <exec executable="scp"><arg value="${target}/tvalacarta-kodi-jarvis-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-kodi-jarvis-${version}.zip"/></exec>
+        <exec executable="scp"><arg value="${target}/tvalacarta-kodi-isengard-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-kodi-isengard-${version}.zip"/></exec>
+        <exec executable="scp"><arg value="${target}/tvalacarta-kodi-helix-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-kodi-helix-${version}.zip"/></exec>
+        <exec executable="scp"><arg value="${target}/tvalacarta-xbmc-gotham-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-xbmc-gotham-${version}.zip"/></exec>
+        <exec executable="scp"><arg value="${target}/tvalacarta-xbmc-frodo-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-xbmc-frodo-${version}.zip"/></exec>
+        <exec executable="scp"><arg value="${target}/tvalacarta-xbmc-eden-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-xbmc-eden-${version}.zip"/></exec>
+        <exec executable="scp"><arg value="${target}/tvalacarta-xbmc-dharma-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-xbmc-dharma-${version}.zip"/></exec>
+        <exec executable="scp"><arg value="${target}/tvalacarta-xbmc-plugin-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-xbmc-plugin-${version}.zip"/></exec>
+        <exec executable="scp"><arg value="${target}/tvalacarta-boxee-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-boxee-${version}.zip"/></exec>
+        <exec executable="scp"><arg value="${target}/tvalacarta-plex-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-plex-${version}.zip"/></exec>
 
-        <echo message="Subiendo tvalacarta-kodi-16-jarvis-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/kodi-16-jarvis/tvalacarta-kodi-jarvis-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
+        <echo message="Subiendo tvalacarta-kodi-17-krypton-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-kodi-krypton-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/kodi-krypton/tvalacarta-kodi-krypton-${version}.zip"/></exec>
 
-        <echo message="Subiendo tvalacarta-kodi-15-isengard-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/kodi-15-isengard/tvalacarta-kodi-isengard-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
+        <echo message="Subiendo tvalacarta-kodi-16-jarvis-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-kodi-jarvis-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/kodi-jarvis/tvalacarta-kodi-jarvis-${version}.zip"/></exec>
 
-        <echo message="Subiendo tvalacarta-kodi-14-helix-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/kodi-14-helix/tvalacarta-kodi-helix-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
+        <echo message="Subiendo tvalacarta-kodi-15-isengard-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-kodi-isengard-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/kodi-isengard/tvalacarta-kodi-isengard-${version}.zip"/></exec>
 
-        <echo message="Subiendo tvalacarta-xbmc-13-gotham-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/xbmc-13-gotham/tvalacarta-xbmc-gotham-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
+        <echo message="Subiendo tvalacarta-kodi-14-helix-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-kodi-helix-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/kodi-helix/tvalacarta-kodi-helix-${version}.zip"/></exec>
 
-        <echo message="Subiendo tvalacarta-xbmc-12-frodo-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/xbmc-12-frodo/tvalacarta-xbmc-frodo-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
+        <echo message="Subiendo tvalacarta-xbmc-13-gotham-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-xbmc-gotham-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/xbmc-gotham/tvalacarta-xbmc-gotham-${version}.zip"/></exec>
 
-        <echo message="Subiendo tvalacarta-xbmc-11-eden-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/xbmc-11-eden/tvalacarta-xbmc-eden-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
+        <echo message="Subiendo tvalacarta-xbmc-12-frodo-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-xbmc-frodo-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/xbmc-frodo/tvalacarta-xbmc-frodo-${version}.zip"/></exec>
 
-        <echo message="Subiendo tvalacarta-xbmc-10-dharma-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/xbmc-10-dharma/tvalacarta-xbmc-dharma-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
+        <echo message="Subiendo tvalacarta-xbmc-11-eden-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-xbmc-eden-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/xbmc-eden/tvalacarta-xbmc-eden-${version}.zip"/></exec>
 
-        <echo message="Subiendo tvalacarta-xbmc-09-plugin-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/xbmc-09-plugin/tvalacarta-xbmc-plugin-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
+        <echo message="Subiendo tvalacarta-xbmc-10-dharma-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-xbmc-dharma-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/xbmc-dharma/tvalacarta-xbmc-dharma-${version}.zip"/></exec>
 
-        <echo message="Subiendo tvalacarta-boxee-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/boxee/tvalacarta-boxee-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
+        <echo message="Subiendo tvalacarta-xbmc-09-plugin-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-xbmc-plugin-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/xbmc-plugin/tvalacarta-xbmc-plugin-${version}.zip"/></exec>
 
-        <echo message="Subiendo tvalacarta-plex-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/plex/tvalacarta-plex-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
+        <!-- other platforms -->
 
+        <echo message="Subiendo tvalacarta-boxee-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-boxee-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/boxee/tvalacarta-boxee-${version}.zip"/></exec>
 
+        <echo message="Subiendo tvalacarta-plex-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-plex-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/plex/tvalacarta-plex-${version}.zip"/></exec>
 
-
-
-        <echo message="Subiendo tvalacarta-kodi-16-jarvis-ui-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-jarvis-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
-
-        <echo message="Subiendo tvalacarta-kodi-15-isengard-ui-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-isengard-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
-
-        <echo message="Subiendo tvalacarta-kodi-14-helix-ui-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-helix-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
-
-        <echo message="Subiendo tvalacarta-xbmc-13-gotham-ui-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/kodi-16-jarvis-ui/tvalacarta-ui-xbmc-gotham-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
-
-
-
-
-        <!--
-        <echo message="Subiendo tvalacarta-wiimc-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/wiimc/tvalacarta-wiimc-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
-
-        <echo message="Subiendo tvalacarta-rss-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/rss/tvalacarta-rss-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
-
-        <echo message="Subiendo tvalacarta-mediaserver-${version}.zip"/>
-        <exec executable="scp">
-            <arg value="${target}/mediaserver/tvalacarta-mediaserver-${version}.zip"/>
-            <arg value="${ruta_remota_descargas}"/>
-        </exec>
-        -->
     </target>
-
+    
     <!-- publish =============================================== -->
 	<target name="publish" description="Notify the repositories that a new version is available">
         <!--echo message="Actualizando el repositorio de Boxee"/>
@@ -243,7 +173,7 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/kodi-17-krypton/tvalacarta-kodi-krypton-${version}.zip" basedir="${target}/kodi-17-krypton"/>
+        <zip destfile="${target}/tvalacarta-kodi-krypton-${version}.zip" basedir="${target}/kodi-17-krypton"/>
 
     </target>
 
@@ -272,7 +202,7 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/kodi-16-jarvis/tvalacarta-kodi-jarvis-${version}.zip" basedir="${target}/kodi-16-jarvis"/>
+        <zip destfile="${target}/tvalacarta-kodi-jarvis-${version}.zip" basedir="${target}/kodi-16-jarvis"/>
 
     </target>
 
@@ -302,10 +232,10 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-jarvis-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
-        <zip destfile="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-isengard-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
-        <zip destfile="${target}/kodi-16-jarvis-ui/tvalacarta-ui-kodi-helix-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
-        <zip destfile="${target}/kodi-16-jarvis-ui/tvalacarta-ui-xbmc-gotham-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
+        <zip destfile="${target}/tvalacarta-ui-kodi-jarvis-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
+        <zip destfile="${target}/tvalacarta-ui-kodi-isengard-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
+        <zip destfile="${target}/tvalacarta-ui-kodi-helix-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
+        <zip destfile="${target}/tvalacarta-ui-xbmc-gotham-${version}.zip" basedir="${target}/kodi-16-jarvis-ui"/>
 
     </target>
 
@@ -334,7 +264,7 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/kodi-15-isengard/tvalacarta-kodi-isengard-${version}.zip" basedir="${target}/kodi-15-isengard"/>
+        <zip destfile="${target}/tvalacarta-kodi-isengard-${version}.zip" basedir="${target}/kodi-15-isengard"/>
 
     </target>
 
@@ -369,7 +299,7 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/kodi-14-helix/tvalacarta-kodi-helix-${version}.zip" basedir="${target}/kodi-14-helix"/>
+        <zip destfile="${target}/tvalacarta-kodi-helix-${version}.zip" basedir="${target}/kodi-14-helix"/>
 
     </target>
 
@@ -398,7 +328,7 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/xbmc-13-gotham/tvalacarta-xbmc-gotham-${version}.zip" basedir="${target}/xbmc-13-gotham"/>
+        <zip destfile="${target}/tvalacarta-xbmc-gotham-${version}.zip" basedir="${target}/xbmc-13-gotham"/>
 
     </target>
 
@@ -427,7 +357,7 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/xbmc-12-frodo/tvalacarta-xbmc-frodo-${version}.zip" basedir="${target}/xbmc-12-frodo"/>
+        <zip destfile="${target}/tvalacarta-xbmc-frodo-${version}.zip" basedir="${target}/xbmc-12-frodo"/>
 
     </target>
 
@@ -462,7 +392,7 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/xbmc-11-eden/tvalacarta-xbmc-eden-${version}.zip" basedir="${target}/xbmc-11-eden"/>
+        <zip destfile="${target}/tvalacarta-xbmc-eden-${version}.zip" basedir="${target}/xbmc-11-eden"/>
 
     </target>
 
@@ -497,7 +427,7 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/xbmc-10-dharma/tvalacarta-xbmc-dharma-${version}.zip" basedir="${target}/xbmc-10-dharma"/>
+        <zip destfile="${target}/tvalacarta-xbmc-dharma-${version}.zip" basedir="${target}/xbmc-10-dharma"/>
 
     </target>
 
@@ -529,7 +459,7 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/xbmc-09-plugin/tvalacarta-xbmc-plugin-${version}.zip" basedir="${target}/xbmc-09-plugin"/>
+        <zip destfile="${target}/tvalacarta-xbmc-plugin-${version}.zip" basedir="${target}/xbmc-09-plugin"/>
     </target>
 
     <!-- copy-boxee ============================================================ -->
@@ -566,7 +496,7 @@
             </fileset>
         </copy>
 
-        <zip destfile="${target}/boxee/tvalacarta-boxee-${version}.zip" basedir="${target}/boxee"/>
+        <zip destfile="${target}/tvalacarta-boxee-${version}.zip" basedir="${target}/boxee"/>
 
     </target>
 
@@ -625,7 +555,7 @@
 
         <copy file="version-plex/ServiceCode.pys" todir="${target}/plex/tvalacarta.bundle/Contents/URL Services/UniversalResolver" overwrite="true"/>
 
-        <zip destfile="${target}/plex/tvalacarta-plex-${version}.zip" basedir="${target}/plex"/>
+        <zip destfile="${target}/tvalacarta-plex-${version}.zip" basedir="${target}/plex"/>
     </target>
 
 	<!-- copy-wiimc ============================================================ -->

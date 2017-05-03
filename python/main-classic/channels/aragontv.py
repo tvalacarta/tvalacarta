@@ -145,6 +145,10 @@ def episodios(item,data=""):
 
         #scrapedtitle = match[0]+" "+fecha.strftime("%d/%m/%y")+" (Duración "+duracion_string+")"
         scrapedtitle = match[0].strip()
+
+        if "informativos" in item.url:
+            scrapedtitle = scrapedtitle + " ("+aired_date+")"
+
         scrapedurl = urlparse.urljoin(item.url,match[2])
         scrapedthumbnail = urlparse.urljoin(item.url,match[1])
         scrapedplot = ""

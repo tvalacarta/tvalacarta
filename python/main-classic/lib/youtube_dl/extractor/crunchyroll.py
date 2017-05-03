@@ -177,6 +177,7 @@ class CrunchyrollIE(CrunchyrollBaseIE):
             'uploader': 'Kadokawa Pictures Inc.',
             'upload_date': '20170118',
             'series': "KONOSUBA -God's blessing on this wonderful world!",
+            'season': "KONOSUBA -God's blessing on this wonderful world! 2",
             'season_number': 2,
             'episode': 'Give Me Deliverance from this Judicial Injustice!',
             'episode_number': 1,
@@ -202,6 +203,38 @@ class CrunchyrollIE(CrunchyrollBaseIE):
             'description': 'Kakeru and Yuka are thrown into an alternate nightmarish world they call "Red Night".',
             'uploader': 'Marvelous AQL Inc.',
             'upload_date': '20091021',
+        },
+        'params': {
+            # Just test metadata extraction
+            'skip_download': True,
+        },
+    }, {
+        # make sure we can extract an uploader name that's not a link
+        'url': 'http://www.crunchyroll.com/hakuoki-reimeiroku/episode-1-dawn-of-the-divine-warriors-606899',
+        'info_dict': {
+            'id': '606899',
+            'ext': 'mp4',
+            'title': 'Hakuoki Reimeiroku Episode 1 – Dawn of the Divine Warriors',
+            'description': 'Ryunosuke was left to die, but Serizawa-san asked him a simple question "Do you want to live?"',
+            'uploader': 'Geneon Entertainment',
+            'upload_date': '20120717',
+        },
+        'params': {
+            # just test metadata extraction
+            'skip_download': True,
+        },
+    }, {
+        # A video with a vastly different season name compared to the series name
+        'url': 'http://www.crunchyroll.com/nyarko-san-another-crawling-chaos/episode-1-test-590532',
+        'info_dict': {
+            'id': '590532',
+            'ext': 'mp4',
+            'title': 'Haiyoru! Nyaruani (ONA) Episode 1 – Test',
+            'description': 'Mahiro and Nyaruko talk about official certification.',
+            'uploader': 'TV TOKYO',
+            'upload_date': '20120305',
+            'series': 'Nyarko-san: Another Crawling Chaos',
+            'season': 'Haiyoru! Nyaruani (ONA)',
         },
         'params': {
             # Just test metadata extraction
@@ -357,7 +390,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         else:
             webpage_url = 'http://www.' + mobj.group('url')
 
-        webpage = self._download_webpage(self._add_skip_wall(webpage_url), video_id, 'Downloading webpage')
+        webpage = self._download_webpage(
+            self._add_skip_wall(webpage_url), video_id,
+            headers=self.geo_verification_headers())
         note_m = self._html_search_regex(
             r'<div class="showmedia-trailer-notice">(.+?)</div>',
             webpage, 'trailer-notice', default='')
@@ -388,8 +423,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         if video_upload_date:
             video_upload_date = unified_strdate(video_upload_date)
         video_uploader = self._html_search_regex(
-            r'<a[^>]+href="/publisher/[^"]+"[^>]*>([^<]+)</a>', webpage,
-            'video_uploader', fatal=False)
+            # try looking for both an uploader that's a link and one that's not
+            [r'<a[^>]+href="/publisher/[^"]+"[^>]*>([^<]+)</a>', r'<div>\s*Publisher:\s*<span>\s*(.+?)\s*</span>\s*</div>'],
+            webpage, 'video_uploader', fatal=False)
 
         available_fmts = []
         for a, fmt in re.findall(r'(<a[^>]+token=["\']showmedia\.([0-9]{3,4})p["\'][^>]+>)', webpage):
@@ -475,7 +511,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         # webpage provide more accurate data than series_title from XML
         series = self._html_search_regex(
             r'id=["\']showmedia_about_episode_num[^>]+>\s*<a[^>]+>([^<]+)',
-            webpage, 'series', default=xpath_text(metadata, 'series_title'))
+            webpage, 'series', fatal=False)
+        season = xpath_text(metadata, 'series_title')
 
         episode = xpath_text(metadata, 'episode_title')
         episode_number = int_or_none(xpath_text(metadata, 'episode_number'))
@@ -492,6 +529,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             'uploader': video_uploader,
             'upload_date': video_upload_date,
             'series': series,
+            'season': season,
             'season_number': season_number,
             'episode': episode,
             'episode_number': episode_number,
@@ -529,7 +567,9 @@ class CrunchyrollShowPlaylistIE(CrunchyrollBaseIE):
     def _real_extract(self, url):
         show_id = self._match_id(url)
 
-        webpage = self._download_webpage(self._add_skip_wall(url), show_id)
+        webpage = self._download_webpage(
+            self._add_skip_wall(url), show_id,
+            headers=self.geo_verification_headers())
         title = self._html_search_regex(
             r'(?s)<h1[^>]*>\s*<span itemprop="name">(.*?)</span>',
             webpage, 'title')

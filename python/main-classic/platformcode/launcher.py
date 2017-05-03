@@ -33,6 +33,7 @@ from core import logger
 from core import config
 from core import downloadtools
 from core import scrapertools
+from core import api
 
 from core.item import Item
 from platformcode import xbmctools
@@ -53,6 +54,9 @@ def start():
 
     # Test if all the required directories are created
     config.verify_directories_created()
+
+    # Check for updates
+    api.plugins_get_latest_packages()
 
 def run(item=None):
     logger.info("tvalacarta.platformcode.launcher run")

@@ -158,9 +158,14 @@ def test():
 
     # Comprueba que la primera opción tenga algo
     items = mainlist(Item())
-    section = loadsections(items[2])
+    section = loadsections(items[1])
 
-    if len(section)>0:
-        return True
+    if len(section)==0:
+        return False,"No hay videos en portada"
 
-    return False
+    section = loadprogram(items[4])
+
+    if len(section)==0:
+        return False,"No hay videos en 8aldia"
+
+    return True,""

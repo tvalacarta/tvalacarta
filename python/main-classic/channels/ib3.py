@@ -23,7 +23,7 @@ def mainlist(item):
     itemlist = []
     itemlist.append( Item(channel=CHANNELNAME, title="Programes"       , action="categoria" , extra="Programes", url=MAIN_URL, folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Sèries"          , action="categoria" , extra="Sèries", url=MAIN_URL, folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Informatius".    , action="categoria" , extra="Informatius", url=MAIN_URL, folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Informatius"     , action="categoria" , extra="Informatius", url=MAIN_URL, folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Esports"         , action="categoria" , extra="Esports", url=MAIN_URL, folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Retransmissions" , action="categoria" , extra="Retransmissió", url=MAIN_URL, folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Arxiu"           , action="categoria" , extra="ARXIU", url=MAIN_URL, folder=True) )

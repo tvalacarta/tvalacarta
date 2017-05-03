@@ -103,7 +103,7 @@ def test():
     for programa in programas:
         exec "episodios = "+programa.action+"(programa)"
         if len(episodios)>0:
-            bien = True
+            return True,""
             break
     
-    return bien
+    return False,"No hay ningun video"

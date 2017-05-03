@@ -20,7 +20,7 @@ FREE_SERVERS.extend(['googlevideo','gigabyteupload','hdplay','filebox','mediafir
 FREE_SERVERS.extend(['rapidtube','royalvids','rutube','sockshare','stagevu','stagero','tutv','userporn','veoh','veevr','videobam'])
 FREE_SERVERS.extend(['vidbux','videoweed','vidxden','vimeo','vk','watchfreeinhd','youtube','cartoonito','eitb','telemadrid','acbtv','mundonick','tv3','vuittv','dibujostv','tvn','mtv'])
 FREE_SERVERS.extend(['boing','disneychannel','tvg','telefe','mitele','eltrece','extremaduratv','disneylatino','rtpa','cntv','conectate','telemundo','descargavideos','sieterm','rtvcm'])
-FREE_SERVERS.extend(['upvtv','montecarlo','discoverymax','azteca','vtelevision','dwspan','pakapaka','onceninos','euronews','canal22'])
+FREE_SERVERS.extend(['upvtv','montecarlo','discoverymax','azteca','vtelevision','dwspan','pakapaka','onceninos','euronews','canal22','trececl','canal10','adn40'])
 
 # Lista de TODOS los servidores que funcionan con cuenta premium individual
 PREMIUM_SERVERS = ['wupload','fileserve']#,'uploadedto']

@@ -67,6 +67,10 @@ def informativos(item):
     logger.info("tvalacarta.channels.api_programas informativos")
     return api.navigation_get_programs_menu_by_section(item,"informativos")
 
+def deportes(item):
+    logger.info("tvalacarta.channels.api_programas deportes")
+    return api.navigation_get_programs_menu_by_section(item,"deportes")
+
 def get_items(item):
     logger.info("tvalacarta.channels.api_programas get_items")
     return api.get_items(item)

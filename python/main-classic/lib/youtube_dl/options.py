@@ -459,15 +459,19 @@ def parseOpts(overrideArguments=None):
     downloader.add_option(
         '--fragment-retries',
         dest='fragment_retries', metavar='RETRIES', default=10,
-        help='Number of retries for a fragment (default is %default), or "infinite" (DASH and hlsnative only)')
+        help='Number of retries for a fragment (default is %default), or "infinite" (DASH, hlsnative and ISM)')
     downloader.add_option(
         '--skip-unavailable-fragments',
         action='store_true', dest='skip_unavailable_fragments', default=True,
-        help='Skip unavailable fragments (DASH and hlsnative only)')
+        help='Skip unavailable fragments (DASH, hlsnative and ISM)')
     downloader.add_option(
         '--abort-on-unavailable-fragment',
         action='store_false', dest='skip_unavailable_fragments',
         help='Abort downloading when some fragment is not available')
+    downloader.add_option(
+        '--keep-fragments',
+        action='store_true', dest='keep_fragments', default=False,
+        help='Keep downloaded fragments on disk after downloading is finished; fragments are erased by default')
     downloader.add_option(
         '--buffer-size',
         dest='buffersize', metavar='SIZE', default='1024',
@@ -773,7 +777,7 @@ def parseOpts(overrideArguments=None):
         help='Convert video files to audio-only files (requires ffmpeg or avconv and ffprobe or avprobe)')
     postproc.add_option(
         '--audio-format', metavar='FORMAT', dest='audioformat', default='best',
-        help='Specify audio format: "best", "aac", "vorbis", "mp3", "m4a", "opus", or "wav"; "%default" by default; No effect without -x')
+        help='Specify audio format: "best", "aac", "flac", "mp3", "m4a", "opus", "vorbis", or "wav"; "%default" by default; No effect without -x')
     postproc.add_option(
         '--audio-quality', metavar='QUALITY',
         dest='audioquality', default='5',

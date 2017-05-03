@@ -5,6 +5,7 @@ import sys
 from core import scrapertools
 from core import config
 from core import logger
+from core import api
 from core.item import Item
 
 DEBUG = True
@@ -19,11 +20,12 @@ def getmainlist(preferred_thumb=""):
         if config.get_setting("programs_enable_subsections")!="true":
             itemlist.append( Item(title="Programas" , channel="api_programas" , action="mainlist", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
         else:
-            itemlist.append( Item(title="Programas" , channel="api_programas" , action="programas", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
-            itemlist.append( Item(title="Informativos" , channel="api_programas" , action="informativos", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
-            itemlist.append( Item(title="Series" , channel="api_programas" , action="series", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
-            itemlist.append( Item(title="Infantil" , channel="api_programas" , action="infantil", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
-            itemlist.append( Item(title="Cine" , channel="api_programas" , action="cine", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/updated.png")) )
+            itemlist.append( Item(title="Programas" , channel="api_programas" , action="programas", thumbnail=api.get_section_thumbnail("programas")) )
+            itemlist.append( Item(title="Informativos" , channel="api_programas" , action="informativos", thumbnail=api.get_section_thumbnail("informativos")) )
+            itemlist.append( Item(title="Deportes" , channel="api_programas" , action="deportes", thumbnail=api.get_section_thumbnail("deportes")) )
+            itemlist.append( Item(title="Series" , channel="api_programas" , action="series", thumbnail=api.get_section_thumbnail("series")) )
+            itemlist.append( Item(title="Infantil" , channel="api_programas" , action="infantil", thumbnail=api.get_section_thumbnail("infantil")) )
+            itemlist.append( Item(title="Cine" , channel="api_programas" , action="cine", thumbnail=api.get_section_thumbnail("cine")) )
 
     itemlist.append( Item(title="Canales" , channel="channelselector" , action="channeltypes", thumbnail=urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/channels.png")) )
     #itemlist.append( Item(title="Buscador" , channel="buscador" , action="mainlist" , thumbnail = urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/search.png")) )
@@ -52,7 +54,7 @@ def mainlist(params,url,category):
 
     itemlist = getmainlist("squares")
     for elemento in itemlist:
-        logger.info("channelselector item="+repr(elemento))
+        logger.info("channelselector item="+elemento.tostring())
         addfolder(elemento.title , elemento.channel , elemento.action , thumbnailname=elemento.thumbnail, folder=elemento.folder)
 
     if config.get_platform()=="kodi-krypton":
@@ -163,6 +165,7 @@ def channels_list():
     itemlist.append( Item( title="7RM (Murcia)"               , channel="sieterm"              , language="ES" , category="R"   , type="generic" ))
     itemlist.append( Item( title="8TV (Cataluña)"             , channel="vuittv"               , language="ES" , category="R"   , type="generic" )) # fermin 29/09/2016
     itemlist.append( Item( title="ACB TV"                     , channel="acbtv"                , language="ES" , category="T"   , type="generic" )) # jesus 17/12/2012
+    itemlist.append( Item( title="ADN 40 (México)"            , channel="adn40"                , language="ES" , category="N"   , type="generic" ))
     itemlist.append( Item( title="ADNStream"                  , channel="adnstream"            , language="ES" , category="I,T" , type="generic" ))
     itemlist.append( Item( title="Aragón TV"                  , channel="aragontv"             , language="ES" , category="R"   , type="generic", extra="rtmp" ))  # jesus 25/01/2012
     itemlist.append( Item( title="AtresPlayer"                , channel="a3media"              , language="ES" , category="N"   , type="generic" ))
@@ -171,14 +174,16 @@ def channels_list():
     #itemlist.append( Item( title="Boing"                      , channel="boing"                , language="ES" , category="I"   , type="generic" )) # juanfran 07/02/2011
     #itemlist.append( Item( title="Cadena Tres (México)"       , channel="cadenatres"           , language="ES" , category="N"   , type="generic" )) # rsantaella 22/03/2013
     #itemlist.append( Item( title="Canal Antigua (Guatemala)"  , channel="canalantigua"         , language="ES" , category="N"   , type="generic" ))
+    itemlist.append( Item( title="Canal 10 (Uruguay)"         , channel="canal10"              , language="ES" , category="N"   , type="generic" )) # jesus 02/05/2017
+    itemlist.append( Item( title="Canal 13 (Chile)"           , channel="trececl"              , language="ES" , category="N"   , type="generic" )) # jesus 02/05/2017
     itemlist.append( Item( title="Canal 22 (México)"          , channel="canal22"              , language="ES" , category="N"   , type="generic" )) # jesus 18/01/2017
     itemlist.append( Item( title="Canal Trece (Colombia)"     , channel="canal13co"            , language="ES" , category="N"   , type="generic" )) # jesus 17/06/2016
     #itemlist.append( Item( title="Cartoonito"                 , channel="cartoonito"           , language="ES" , category="I"   , type="generic" )) # jesus 05/04/2012
     itemlist.append( Item( title="CCTV Español (China)"       , channel="cctvspan"             , language="ES" , category="N"   , type="generic" )) # richard 29/01/2013
     itemlist.append( Item( title="Clan TVE"                   , channel="clantve"              , language="ES" , category="I"   , type="generic" ))
     itemlist.append( Item( title="Conectate (Argentina)"      , channel="conectate"            , language="ES" , category="N"   , type="generic" )) # richard 29/01/2013
-    itemlist.append( Item( title="Contenidos Digitales Abiertos (Argentina)", channel="cda"    , language="ES" , category="N"   , type="generic" )) # Juan Pablo 01/02/2013
-    itemlist.append( Item( title="Crackle"                    , channel="crackle"              , language="ES" , category="T,I" , type="generic" )) # rsantaella 05/04/2013
+    #itemlist.append( Item( title="Contenidos Digitales Abiertos (Argentina)", channel="cda"    , language="ES" , category="N"   , type="generic" )) # Juan Pablo 01/02/2013
+    #itemlist.append( Item( title="Crackle"                    , channel="crackle"              , language="ES" , category="T,I" , type="generic" )) # rsantaella 05/04/2013
     itemlist.append( Item( title="CYLTV (Castilla y León)"    , channel="cyltv"                , language="ES" , category="R"   , type="generic" )) # jesus 01/01/2013
     itemlist.append( Item( title="Discovery Max"              , channel="discoverymax"         , language="ES" , category="T"   , type="generic" ))
     itemlist.append( Item( title="Dibujos.tv"                 , channel="dibujostv"            , language="ES" , category="I"   , type="generic" )) # jesus 04/08/2013
@@ -186,6 +191,7 @@ def channels_list():
     itemlist.append( Item( title="Disney Junior"              , channel="disneyjunior"         , language="ES" , category="I"   , type="generic" )) # jesus 15/01/2013
     itemlist.append( Item( title="Disney Latino"              , channel="disneylatino"         , language="ES" , category="I"   , type="generic" )) # richard 29/01/2013
     itemlist.append( Item( title="DW Español (Alemania)"      , channel="dwspan"               , language="ES" , category="N"   , type="generic" )) # richard 29/01/2013
+    itemlist.append( Item( title="Ecuador TV"                 , channel="ecuadortv"            , language="ES" , category="N"   , type="generic" )) # richard 29/01/2013
     itemlist.append( Item( title="EITB (País Vasco)"          , channel="eitb"                 , language="ES" , category="R"   , type="generic", extra="rtmp" )) # jesus 17/12/2012
     #itemlist.append( Item( title="El Trece TV (Argentina)"    , channel="eltrece"              , language="ES" , category="N"   , type="generic" )) # jesus 05/04/2012
     itemlist.append( Item( title="elgourmet.com"              , channel="elgourmet"            , language="ES" , category="R"   , type="generic" )) # richard 29/01/2013
@@ -223,7 +229,7 @@ def channels_list():
     itemlist.append( Item( title="Telemundo"                  , channel="telemundo"            , language="ES" , category="N"   , type="generic" )) # rsantaella 30/03/2013
     itemlist.append( Item( title="TNU (Uruguay)"              , channel="tnu"                  , language="ES" , category="N"   , type="generic" )) # jesus 04/08/2013
     #itemlist.append( Item( title="Tuteve (Perú)"              , channel="tuteve"               , language="ES" , category="N"   , type="generic" )) # jesus 04/08/2013
-    #itemlist.append( Item( title="TV Pública (Argentina)"     , channel="tvpublica"            , language="ES" , category="N"   , type="generic" )) # rsantaella 07/06/2013
+    itemlist.append( Item( title="TV Pública (Argentina)"     , channel="tvpublica"            , language="ES" , category="N"   , type="generic" )) # jesus 02/05/2017
     itemlist.append( Item( title="TVE"                        , channel="rtve"                 , language="ES" , category="N"   , type="generic" ))
     #itemlist.append( Item( title="Tvolucion.com"              , channel="tvolucion"            , language="ES" , category="N"   , type="generic" )) # pedro 20/06/2012 
     itemlist.append( Item( title="TV3 (Cataluña)"             , channel="tv3"                  , language="ES" , category="R,I" , type="generic" ))
@@ -280,7 +286,7 @@ def addfolder(nombre,channelname,accion,category="",thumbnailname="",folder=True
     # Preferencia: tercero WEB
     if not os.path.exists(thumbnail):
     '''
-    if thumbnailname.startswith("http://"):
+    if thumbnailname.startswith("http://") or thumbnailname.startswith("https://"):
         thumbnail = thumbnailname
     else:
         thumbnail = WEB_PATH+thumbnailname+".png"

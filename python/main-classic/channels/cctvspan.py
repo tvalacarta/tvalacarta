@@ -14,6 +14,7 @@ from core import config
 from core import scrapertools
 from core.item import Item
 from servers import servertools
+import youtube_channel
 
 __channel__ = "cctvspan"
 __category__ = "F"
@@ -24,21 +25,26 @@ __creationdate__ = "20121130"
 __vfanart__ = "http://espanol.cntv.cn/library/column/2010/11/24/C28600/style/img/map2.jpg"
 
 DEBUG = config.get_setting("debug")
-MAIN_URL = "http://espanol.cctv.com/"
 
 def isGeneric():
     return True
 
 def mainlist(item):
     logger.info("tvalacarta.cctvspan mainlist")
-    return programas(Item())
+
+    itemlist = []
+    itemlist.append( Item(channel=__channel__, title="Nuevo (YouTube)", action="youtube", url="http://www.discoverymax.marca.com/player/", folder=True) )
+    itemlist.append( Item(channel=__channel__, title="Antiguo (cctv.com)", action="programas", url="http://espanol.cctv.com/", folder=True) )
+    return itemlist
+
+def youtube(item):
+    logger.info("tvalacarta.cctvspan youtube")
+    return youtube_channel.playlists(item,"cctvespanol")
 
 def programas(item):
     logger.info("tvalacarta.cctvspan programas")
 
     itemlist = []
-    if item.url=="":
-        item.url = MAIN_URL
 
     '''
     <li><a href="http://cctvespanol.cntv.cn/" target="_blank">CCTV-Español</a>

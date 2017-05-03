@@ -27,89 +27,13 @@
 # Canal para Canal Trece (Colombia)
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os, sys
-
-from core import logger
-from core import config
-from core import scrapertools
-from core.item import Item
-from servers import servertools
 import youtube_channel
-
-__channel__ = "canal13co"
-__title__ = "canal13co"
-
-DEBUG = config.get_setting("debug")
 
 def isGeneric():
     return True
 
 def mainlist(item):
-    logger.info("tvalacarta.channels.canal13co mainlist")
+    return youtube_channel.playlists(item,"canal13colombia")
 
-    item.url="http://www.canaltr3ce.co/programas/"
-    item.view="programs"
-    return programas(item)
-
-def programas(item):
-    logger.info("tvalacarta.channels.canal13co programas")    
-
-    itemlist = []
-
-    # Descarga la página
-    data = scrapertools.cache_page(item.url)
-
-    patron  = '<article[^<]+'
-    patron += '<div class="portfolio-wrap"[^<]+'
-    patron += '<a href="([^"]+)"[^<]+'
-    patron += '<div class="portfolio-img"[^<]+'
-    patron += '<img width="\d+" height="\d+" src="([^"]+)"[^<]+</div.*?'
-    patron += '<h5 class="entry-title" itemprop="name">([^<]+)</h5>'
-
-    matches = re.compile(patron,re.DOTALL).findall(data)
-    
-    for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
-        thumbnail = urlparse.urljoin(item.url,scrapedthumbnail)
-        url = urlparse.urljoin(item.url,scrapedurl)
-        title = scrapedtitle.strip()
-        plot = ""
-
-        itemlist.append( Item(channel=__channel__, action="episodios", title=title, show=title, url=url, thumbnail=thumbnail, fanart=thumbnail, plot=plot, folder=True))
-
-    return itemlist
-
-def detalle_programa(item):
-
-    data = scrapertools.cache_page(item.url)
-    item.plot = scrapertools.find_single_match(data,'<div class="double_space"></div[^<]+<p>([^<]+)</p>')
-    item.plot.strip()
-
-    return item
-
-def episodios(item,load_all_pages=True):
-    logger.info("tvalacarta.channels.canal13co episodios")
-
-    data = scrapertools.cache_page(item.url)
-    data = scrapertools.find_single_match(data,'<a href="([^"]+)" class="ytcmore"')
-    playlist_id = scrapertools.find_single_match(data,"list=([A-Za-z0-9_\-]+)")
-
-    itemlist = youtube_channel.videos( Item(show=item.title,url=playlist_id) )
-
-    return itemlist
-
-# Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
 def test():
-    
-    # Mainlist es la lista de programas
-    programas_items = mainlist(Item())
-    if len(programas_items)==0:
-        print "No encuentra los programas"
-        return False
-
-    episodios_items = videos(programas_items[0])
-    if len(episodios_items)==0:
-        print "El programa '"+programas_items[0].title+"' no tiene episodios"
-        return False
-
-    return True
+    return youtube_channel.test("canal13colombia")

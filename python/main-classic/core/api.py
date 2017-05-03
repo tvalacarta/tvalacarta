@@ -31,6 +31,7 @@ import urlparse
 import plugintools
 import jsontools
 import config
+import time
 
 import urllib
 from item import Item
@@ -400,6 +401,16 @@ def get_favorite_programs(item):
 
     parameters = { "favorites" : "1" }
     return remote_call_and_get_items( "programs/get_all.php" , parameters )
+
+def get_section_thumbnail(section):
+    today = time.strftime("%Y%m%d")
+    return MAIN_URL+"/programs/get_section_thumbnail.php?section="+section+"&effect=green&s="+get_session_token()+"&date="+today
+
+def plugins_get_latest_packages():
+    plugintools.log("tvalacarta.core.api.plugins.get_latest_packages")
+
+    parameters = { "plugin" : config.PLUGIN_NAME , "platform" : config.get_platform() }
+    return remote_call( "plugins/get_latest_packages.php" , parameters )
 
 # ---------------------------------------------------------------------------------------------------------
 #  video service calls

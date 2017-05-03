@@ -895,6 +895,8 @@ def htmlclean(cadena):
     cadena = cadena.replace("</em>","")
     cadena = cadena.replace("<u>","")
     cadena = cadena.replace("</u>","")
+    cadena = cadena.replace("<U>","")
+    cadena = cadena.replace("</U>","")
     cadena = cadena.replace("<li>","")
     cadena = cadena.replace("</li>","")
     cadena = cadena.replace("<tbody>","")
@@ -951,8 +953,8 @@ def htmlclean(cadena):
     cadena = re.compile("<span[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</span>","")
 
-    cadena = re.compile("<a[^>]*>",re.DOTALL).sub("",cadena)
-    cadena = cadena.replace("</a>","")
+    cadena = re.compile("<[a|A][^>]*>",re.DOTALL).sub("",cadena)
+    cadena = re.compile("</[a|A]>",re.DOTALL).sub("",cadena)
     
     cadena = re.compile("<p[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</p>","")
@@ -1410,6 +1412,17 @@ def parse_date(cadena,formato="dmy"):
         scrapedday = find_single_match(scrapeddate,"(\d+)-\d+-\d+")
         scrapedmonth = find_single_match(scrapeddate,"\d+-(\d+)-\d+")
         scrapedyear = find_single_match(scrapeddate,"\d+-\d+-(\d+)")
+
+        aired_date = scrapedyear+"-"+scrapedmonth+"-"+scrapedday
+        return aired_date
+
+    # 2015-12-31
+    scrapeddate = find_single_match(cadena,"(\d\d\d\d-\d\d-\d\d)")
+
+    if scrapeddate!="":
+        scrapedyear = find_single_match(scrapeddate,"(\d+)-\d+-\d+")
+        scrapedmonth = find_single_match(scrapeddate,"\d+-(\d+)-\d+")
+        scrapedday = find_single_match(scrapeddate,"\d+-\d+-(\d+)")
 
         aired_date = scrapedyear+"-"+scrapedmonth+"-"+scrapedday
         return aired_date

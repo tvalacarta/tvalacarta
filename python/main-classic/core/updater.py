@@ -12,6 +12,7 @@ import scrapertools
 import time
 import config
 import logger
+import api
 
 # FIXME: Esto está repetido en el channelselector, debería ir a config
 thumbnail_type = config.get_setting("thumbnail_type")
@@ -36,7 +37,11 @@ try:
     # porque seria un falso "True", ya que el xbmc en las xbox no son dharma por lo tanto no existen los addons
     logger.info("tvalacarta.core.updater get_platform="+config.get_platform())
     logger.info("tvalacarta.core.updater get_system_platform="+config.get_system_platform())
-    if config.get_platform()=="kodi-jarvis":
+    if config.get_platform()=="kodi-krypton":
+        import xbmc
+        REMOTE_FILE = "http://descargas.tvalacarta.info/"+config.PLUGIN_NAME+"-kodi-krypton-"
+        DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")
+    elif config.get_platform()=="kodi-jarvis":
         import xbmc
         REMOTE_FILE = "http://descargas.tvalacarta.info/"+config.PLUGIN_NAME+"-kodi-jarvis-"
         DESTINATION_FOLDER = xbmc.translatePath( "special://home/addons")

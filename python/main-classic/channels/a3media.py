@@ -308,3 +308,35 @@ def bbcode_kodi2html(text):
         text = text.replace('"color: white"','"color: auto"')
 
     return text
+
+# Test de canal
+# Devuelve: Funciona (True/False) y Motivo en caso de que no funcione (String)
+def test():
+    
+    items_mainlist = mainlist(Item())
+    series_item = None
+    for item in items_mainlist:
+        if item.title=="Series":
+            series_menu_item = item
+
+    if series_menu_item is None:
+        return False,"No hay sección Series en el menu"
+            
+    # El canal tiene estructura menu -> series -> temporadas -> episodios -> play
+    series_items = secciones(series_menu_item)
+    if len(series_items)==0:
+        return False,"No hay series"
+
+    temporadas_items = temporadas(series_items[0])
+    if len(temporadas_items)==0:
+        return False,"No hay temporadas"
+
+    episodios_items = episodios(temporadas_items[0])
+    if len(episodios_items)==0:
+        return False,"No hay episodios"
+
+    play_item = episodios(temporadas_items[0])
+    if len(episodios_items)==0:
+        return False,"No hay video"
+
+    return True,""
