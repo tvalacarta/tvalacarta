@@ -2,39 +2,35 @@
 #------------------------------------------------------------
 # pelisalacarta - XBMC Plugin
 # Conector para rtvcm
-# http://blog.tvalacarta.info/plugin-xbmc/tvalacarta/
+# http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
-
-from core import scrapertools
 from core import logger
-from core import config
-from core import jsontools
+from core import scrapertools
 
-def get_video_url( page_url , premium = False , user="" , password="", video_password="" ):
-    logger.info("tvalacarta.servers.rtvcm get_video_url(page_url='%s')" % page_url)
+from lib import youtube_dl
+import descargavideos
+
+def get_video_url( page_url , premium = False , user="" , password="", video_password="", page_data="" ):
+    logger.info("tvalacarta.server.rtvcm get_video_url page_url"+page_url)
+
+    data = scrapertools.cache_page(page_url)
+    #<iframe id="flumotion_iframe_player" name="flumotion_iframe_player" src="http://cdnapi.kaltura.com/p/2288691/sp/228869100/embedIframeJs/uiconf_id/39784151/partner_id/2288691?iframeembed=true&playerId=kaltura_player_1496914486&entry_id=0_7nkaf0ce&flashvars[streamerType]=auto"
+    media_url = scrapertools.find_single_match(data,'<iframe id="flumotion_iframe_player" name="flumotion_iframe_player" src="([^"]+)"')
 
     video_urls = []
 
-    idvideo = scrapertools.find_single_match(page_url,"(\d+)$")
-    url = "http://api.rtvcm.webtv.flumotion.com/pods/"+idvideo+"?extended=true"
-    data = scrapertools.cache_page(url)
-    logger.info("data="+data)
-    json_object = jsontools.load_json(data)
+    ydl = youtube_dl.YoutubeDL({'outtmpl': u'%(id)s%(ext)s'})
+    result = ydl.extract_info(media_url, download=False)
+    logger.info("tvalacarta.server.rtvcm get_video_url result="+repr(result))
 
-    mediaurl="http://ondemand.rtvcm.ondemand.flumotion.com/rtvcm/ondemand/video/mp4/med/"+json_object["name"]
-    video_urls.append( [ "(med) mp4 [rtvcm]" , mediaurl ] )
+    if "ext" in result and "url" in result:
+        video_urls.append(["[rtvcm]", scrapertools.safe_unicode(result['url']).encode('utf-8')+"|User-Agent=Mozilla/5.0"])
+    else:
 
-    mediaurl="http://ondemand.rtvcm.ondemand.flumotion.com/rtvcm/ondemand/video/mp4/mobile/"+json_object["name"]
-    video_urls.append( [ "(mobile) mp4 [rtvcm]" , mediaurl ] )
-
-    mediaurl="http://ondemand.rtvcm.ondemand.flumotion.com/rtvcm/ondemand/video/mp4/mini/"+json_object["name"]
-    video_urls.append( [ "(mini) mp4 [rtvcm]" , mediaurl ] )
-
-    for video_url in video_urls:
-        logger.info("tvalacarta.servers.rtvcm %s - %s" % (video_url[0],video_url[1]))
+        if "entries" in result:
+            for entry in result["entries"]:
+                video_urls.append(["[rtvcm]", scrapertools.safe_unicode(entry['url']).encode('utf-8')+"|User-Agent=Mozilla/5.0"])
 
     return video_urls
 
@@ -42,6 +38,5 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 def find_videos(data):
     encontrados = set()
     devuelve = []
-            
-    return devuelve
 
+    return devuelve

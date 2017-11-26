@@ -35,123 +35,53 @@ def mainlist(item):
 
     itemlist = []
 
-    itemlist.append( Item(channel=__channel__, title="8tv directe",              action="play",         url = URL_LIVE,                                            folder=False) )
-    itemlist.append( Item(channel=__channel__, title="8aldia Inici (destacat)",  action="loadprogram",  url = "http://www.8tv.cat/8aldia/",                        folder=True) )
-    itemlist.append( Item(channel=__channel__, title="8aldia Reflexió Cuní",     action="loadprogram",  url = "http://www.8tv.cat/8aldia/reflexio-de-josep-cuni/", folder=True) )
-    itemlist.append( Item(channel=__channel__, title="8aldia Seccions",          action="loadsections",                                                            folder=True) )
-    itemlist.append( Item(channel=__channel__, title="8aldia Programes sencers", action="loadprogram",  url = "http://www.8tv.cat/8aldia/programes-sencers/",      folder=True) )
+    itemlist.append( Item(channel=__channel__, title="En directe",               action="play",         url = URL_LIVE,                                            folder=False) )
+    itemlist.append( Item(channel=__channel__, title="Catalunya Directe",        action="episodios",    url="http://www.8tv.cat/programa/catalunya-directe/") )
+    #itemlist.append( Item(channel=__channel__, title="Arucitys",                 action="episodios_a",  url="http://www.arucitys.com/") )
+    itemlist.append( Item(channel=__channel__, title="8 al dia",                 action="episodios",    url="http://www.8tv.cat/programa/8aldia/") )
+    itemlist.append( Item(channel=__channel__, title="Fora de joc",              action="episodios",    url="http://www.8tv.cat/programa/fora-de-joc/") )
 
     return itemlist
 
-
-# Carga secciones
-def loadsections(item):
-    logger.info("tvalacarta.channels.8tv loadsection")
+def episodios(item):
+    logger.info("tvalacarta.channels.8tv episodios")
 
     itemlist = []
 
-    itemlist.append( Item(channel=__channel__, title="Entrevistes",   action="loadprogram", url="http://www.8tv.cat/8aldia/category/entrevistes/",     folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Pilar Rahola",  action="loadprogram", url="http://www.8tv.cat/8aldia/category/pilar-rahola/",    folder=True) )
-    itemlist.append( Item(channel=__channel__, title="La Tertúlia",   action="loadprogram", url="http://www.8tv.cat/8aldia/category/tertulia/",        folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Opinió",        action="loadprogram", url="http://www.8tv.cat/8aldia/category/opinio/",          folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Política",      action="loadprogram", url="http://www.8tv.cat/8aldia/category/politica/",        folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Internacional", action="loadprogram", url="http://www.8tv.cat/8aldia/category/internacional/",   folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Economia",      action="loadprogram", url="http://www.8tv.cat/8aldia/category/economia-videos/", folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Societat",      action="loadprogram", url="http://www.8tv.cat/8aldia/category/societat/",        folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Successos",     action="loadprogram", url="http://www.8tv.cat/8aldia/category/successos/",       folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Tribunals",     action="loadprogram", url="http://www.8tv.cat/8aldia/category/tribunals/",       folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Cultura",       action="loadprogram", url="http://www.8tv.cat/8aldia/category/cultura/",         folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Tecnologia",    action="loadprogram", url="http://www.8tv.cat/8aldia/category/tecnologia/",      folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Esports",       action="loadprogram", url="http://www.8tv.cat/8aldia/category/esports/",         folder=True) )
+    data = scrapertools.cache_page(item.url)
+    data = scrapertools.find_single_match(data,'<ul id="playlist-chapters">(.*?)</ul>')
+
+    '''
+    <h4><a href="#" id="ch24721" class="ch-link" title="Catalunya directe #15">Catalunya directe #15</a></h4>
+    <span class="date">25/09/17</span>
+    <p></p>
+    <div class="ch-data">
+    <span id="ch24721-desc"></span>
+    <span id="ch24721-time">25/09/2017 07.09</span>
+    <span id="ch24721-video"></span>
+    <span id="ch24721-brightcove">S1x2LLY6OW</span>
+    <span id="ch24721-youtube"><iframe width="640" height="360" src="https://www.youtube.com/embed/Rfc70h4K6SE?feature=oembed" 
+    '''
+
+    patron  = '<h4><a[^>]+>([^<]+)</a></h4[^<]+'
+    patron += '<span class="date">([^<]+)</span[^<]+'
+    patron += '<p></p[^<]+'
+    patron += '<div class="ch-data"[^<]+'
+    patron += '<span id="ch\d+-desc">([^<]*)</span[^<]+'
+    patron += '<span id="ch\d+-time">([^<]*)</span[^<]+'
+    patron += '<span id="ch\d+-video">([^<]*)</span[^<]+'
+    patron += '<span id="ch\d+-brightcove">([^<]*)</span[^<]+'
+    patron += '<span id="ch\d+-youtube"><iframe width="\d+" height="\d+" src="([^"]+)"'
+    matches = scrapertools.find_multiple_matches(data,patron)
+
+    for scrapedtitle,scrapeddate1,scrapedplot,scrapeddate2,value1,value2,scrapedurl in matches:
+        youtube_id = scrapertools.find_single_match(scrapedurl,"embed\/([0-9A-Za-z_-]{11})")
+        #https://i.ytimg.com/vi_webp/ed5e4AHFsJA/sddefault.webp
+        youtube_thumbnail = "https://i.ytimg.com/vi_webp/"+youtube_id+"/sddefault.webp"
+        youtube_url = "https://www.youtube.com/watch?v="+youtube_id
+        itemlist.append(Item(channel=__channel__, action = 'play', server="youtube", title=scrapedtitle, url=scrapedurl, thumbnail=youtube_thumbnail, folder=False) )
 
     return itemlist
-
-
-# Carga programas de una sección
-def loadprogram(item):
-    logger.info("tvalacarta.channels.8tv loadprogram")
-    return pager(item.url, item.channel, item)
-
-
-# Genera listado de los videos con paginador
-def pager(url, channel=__channel__, item=None):
-    logger.info("tvalacarta.channels.8tv pager")
-
-    try:
-        itemlist = []
-        data = scrapertools.downloadpage(url)
-        data = data.replace("\\\"","")
-        #logger.error("DATA: " + str(data))
-
-        # --------------------------------------------------------
-        # Extrae los videos (tag article)
-        # --------------------------------------------------------
-        patron = '<article class="entry-box entry-video (.*?)</article>'
-        matches = re.compile(patron,re.DOTALL).findall(data)
-
-        if len(matches) > 0:
-            for chapter in matches:
-                try:
-                    #
-                    # Ex: <h2 class="entry-title"><a href="http://www.8tv.cat/8aldia/videos/el-proxim-11-de-setembre-marcat-pel-referendum/" title="El pròxim 11 de Setembre, marcat pel referèndum">
-                    #
-                    patron = ' src="([^"]+)"'
-                    matches = re.compile(patron,re.DOTALL).findall(chapter)
-                    scrapedthumbnail = matches[0]
-
-                    patron = '<h2 class="entry-title"><a href="([^"]+)" title="([^"]+)">'
-                    matches = re.compile(patron,re.DOTALL).findall(chapter)
-                    urlprog = matches[0][0]
-                    scrapedtitle = matches[0][1]
-
-                    date = scrapertools.find_single_match(chapter, '<time datetime="[^"]+" pubdate class="updated">(.*?) - [^<]+</time>')
-
-                    # Añade al listado
-                    itemlist.append(
-                        Item(channel=channel,
-                             action = 'play',
-                             title = date.strip() + " - " + str(scrapedtitle).replace("&quot;", "'").replace("&#8220;", "").replace("&#8221;", "").replace('“', "").replace('”', "").strip(),
-                             url = urlprog,
-                             thumbnail = scrapedthumbnail,
-                             server = channel,
-                             folder = False
-                        )
-                    )
-
-                except:
-                    for line in sys.exc_info():
-                        logger.error("tvalacarta.channels.8tv pager ERROR1: %s" % line)
-
-
-        # Extrae el paginador para la página siguiente
-        patron = "<a class="+"'"+"no_bg"+"'"+' href="([^"]+)">Següent</a>'
-        urlpager = re.compile(patron,re.DOTALL).findall(data)
-        #logger.info("URLPAGER: %s" % urlpager[0])
-
-        if len(urlpager)>0 :
-            next_page_item = Item(channel=channel,
-                         action = 'loadprogram',
-                         title = '>> Següent',
-                         url = urlpager[0],
-                         thumbnail = ''
-                    )
-
-            itemlist.append(next_page_item)
-    except:
-        for line in sys.exc_info():
-            logger.error("tvalacarta.channels.8tv pager ERROR2: %s" % line)
-
-    return itemlist
-
-
-# Reproduce el item con server propio
-def play(item):
-
-    item.server = __channel__;
-    itemlist = [item]
-
-    return itemlist
-
 
 # Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
 def test():

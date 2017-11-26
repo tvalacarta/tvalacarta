@@ -2,22 +2,21 @@ from __future__ import unicode_literals
 
 import re
 
-from .common import InfoExtractor
+from .gigya import GigyaBaseIE
+
 from ..compat import compat_str
 from ..utils import (
-    ExtractorError,
     int_or_none,
     parse_duration,
     try_get,
     unified_timestamp,
-    urlencode_postdata,
 )
 
 
-class MedialaanIE(InfoExtractor):
+class MedialaanIE(GigyaBaseIE):
     _VALID_URL = r'''(?x)
                     https?://
-                        (?:www\.)?
+                        (?:www\.|nieuws\.)?
                         (?:
                             (?P<site_id>vtm|q2|vtmkzoom)\.be/
                             (?:
@@ -85,6 +84,22 @@ class MedialaanIE(InfoExtractor):
         # clip
         'url': 'http://vtmkzoom.be/k3-dansstudio/een-nieuw-seizoen-van-k3-dansstudio',
         'only_matching': True,
+    }, {
+        # http/s redirect
+        'url': 'https://vtmkzoom.be/video?aid=45724',
+        'info_dict': {
+            'id': '257136373657000',
+            'ext': 'mp4',
+            'title': 'K3 Dansstudio Ushuaia afl.6',
+        },
+        'params': {
+            'skip_download': True,
+        },
+        'skip': 'Requires account credentials',
+    }, {
+        # nieuws.vtm.be
+        'url': 'https://nieuws.vtm.be/stadion/stadion/genk-nog-moeilijk-programma',
+        'only_matching': True,
     }]
 
     def _real_initialize(self):
@@ -103,15 +118,7 @@ class MedialaanIE(InfoExtractor):
             'password': password,
         }
 
-        auth_info = self._download_json(
-            'https://accounts.eu1.gigya.com/accounts.login', None,
-            note='Logging in', errnote='Unable to log in',
-            data=urlencode_postdata(auth_data))
-
-        error_message = auth_info.get('errorDetails') or auth_info.get('errorMessage')
-        if error_message:
-            raise ExtractorError(
-                'Unable to login: %s' % error_message, expected=True)
+        auth_info = self._gigya_login(auth_data)
 
         self._uid = auth_info['UID']
         self._uid_signature = auth_info['UIDSignature']
@@ -146,6 +153,8 @@ class MedialaanIE(InfoExtractor):
                 video_id, transform_source=lambda s: '[%s]' % s, fatal=False)
             if player:
                 video = player[-1]
+                if video['videoUrl'] in ('http', 'https'):
+                    return self.url_result(video['url'], MedialaanIE.ie_key())
                 info = {
                     'id': video_id,
                     'url': video['videoUrl'],

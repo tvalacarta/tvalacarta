@@ -9,7 +9,9 @@ class MetadataFromTitlePP(PostProcessor):
     def __init__(self, downloader, titleformat):
         super(MetadataFromTitlePP, self).__init__(downloader)
         self._titleformat = titleformat
-        self._titleregex = self.format_to_regex(titleformat)
+        self._titleregex = (self.format_to_regex(titleformat)
+                            if re.search(r'%\(\w+\)s', titleformat)
+                            else titleformat)
 
     def format_to_regex(self, fmt):
         r"""
@@ -33,11 +35,14 @@ class MetadataFromTitlePP(PostProcessor):
         title = info['title']
         match = re.match(self._titleregex, title)
         if match is None:
-            self._downloader.to_screen('[fromtitle] Could not interpret title of video as "%s"' % self._titleformat)
+            self._downloader.to_screen(
+                '[fromtitle] Could not interpret title of video as "%s"'
+                % self._titleformat)
             return [], info
         for attribute, value in match.groupdict().items():
-            value = match.group(attribute)
             info[attribute] = value
-            self._downloader.to_screen('[fromtitle] parsed ' + attribute + ': ' + value)
+            self._downloader.to_screen(
+                '[fromtitle] parsed %s: %s'
+                % (attribute, value if value is not None else 'NA'))
 
         return [], info

@@ -131,30 +131,43 @@ def episodios(item):
     if "&fin=" not in item.url:
         item.url = item.url + "&fin=1000"
 
-    data = scrapertools.cache_page(item.url)
-    json_object = jsontools.load_json(data)
-    #logger.info("json_object="+repr(json_object))
-    #logger.info("VOD="+repr(json_object["VOD"]))
 
-    for vod in json_object["VOD"]:
-        logger.info("vod="+repr(vod))
-        title = vod["nombre_programa"]
-        if vod["titulo"]!="":
-            title = title + " - " + vod["titulo"]
-        if vod["fecha_emision"]!="":
-            title = title + " ("+scrapertools.htmlclean(vod["fecha_emision"])+")"
-        url = "http://www.rtpa.es/video:"+urllib.quote(vod["nombre_programa"])+"_"+vod["id_generado"]+".html"
+    intentos = 0
+    while intentos<5:
 
         try:
-            url_imagen = vod["url_imagen"]
-            thumbnail = urllib.quote(url_imagen).replace("//","/").replace("http%3A/","http://")
-        except:
-            thumbnail = ""
+            data = scrapertools.cache_page(item.url)
+            json_object = jsontools.load_json(data)
+            #logger.info("json_object="+repr(json_object))
+            #logger.info("VOD="+repr(json_object["VOD"]))
 
-        aired_date = scrapertools.parse_date( vod["fecha_emision"] )
-        
-        plot = scrapertools.htmlclean(vod["sinopsis"])
-        itemlist.append( Item(channel=CHANNELNAME, title=title , url=url,  thumbnail=thumbnail , plot=plot, fanart=thumbnail, server="rtpa", action="play" , show = item.show , viewmode="movie_with_plot", aired_date=aired_date, folder=False) )
+            for vod in json_object["VOD"]:
+                logger.info("vod="+repr(vod))
+                title = vod["nombre_programa"]
+                if vod["titulo"]!="":
+                    title = title + " - " + vod["titulo"]
+                if vod["fecha_emision"]!="":
+                    title = title + " ("+scrapertools.htmlclean(vod["fecha_emision"])+")"
+                url = "http://www.rtpa.es/video:"+urllib.quote(vod["nombre_programa"])+"_"+vod["id_generado"]+".html"
+
+                try:
+                    url_imagen = vod["url_imagen"]
+                    thumbnail = urllib.quote(url_imagen).replace("//","/").replace("http%3A/","http://")
+                except:
+                    thumbnail = ""
+
+                aired_date = scrapertools.parse_date( vod["fecha_emision"] )
+                
+                plot = scrapertools.htmlclean(vod["sinopsis"])
+                itemlist.append( Item(channel=CHANNELNAME, title=title , url=url,  thumbnail=thumbnail , plot=plot, fanart=thumbnail, server="rtpa", action="play" , show = item.show , viewmode="movie_with_plot", aired_date=aired_date, folder=False) )
+
+            break
+
+        except:
+            logger.info("tvalacarta.channels.rtpa lista vacia, reintentando...")
+            intentos = intentos + 1
+            import time
+            time.sleep(2)
 
     return itemlist
 

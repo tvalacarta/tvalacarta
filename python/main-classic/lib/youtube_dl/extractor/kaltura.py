@@ -287,6 +287,9 @@ class KalturaIE(InfoExtractor):
             # skip for now.
             if f.get('fileExt') == 'chun':
                 continue
+            # DRM-protected video, cannot be decrypted
+            if f.get('fileExt') == 'wvm':
+                continue
             if not f.get('fileExt'):
                 # QT indicates QuickTime; some videos have broken fileExt
                 if f.get('containerFormat') == 'qt':
@@ -324,7 +327,7 @@ class KalturaIE(InfoExtractor):
         if captions:
             for caption in captions.get('objects', []):
                 # Continue if caption is not ready
-                if f.get('status') != 2:
+                if caption.get('status') != 2:
                     continue
                 if not caption.get('id'):
                     continue

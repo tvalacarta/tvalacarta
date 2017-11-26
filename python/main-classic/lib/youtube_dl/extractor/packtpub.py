@@ -1,9 +1,13 @@
 from __future__ import unicode_literals
 
+import json
 import re
 
 from .common import InfoExtractor
-from ..compat import compat_str
+from ..compat import (
+    compat_str,
+    compat_HTTPError,
+)
 from ..utils import (
     clean_html,
     ExtractorError,
@@ -34,6 +38,25 @@ class PacktPubIE(PacktPubBaseIE):
             'upload_date': '20170331',
         },
     }
+    _NETRC_MACHINE = 'packtpub'
+    _TOKEN = None
+
+    def _real_initialize(self):
+        (username, password) = self._get_login_info()
+        if username is None:
+            return
+        try:
+            self._TOKEN = self._download_json(
+                self._MAPT_REST + '/users/tokens', None,
+                'Downloading Authorization Token', data=json.dumps({
+                    'email': username,
+                    'password': password,
+                }).encode())['data']['access']
+        except ExtractorError as e:
+            if isinstance(e.cause, compat_HTTPError) and e.cause.code in (400, 401, 404):
+                message = self._parse_json(e.cause.read().decode(), None)['message']
+                raise ExtractorError(message, expected=True)
+            raise
 
     def _handle_error(self, response):
         if response.get('status') != 'success':
@@ -51,14 +74,17 @@ class PacktPubIE(PacktPubBaseIE):
         course_id, chapter_id, video_id = mobj.group(
             'course_id', 'chapter_id', 'id')
 
+        headers = {}
+        if self._TOKEN:
+            headers['Authorization'] = 'Bearer ' + self._TOKEN
         video = self._download_json(
             '%s/users/me/products/%s/chapters/%s/sections/%s'
             % (self._MAPT_REST, course_id, chapter_id, video_id), video_id,
-            'Downloading JSON video')['data']
+            'Downloading JSON video', headers=headers)['data']
 
         content = video.get('content')
         if not content:
-            raise ExtractorError('This video is locked', expected=True)
+            self.raise_login_required('This video is locked')
 
         video_url = content['file']
 

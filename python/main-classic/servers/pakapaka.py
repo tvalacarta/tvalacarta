@@ -47,7 +47,9 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     matches = re.compile(patron,re.DOTALL).findall(data)
 
     for media_url,texto,tipo in matches:
-        video_urls.append( [ texto+" ("+tipo+") [pakapaka]" , media_url ] )
+        video_urls.append( [ texto+" ("+tipo+") [pakapaka]" , media_url.replace("http://recursos.pakapaka.gov.ar/video/?poster=0&info=0&skin=glow&","http://recursos.pakapaka.gov.ar/repositorio/video/ver?file_") ] )
+        #http://recursos.pakapaka.gov.ar/repositorio/video/ver?file_id=0a3bfa4a-7538-4b71-b4ef-bb524320c992&rec_id=126605
+        #http://recursos.pakapaka.gov.ar/video/?poster=0&info=0&skin=glow&id=0a3bfa4a-7538-4b71-b4ef-bb524320c992&rec_id=126605
 
     video_urls.reverse()
 

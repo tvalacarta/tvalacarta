@@ -91,37 +91,24 @@ def episodios(item):
     
     # Descarga la página
     data = scrapertools.cache_page(item.url)
+    link = scrapertools.find_single_match(data,'<h3 class="titulo">Programas Completos</h3[^<]+<a href="([^"]+)">')
+    if link!="":
+        item.url = urlparse.urljoin(item.url,link)
+        data = scrapertools.cache_page(item.url)
 
-    '''
-    <li class="views-row views-row-2 views-row-even"> 
-    <a href="/programas/mi-camara-y-yo/mi-camara-y-yo-el-rastro" class="playerIco imagen">
-    <img src="http://www.telemadrid.es/sites/default/files/Images2016/thumb_P10000315_C0007HDP0_20170412_1492466104083.foto.png" alt="Mi cámara y yo: El Rastro" title="Mi cámara y yo: El Rastro"  class="image image-foto " width="300" height="169" />
-    </a> 
-    <a href="/programas/mi-camara-y-yo/mi-camara-y-yo-el-rastro" class="titulo">Mi cámara y yo: El Rastro</a>   
-    <span class="date-display-single">17.04.2017</span></li>
-    '''
+    # video de portada
+    bloque = scrapertools.find_single_match(data,'<div id="portSubcatNotDestTema">(.*?)\s+</div>')
+    logger.info("bloque="+bloque)
+    title,url,thumbnail,plot,url = parse_video(item,bloque)
 
-    # Intenta filtrar por "programas completos", si no saca todo
-    bloque = scrapertools.find_single_match(data,'<div class="headerView[^<]+<h3 class="titulo">Los programas</h3>(.*)</div[^<]+</div')
-    if bloque!="":
-        data = bloque
+    if title!="":
+        itemlist.append( Item(channel=CHANNELNAME, title=title , url=url, thumbnail=thumbnail, plot=plot, action="play", server="telemadrid", show=item.show, folder=False) )
 
     # Extrae las zonas de los videos
     patron = '<li class="views-row(.*?</li>)'
     matches = re.compile(patron,re.DOTALL).findall(data)
     for bloque in matches:
-        title = scrapertools.find_single_match(bloque,'<a href="[^"]+" class="titulo">([^<]+)</a>')
-        url = scrapertools.find_single_match(bloque,'<a href="([^"]+)" class="titulo">')
-        thumbnail = scrapertools.find_single_match(bloque,'<img src="([^"]+)"')
-        plot = scrapertools.find_single_match(bloque,'<a href="[^"]+" class="titulo">[^<]+</a>(.*?)</li>')
-
-        # URL absoluta
-        url = urlparse.urljoin(item.url,url)
-
-        # Limpia el argumento
-        plot = scrapertools.htmlclean(plot)
-        plot = plot.replace("693 056 799","")
-        plot = plot.replace("680 116 002","")
+        title,url,thumbnail,plot,url = parse_video(item,bloque)
 
         if title!="":
             itemlist.append( Item(channel=CHANNELNAME, title=title , url=url, thumbnail=thumbnail, plot=plot, action="play", server="telemadrid", show=item.show, folder=False) )
@@ -131,6 +118,22 @@ def episodios(item):
         itemlist.append( Item(channel=CHANNELNAME, title=">> Página siguiente" , url=urlparse.urljoin(item.url,next_page_url), action="episodios", show=item.show, folder=True) )
 
     return itemlist
+
+def parse_video(item,bloque):
+    title = scrapertools.find_single_match(bloque,'<a href="[^"]+" class="titulo">([^<]+)</a>')
+    url = scrapertools.find_single_match(bloque,'<a href="([^"]+)" class="titulo">')
+    thumbnail = scrapertools.find_single_match(bloque,'<img src="([^"]+)"')
+    plot = scrapertools.find_single_match(bloque,'<a href="[^"]+" class="titulo">[^<]+</a>(.*?)</li>')
+
+    # URL absoluta
+    url = urlparse.urljoin(item.url,url)
+
+    # Limpia el argumento
+    plot = scrapertools.htmlclean(plot)
+    plot = plot.replace("693 056 799","")
+    plot = plot.replace("680 116 002","")
+
+    return title,url,thumbnail,plot,url
 
 # Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
 def test():

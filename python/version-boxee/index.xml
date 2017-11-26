@@ -2,26 +2,9 @@
    <app>
       <id>info.mimediacenter.tvalacarta</id>
       <name>tvalacarta</name>
-      <version>5.8</version>
+      <version>5.9</version>
       <description>Television a la carta</description>
       <thumb>http://www.mimediacenter.info/boxee/tvalacarta.png</thumb>
-      <repositoryid>info.mimediacenter</repositoryid>
-      <repository>http://www.mimediacenter.info/boxee</repository>
-      <media>video</media>
-      <author>Jesus</author>
-      <copyright>blog.tvalacarta.info</copyright>
-      <email>tvalacarta@gmail.com</email>
-      <type>plugin</type>
-      <url></url>
-      <platform>all</platform>
-      <minversion>0.9.7</minversion>
-   </app>
-   <app>
-      <id>info.mimediacenter.pelisalacarta</id>
-      <name>pelisalacarta</name>
-      <version>9.7</version>
-      <description>Peliculas y series a la carta</description>
-      <thumb>http://pelisalacarta.mimediacenter.info/icon.png</thumb>
       <repositoryid>info.mimediacenter</repositoryid>
       <repository>http://www.mimediacenter.info/boxee</repository>
       <media>video</media>

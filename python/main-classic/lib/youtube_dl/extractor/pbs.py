@@ -8,7 +8,9 @@ from ..utils import (
     ExtractorError,
     determine_ext,
     int_or_none,
+    float_or_none,
     js_to_json,
+    orderedSet,
     strip_jsonp,
     strip_or_none,
     unified_strdate,
@@ -185,9 +187,9 @@ class PBSIE(InfoExtractor):
     _VALID_URL = r'''(?x)https?://
         (?:
            # Direct video URL
-           (?:%s)/(?:viralplayer|video)/(?P<id>[0-9]+)/? |
+           (?:%s)/(?:(?:vir|port)alplayer|video)/(?P<id>[0-9]+)(?:[?/]|$) |
            # Article with embedded player (or direct video)
-           (?:www\.)?pbs\.org/(?:[^/]+/){2,5}(?P<presumptive_id>[^/]+?)(?:\.html)?/?(?:$|[?\#]) |
+           (?:www\.)?pbs\.org/(?:[^/]+/){1,5}(?P<presumptive_id>[^/]+?)(?:\.html)?/?(?:$|[?\#]) |
            # Player
            (?:video|player)\.pbs\.org/(?:widget/)?partnerplayer/(?P<player_id>[^/]+)/
         )
@@ -264,6 +266,13 @@ class PBSIE(InfoExtractor):
             'playlist_count': 2,
         },
         {
+            'url': 'http://www.pbs.org/wgbh/americanexperience/films/great-war/',
+            'info_dict': {
+                'id': 'great-war',
+            },
+            'playlist_count': 3,
+        },
+        {
             'url': 'http://www.pbs.org/wgbh/americanexperience/films/death/player/',
             'info_dict': {
                 'id': '2276541483',
@@ -337,11 +346,30 @@ class PBSIE(InfoExtractor):
             },
         },
         {
+            # https://github.com/rg3/youtube-dl/issues/13801
+            'url': 'https://www.pbs.org/video/pbs-newshour-full-episode-july-31-2017-1501539057/',
+            'info_dict': {
+                'id': '3003333873',
+                'ext': 'mp4',
+                'title': 'PBS NewsHour - full episode July 31, 2017',
+                'description': 'md5:d41d8cd98f00b204e9800998ecf8427e',
+                'duration': 3265,
+                'thumbnail': r're:^https?://.*\.jpg$',
+            },
+            'params': {
+                'skip_download': True,
+            },
+        },
+        {
             'url': 'http://player.pbs.org/widget/partnerplayer/2365297708/?start=0&end=0&chapterbar=false&endscreen=false&topbar=true',
             'only_matching': True,
         },
         {
             'url': 'http://watch.knpb.org/video/2365616055/',
+            'only_matching': True,
+        },
+        {
+            'url': 'https://player.pbs.org/portalplayer/3004638221/?uid=',
             'only_matching': True,
         }
     ]
@@ -381,10 +409,10 @@ class PBSIE(InfoExtractor):
             # tabbed frontline videos
             MULTI_PART_REGEXES = (
                 r'<div[^>]+class="videotab[^"]*"[^>]+vid="(\d+)"',
-                r'<a[^>]+href=["\']#video-\d+["\'][^>]+data-coveid=["\'](\d+)',
+                r'<a[^>]+href=["\']#(?:video-|part)\d+["\'][^>]+data-cove[Ii]d=["\'](\d+)',
             )
             for p in MULTI_PART_REGEXES:
-                tabbed_videos = re.findall(p, webpage)
+                tabbed_videos = orderedSet(re.findall(p, webpage))
                 if tabbed_videos:
                     return tabbed_videos, presumptive_id, upload_date, description
 
@@ -423,6 +451,9 @@ class PBSIE(InfoExtractor):
                     'player URL', default=None, group='url')
                 if url:
                     break
+
+            if not url:
+                url = self._og_search_url(webpage)
 
             mobj = re.match(self._VALID_URL, url)
 
@@ -464,6 +495,7 @@ class PBSIE(InfoExtractor):
                     redirects.append(redirect)
                     redirect_urls.add(redirect_url)
 
+        chapters = []
         # Player pages may also serve different qualities
         for page in ('widget/partnerplayer', 'portalplayer'):
             player = self._download_webpage(
@@ -479,6 +511,20 @@ class PBSIE(InfoExtractor):
                     extract_redirect_urls(video_info)
                     if not info:
                         info = video_info
+                if not chapters:
+                    for chapter_data in re.findall(r'(?s)chapters\.push\(({.*?})\)', player):
+                        chapter = self._parse_json(chapter_data, video_id, js_to_json, fatal=False)
+                        if not chapter:
+                            continue
+                        start_time = float_or_none(chapter.get('start_time'), 1000)
+                        duration = float_or_none(chapter.get('duration'), 1000)
+                        if start_time is None or duration is None:
+                            continue
+                        chapters.append({
+                            'start_time': start_time,
+                            'end_time': start_time + duration,
+                            'title': chapter.get('title'),
+                        })
 
         formats = []
         http_url = None
@@ -515,7 +561,7 @@ class PBSIE(InfoExtractor):
                     http_url = format_url
         self._remove_duplicate_formats(formats)
         m3u8_formats = list(filter(
-            lambda f: f.get('protocol') == 'm3u8' and f.get('vcodec') != 'none' and f.get('resolution') != 'multiple',
+            lambda f: f.get('protocol') == 'm3u8' and f.get('vcodec') != 'none',
             formats))
         if http_url:
             for m3u8_format in m3u8_formats:
@@ -588,4 +634,5 @@ class PBSIE(InfoExtractor):
             'upload_date': upload_date,
             'formats': formats,
             'subtitles': subtitles,
+            'chapters': chapters,
         }

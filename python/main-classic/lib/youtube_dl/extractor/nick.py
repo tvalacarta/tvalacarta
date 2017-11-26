@@ -12,6 +12,7 @@ class NickIE(MTVServicesInfoExtractor):
     IE_NAME = 'nick.com'
     _VALID_URL = r'https?://(?:(?:www|beta)\.)?nick(?:jr)?\.com/(?:[^/]+/)?(?:videos/clip|[^/]+/videos)/(?P<id>[^/?#.]+)'
     _FEED_URL = 'http://udat.mtvnservices.com/service1/dispatch.htm'
+    _GEO_COUNTRIES = ['US']
     _TESTS = [{
         'url': 'http://www.nick.com/videos/clip/alvinnn-and-the-chipmunks-112-full-episode.html',
         'playlist': [
@@ -74,7 +75,7 @@ class NickIE(MTVServicesInfoExtractor):
 
 class NickDeIE(MTVServicesInfoExtractor):
     IE_NAME = 'nick.de'
-    _VALID_URL = r'https?://(?:www\.)?(?P<host>nick\.de|nickelodeon\.(?:nl|at))/(?:playlist|shows)/(?:[^/]+/)*(?P<id>[^/?#&]+)'
+    _VALID_URL = r'https?://(?:www\.)?(?P<host>nick\.(?:de|com\.pl|ch)|nickelodeon\.(?:nl|be|at|dk|no|se))/[^/]+/(?:[^/]+/)*(?P<id>[^/?#&]+)'
     _TESTS = [{
         'url': 'http://www.nick.de/playlist/3773-top-videos/videos/episode/17306-zu-wasser-und-zu-land-rauchende-erdnusse',
         'only_matching': True,
@@ -86,6 +87,24 @@ class NickDeIE(MTVServicesInfoExtractor):
         'only_matching': True,
     }, {
         'url': 'http://www.nickelodeon.at/playlist/3773-top-videos/videos/episode/77993-das-letzte-gefecht',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nick.com.pl/seriale/474-spongebob-kanciastoporty/wideo/17412-teatr-to-jest-to-rodeo-oszolom',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nickelodeon.no/program/2626-bulderhuset/videoer/90947-femteklasse-veronica-vs-vanzilla',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nickelodeon.dk/serier/2626-hojs-hus/videoer/761-tissepause',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nickelodeon.se/serier/2626-lugn-i-stormen/videos/998-',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nick.ch/shows/2304-adventure-time-abenteuerzeit-mit-finn-und-jake',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nickelodeon.be/afspeellijst/4530-top-videos/videos/episode/73917-inval-broodschapper-lariekoek-arie',
         'only_matching': True,
     }]
 
@@ -124,3 +143,36 @@ class NickNightIE(NickDeIE):
         return self._search_regex(
             r'mrss\s*:\s*(["\'])(?P<url>http.+?)\1', webpage,
             'mrss url', group='url')
+
+
+class NickRuIE(MTVServicesInfoExtractor):
+    IE_NAME = 'nickelodeonru'
+    _VALID_URL = r'https?://(?:www\.)nickelodeon\.(?:ru|fr|es|pt|ro|hu)/[^/]+/(?:[^/]+/)*(?P<id>[^/?#&]+)'
+    _TESTS = [{
+        'url': 'http://www.nickelodeon.ru/shows/henrydanger/videos/episodes/3-sezon-15-seriya-licenziya-na-polyot/pmomfb#playlist/7airc6',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nickelodeon.ru/videos/smotri-na-nickelodeon-v-iyule/g9hvh7',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nickelodeon.fr/programmes/bob-l-eponge/videos/le-marathon-de-booh-kini-bottom-mardi-31-octobre/nfn7z0',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nickelodeon.es/videos/nickelodeon-consejos-tortitas/f7w7xy',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nickelodeon.pt/series/spongebob-squarepants/videos/a-bolha-de-tinta-gigante/xutq1b',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nickelodeon.ro/emisiuni/shimmer-si-shine/video/nahal-din-bomboane/uw5u2k',
+        'only_matching': True,
+    }, {
+        'url': 'http://www.nickelodeon.hu/musorok/spongyabob-kockanadrag/videok/episodes/buborekfujas-az-elszakadt-nadrag/q57iob#playlist/k6te4y',
+        'only_matching': True,
+    }]
+
+    def _real_extract(self, url):
+        video_id = self._match_id(url)
+        webpage = self._download_webpage(url, video_id)
+        mgid = self._extract_mgid(webpage)
+        return self.url_result('http://media.mtvnservices.com/embed/%s' % mgid)

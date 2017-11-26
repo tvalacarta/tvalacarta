@@ -36,7 +36,7 @@ class AtresPlayerIE(InfoExtractor):
         },
         {
             'url': 'http://www.atresplayer.com/television/especial/videoencuentros/temporada-1/capitulo-112-david-bustamante_2014121600375.html',
-            'md5': '0d0e918533bbd4b263f2de4d197d4aac',
+            'md5': '6e52cbb513c405e403dbacb7aacf8747',
             'info_dict': {
                 'id': 'capitulo-112-david-bustamante',
                 'ext': 'flv',
@@ -87,7 +87,7 @@ class AtresPlayerIE(InfoExtractor):
             self._LOGIN_URL, urlencode_postdata(login_form))
         request.add_header('Content-Type', 'application/x-www-form-urlencoded')
         response = self._download_webpage(
-            request, None, 'Logging in as %s' % username)
+            request, None, 'Logging in')
 
         error = self._html_search_regex(
             r'(?s)<ul[^>]+class="[^"]*\blist_error\b[^"]*">(.+?)</ul>',

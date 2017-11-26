@@ -97,7 +97,7 @@ def play(item):
     for play_item in play_items:
         if play_item.server=="directo" and play_item.url.startswith("http"):
             valid_url = True
-        if play_item.server<>"directo":
+        if play_item.server<>"directo" and play_item.url!="":
             valid_url = True
 
     if not valid_url:

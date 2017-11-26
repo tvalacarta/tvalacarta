@@ -40,8 +40,8 @@ def categorias(item):
         title = scrapedtitle.strip()
 
         if title=="Histórico":
-            url = "http://www.rtrm.es/servlet/rtrm.servlets.ServletLink2?METHOD=LSTBLOGALACARTA&serv=BlogPortal2&sit=c,6"
-            action = "programas_antiguos"
+            url = "http://7tvregiondemurcia.es/historico/"
+            action = "historico"
         else:
             url = urlparse.urljoin(item.url,scrapedurl)
             action = "programas"
@@ -142,42 +142,81 @@ def videos(item, load_all_pages=False):
     json_object = jsontools.load_json(json_body)
     logger.info("tvalacarta.channels.sieterm json_object="+repr(json_object))
 
-    for entry in json_object["episodes"]:
-        logger.info("tvalacarta.channels.sieterm entry="+repr(entry))
+    try:
+        for entry in json_object["episodes"]:
+            logger.info("tvalacarta.channels.sieterm entry="+repr(entry))
 
-        title = entry["post_title"]
-        plot = entry["post_content"]
-        thumbnail = entry["image"]
-        url = urlparse.urljoin( item.url , entry["url"] )
-        fanart = thumbnail
+            title = entry["post_title"]
+            plot = entry["post_content"]
+            thumbnail = entry["image"]
+            url = urlparse.urljoin( item.url , entry["url"] )
+            fanart = thumbnail
 
-        # Trata de sacar la fecha de emisión del título
-        aired_date = entry["post_date"][0:10]
+            # Trata de sacar la fecha de emisión del título
+            aired_date = entry["post_date"][0:10]
 
-        # Añade al listado de XBMC
-        itemlist.append( Item(channel=CHANNELNAME, title=title , action="play", server="sieterm" , url=url, thumbnail=thumbnail, fanart=fanart, plot=plot, show=item.show, aired_date=aired_date, viewmode="movie_with_plot", folder=False ) )
-    
-    if json_object["hasNext"]:
+            # Añade al listado de XBMC
+            itemlist.append( Item(channel=CHANNELNAME, title=title , action="play", server="sieterm" , url=url, thumbnail=thumbnail, fanart=fanart, plot=plot, show=item.show, aired_date=aired_date, viewmode="movie_with_plot", folder=False ) )
+        
+        if json_object["hasNext"]:
 
-        # Extrae la página de la URL
-        trozos = item.url.split("/")
-        current_page = trozos[-2]
+            # Extrae la página de la URL
+            trozos = item.url.split("/")
+            current_page = trozos[-2]
 
-        # La aumenta
-        next_page = int(current_page)+1
-        trozos[-2] = str(next_page)
+            # La aumenta
+            next_page = int(current_page)+1
+            trozos[-2] = str(next_page)
 
-        # Y recompone la URL
-        next_page_url = "/".join(trozos)
-        next_page_item = Item(channel=CHANNELNAME, title=">> Página siguiente" , action="videos" , url=next_page_url, thumbnail=thumbnail, fanart=fanart, show=item.show, view="videos" )
+            # Y recompone la URL
+            next_page_url = "/".join(trozos)
+            next_page_item = Item(channel=CHANNELNAME, title=">> Página siguiente" , action="videos" , url=next_page_url, show=item.show, view="videos" )
 
-        if load_all_pages:
-            itemlist.extend(videos(next_page_item, load_all_pages))
-        else:
-            itemlist.append( next_page_item )
+            if load_all_pages:
+                itemlist.extend(videos(next_page_item, load_all_pages))
+            else:
+                itemlist.append( next_page_item )
+    except:
+        pass
 
     return itemlist
 
+# Nuevo historico
+def historico(item, load_all_pages=False, add_search_menu=True):
+    logger.info("tvalacarta.channels.sieterm historico load_all_pages=="+repr(load_all_pages))
+
+    itemlist = []
+    itemlist.append( Item(channel=CHANNELNAME, title="Buscar..." , action="search" , view="programs" ) )
+
+    data = scrapertools.cachePage(item.url)
+    '''
+    <div class="grid_12 posts-list__item__col-content">
+    <p class="posts-list__item__date" style="margin-bottom: 3px;">24/10/2014 13:45</p>
+    <h2 class="posts-list__item__title"><a href="http://hemeroteca.7tvregiondemurcia.es:8085/Video/13/4/13493_BAJA.mp4" target="_blank">Cocina con Baró</a></h2>
+    <p><strong>Cocina con  Baró</strong></p>
+    <p>Chef: Esperanza Andreo. Alcachofa con salsa de Monastrell. Salteado de setas al Amontillado.</p>
+    </div>
+    '''
+    patron  = '<div class="grid_12 posts-list__item__col-content"[^<]+'
+    patron += '<p[^>]+>([^<]+)</p[^<]+'
+    patron += '<h2 class="posts-list__item__title"><a href="([^"]+)" target="_blank">([^<]+)</a></h2[^<]+'
+    patron += '<p>(.*?)</div>'
+
+    matches = scrapertools.find_multiple_matches(data,patron)
+
+    for scrapeddate,scrapedurl,scrapedshow,scrapedplot in matches:
+        itemlist.append( Item(channel=CHANNELNAME, title=scrapedshow+" ("+scrapeddate+")" , plot=scrapertools.htmlclean(scrapedplot), action="play", server="directo" , url="x"+scrapedurl, viewmode="movie_with_plot", show=scrapedshow, folder=False ) )
+
+    return itemlist
+
+def search(item,texto):
+    logger.info("tvalacarta.channels.sieterm search")
+    itemlist = []
+    
+    item.url = "http://7tvregiondemurcia.es/historico/?bsq-historico%5Btitulo%5D="+urllib.quote(texto)+"&bsq-historico%5Bprograma%5D=&bsq-historico%5Byear%5D=0&bsq-historico%5Bmonth%5D=0&frmsearch=Buscar"
+    return historico(item,load_all_pages=False, add_search_menu=False)
+
+# Antiguo historico
 def programas_antiguos(item, load_all_pages=False):
     logger.info("tvalacarta.channels.sieterm programas_antiguos load_all_pages=="+repr(load_all_pages))
 

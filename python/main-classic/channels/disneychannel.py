@@ -43,21 +43,22 @@ def programas(item):
 
             for entry in bloque["data"]:
 
-                if entry["type"]=="Show":
-                    logger.info("entry="+repr(entry))
+                #if entry["type"]=="Show":
+                logger.info("entry="+repr(entry))
 
-                    scrapedtitle = entry["title"]
-                    scrapedurl = entry["href"]
-                    scrapedthumbnail = entry["thumb"]
+                scrapedtitle = entry["title"]
+                scrapedurl = entry["href"]
+                scrapedthumbnail = entry["thumb"]
 
-                    if "description" in entry:
-                        scrapedplot = entry["description"]
-                    else:
-                        scrapedplot = ""
-                    if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")
+                if "description" in entry:
+                    scrapedplot = entry["description"]
+                else:
+                    scrapedplot = ""
 
-                    # Añade al listado
-                    itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , show=scrapedtitle, viewmode="movie_with_plot", folder=True) )
+                if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")
+
+                # Añade al listado
+                itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , show=scrapedtitle, viewmode="movie_with_plot", folder=True) )
 
     return itemlist
 

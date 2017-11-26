@@ -31,6 +31,26 @@ class FragmentFD(FileDownloader):
                         Skip unavailable fragments (DASH and hlsnative only)
     keep_fragments:     Keep downloaded fragments on disk after downloading is
                         finished
+
+    For each incomplete fragment download youtube-dl keeps on disk a special
+    bookkeeping file with download state and metadata (in future such files will
+    be used for any incomplete download handled by youtube-dl). This file is
+    used to properly handle resuming, check download file consistency and detect
+    potential errors. The file has a .ytdl extension and represents a standard
+    JSON file of the following format:
+
+    extractor:
+        Dictionary of extractor related data. TBD.
+
+    downloader:
+        Dictionary of downloader related data. May contain following data:
+            current_fragment:
+                Dictionary with current (being downloaded) fragment data:
+                index:  0-based index of current fragment among all fragments
+            fragment_count:
+                Total count of fragments
+
+    This feature is experimental and file format may change in future.
     """
 
     def report_retry_fragment(self, err, frag_index, count, retries):
@@ -49,18 +69,25 @@ class FragmentFD(FileDownloader):
         self._prepare_frag_download(ctx)
         self._start_frag_download(ctx)
 
+    @staticmethod
+    def __do_ytdl_file(ctx):
+        return not ctx['live'] and not ctx['tmpfilename'] == '-'
+
     def _read_ytdl_file(self, ctx):
         stream, _ = sanitize_open(self.ytdl_filename(ctx['filename']), 'r')
-        ctx['fragment_index'] = json.loads(stream.read())['download']['current_fragment_index']
+        ctx['fragment_index'] = json.loads(stream.read())['downloader']['current_fragment']['index']
         stream.close()
 
     def _write_ytdl_file(self, ctx):
         frag_index_stream, _ = sanitize_open(self.ytdl_filename(ctx['filename']), 'w')
-        frag_index_stream.write(json.dumps({
-            'download': {
-                'current_fragment_index': ctx['fragment_index']
+        downloader = {
+            'current_fragment': {
+                'index': ctx['fragment_index'],
             },
-        }))
+        }
+        if ctx.get('fragment_count') is not None:
+            downloader['fragment_count'] = ctx['fragment_count']
+        frag_index_stream.write(json.dumps({'downloader': downloader}))
         frag_index_stream.close()
 
     def _download_fragment(self, ctx, frag_url, info_dict, headers=None):
@@ -81,7 +108,7 @@ class FragmentFD(FileDownloader):
         try:
             ctx['dest_stream'].write(frag_content)
         finally:
-            if not (ctx.get('live') or ctx['tmpfilename'] == '-'):
+            if self.__do_ytdl_file(ctx):
                 self._write_ytdl_file(ctx)
             if not self.params.get('keep_fragments', False):
                 os.remove(ctx['fragment_filename_sanitized'])
@@ -90,9 +117,15 @@ class FragmentFD(FileDownloader):
     def _prepare_frag_download(self, ctx):
         if 'live' not in ctx:
             ctx['live'] = False
+        if not ctx['live']:
+            total_frags_str = '%d' % ctx['total_frags']
+            ad_frags = ctx.get('ad_frags', 0)
+            if ad_frags:
+                total_frags_str += ' (not including %d ad)' % ad_frags
+        else:
+            total_frags_str = 'unknown (live)'
         self.to_screen(
-            '[%s] Total fragments: %s'
-            % (self.FD_NAME, ctx['total_frags'] if not ctx['live'] else 'unknown (live)'))
+            '[%s] Total fragments: %s' % (self.FD_NAME, total_frags_str))
         self.report_destination(ctx['filename'])
         dl = HttpQuietDownloader(
             self.ydl,
@@ -115,16 +148,24 @@ class FragmentFD(FileDownloader):
             open_mode = 'ab'
             resume_len = os.path.getsize(encodeFilename(tmpfilename))
 
-        ctx['fragment_index'] = 0
-        if os.path.isfile(encodeFilename(self.ytdl_filename(ctx['filename']))):
-            self._read_ytdl_file(ctx)
-        else:
-            self._write_ytdl_file(ctx)
+        # Should be initialized before ytdl file check
+        ctx.update({
+            'tmpfilename': tmpfilename,
+            'fragment_index': 0,
+        })
 
-        if ctx['fragment_index'] > 0:
-            assert resume_len > 0
-        else:
-            assert resume_len == 0
+        if self.__do_ytdl_file(ctx):
+            if os.path.isfile(encodeFilename(self.ytdl_filename(ctx['filename']))):
+                self._read_ytdl_file(ctx)
+                if ctx['fragment_index'] > 0 and resume_len == 0:
+                    self.report_warning(
+                        'Inconsistent state of incomplete fragment download. '
+                        'Restarting from the beginning...')
+                    ctx['fragment_index'] = resume_len = 0
+                    self._write_ytdl_file(ctx)
+            else:
+                self._write_ytdl_file(ctx)
+                assert ctx['fragment_index'] == 0
 
         dest_stream, tmpfilename = sanitize_open(tmpfilename, open_mode)
 
@@ -194,9 +235,10 @@ class FragmentFD(FileDownloader):
 
     def _finish_frag_download(self, ctx):
         ctx['dest_stream'].close()
-        ytdl_filename = encodeFilename(self.ytdl_filename(ctx['filename']))
-        if os.path.isfile(ytdl_filename):
-            os.remove(ytdl_filename)
+        if self.__do_ytdl_file(ctx):
+            ytdl_filename = encodeFilename(self.ytdl_filename(ctx['filename']))
+            if os.path.isfile(ytdl_filename):
+                os.remove(ytdl_filename)
         elapsed = time.time() - ctx['started']
         self.try_rename(ctx['tmpfilename'], ctx['filename'])
         fsize = os.path.getsize(encodeFilename(ctx['filename']))
