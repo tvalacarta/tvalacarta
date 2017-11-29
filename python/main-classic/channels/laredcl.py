@@ -37,11 +37,14 @@ def programas(item):
     # Descarga la página
     data = scrapertools.cachePage(item.url)
     '''
-    <a href="./programas/ntrevista-verdadera"><h2 class="lr-title"><b>Entrevista Verdadera</b></h2></a>
-    <a href="./programas/mentiras-verdaderas"><h2 class="mv-title"><span>Mentiras</span> <b>verdaderas</b></h2></a>
+    <section class="block-items">
+    <div class="title rojo">
+    <a href="http://lared.cl/programas/mentiras-verdaderas"><strong>Mentiras Verdaderas</strong
     '''
-    patron  = '<a href="([^"]+)"[^<]+'
-    patron += '<h2 class="[^"]+">(.*?)</h2>'
+    patron  = '<section class="block-items"[^<]+'
+    patron += '<div class="title[^<]+'
+    patron += '<a href="([^"]+)"><strong>([^<]+)<'
+
 
     matches = re.compile(patron,re.DOTALL).findall(data)
     
@@ -56,13 +59,6 @@ def programas(item):
     return itemlist
 
 def detalle_programa(item):
-
-    data = scrapertools.cache_page(item.url)
-    item.thumbnail = scrapertools.find_single_match(data,'<meta content="([^"]+)" itemprop="thumbnailUrl')
-
-    item.plot = scrapertools.find_single_match(data,'<div class="item-text"><p class="introtext">(.*?)</div>')
-    item.plot = scrapertools.htmlclean(item.plot).strip()
-    
     return item
 
 def episodios(item):
@@ -71,27 +67,22 @@ def episodios(item):
 
     # Descarga la página
     data = scrapertools.cachePage(item.url)    
-    url = scrapertools.find_single_match(data,'<h2 class="lr-title"[^<]+<span>Programas</span> <b>completos</b> <a href="([^"]+)" class="see-all">Ver todos</a></h2>')
+    #<div class="lr-title">Programas <strong>Completos</strong></div> <a href="http://lared.cl/category/programas/hola-chile/programas-completos-holachile">Ver todos</a>
+    url = scrapertools.find_single_match(data,'<div class="lr-title">Programas <strong>Completos</strong></div> <a href="([^"]+)"')
     if url!="":
         data = scrapertools.cachePage(url)
 
     '''
-    <div id="post-194463" class="col span_2 image-block-column" style="background-image: url('http://static.lared.cl/wp-content/uploads/2016/02/mujeres-primero-programa-complet7.jpg')" >
-    <div class="item-thumbnail">
-    <a href="http://lared.cl/2016/programas/mujeresprimero/programas-completos-mujeres-primero/mujeres-primero-programa-completo-martes-9-de-febrero-2016">
-    <div class="overlay-thumb">
-    <h3>Mujeres Primero Programa Completo Martes 9 de Febrero 2016</h3>
-    </div>
-    </a>
-    </div>
-    </div>
+    <div class="items-list-bg">
+    <div class="item" style="background: url(http://static.lared.cl/wp-content/uploads/2017/11/28150638/2017-11-28T10_00_15.511Z_image-365x235.jpg) no-repeat center center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;"> 
+    <a href="http://lared.cl/2017/programas/hola-chile/hola-chile-programa-completo-martes-28-de-noviembre-2017">
+    <h2>Hola Chile Programa Completo Martes 28 de Noviembre 2017
+    </h2> <span class="overlay"></span> </a></div>
     '''
 
-    patron  = '<div id="post[^"]+" class="col[^"]+" style="background-image\: '+"url\('([^']+)'\)[^<]+"
-    patron += '<div class="item-thumbnail"[^<]+'
+    patron = '<div class="item" style="background. url\(([^\)]*)\)[^<]+'
     patron += '<a href="([^"]+)"[^<]+'
-    patron += '<div class="overlay-thumb"[^<]+'
-    patron += '<h3>([^<]+)</h3>'
+    patron += '<h2>([^<]+)<'
 
     matches = re.compile(patron,re.DOTALL).findall(data)
 

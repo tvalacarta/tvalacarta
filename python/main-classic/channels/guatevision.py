@@ -16,7 +16,7 @@ from core.item import Item
 
 DEBUG = config.get_setting("debug")
 CHANNELNAME = "guatevision"
-PROGRAMAS_URL = "http://guatevision.com/programas/"
+PROGRAMAS_URL = "http://www.guatevision.com/programas/"
 
 def isGeneric():
     return True
@@ -37,32 +37,29 @@ def programas(item):
     data = scrapertools.cache_page(item.url)
 
     '''
-    <div class="col-md-4">
-    <div class="card card-raised card-background" style="background-image:url(http://s3-us-west-2.amazonaws.com/guatevision/wp-content/uploads/2016/10/05144725/TUTI-LANDING-WEB.jpg)">
+    <div class="col-md-6">
+    <div class="card card-raised card-background" style="background-image:url(http://s3-us-west-2.amazonaws.com/guatevision/wp-content/uploads/2016/10/Reservas_1100x2501.jpg)">
     <div class="content">
-    <h6 class="category text-info">Entretenimiento</h6>
-    <a href="http://www.guatevision.com/programas/un-show-con-tuti/">
-    <h4 class="card-title">Un Show con Tuti</h4>
+    <h6 class="category text-info">Noticias</h6>
+    <a href="#pablo">
+    <h3 class="card-title">Haroldo Sánchez Sin Reservas</h3>
     </a>
-    <p class="card-description">Lunes a Viernes 8:00 PM</p>
-    <a href="http://www.guatevision.com/programas/un-show-con-tuti/" class="btn btn-rose btn-round">
-    <i class="material-icons">tv</i> &nbsp;VER
-    </a>
-    </div>
-    </div>
+    <a href="http://www.guatevision.com/programas/sin-reservas/" class="btn btn-rose btn-round">
     '''
 
-    patron  = '<div class="col-md-4"[^<]+'
+    patron  = '<div class="col-md-6"[^<]+'
     patron += '<div class="card card-raised card-background" style="background-image.url\(([^\)]*)\)"[^<]+'
     patron += '<div class="content"[^<]+'
     patron += '<h6[^<]+</h6[^<]+'
-    patron += '<a href="([^"]+)"[^<]+'
-    patron += '<h4 class="card-title">([^<]+)</h4'
+    patron += '<a href[^<]+'
+    patron += '<h3 class="card-title">([^<]+)</h3[^<]+'
+    patron += '</a[^<]+'
+    patron += '<a href="([^"]+)"'
 
     matches = re.compile(patron,re.DOTALL).findall(data)
     if DEBUG: scrapertools.printMatches(matches)
 
-    for scrapedthumbnail,scrapedurl,scrapedtitle in matches:
+    for scrapedthumbnail,scrapedtitle,scrapedurl in matches:
         title = scrapedtitle.strip()
         thumbnail = scrapedthumbnail
         plot = ""
