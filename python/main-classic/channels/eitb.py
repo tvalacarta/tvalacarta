@@ -15,6 +15,14 @@ logger.info("[eitb.py] init")
 
 DEBUG = False
 CHANNELNAME = "eitb"
+MENU_URL = "http://www.eitb.tv/es/menu/getMenu/tv/"
+PROGRAMS_URL = "http://www.eitb.tv/es/menu/getMenu/tv/%s"
+EPISODES_URL = "http://mam.eitb.eus/mam/REST/ServiceMultiweb/Playlist/MULTIWEBTV/%s"
+VIDEO_URL = "http://www.eitb.tv/es/video/dummy/%s/%s/dummy/"
+LO_ULTIMO_URL = "http://mam.eitb.eus/mam/REST/ServiceMultiweb/SmartPlaylist/MULTIWEBTV/360/START_DATE/DESC/100/"
+LO_MAS_VISTO_URL = "http://mam.eitb.eus/mam/REST/ServiceMultiweb/SmartPlaylist/Most/MULTIWEBTV/360/10/"
+SEARCH_URL = "http://www.eitb.tv/es/buscador/result-video/0/"
+ETBSAT_URL = "http://etbvnogeo-lh.akamaihd.net/i/ETBEITBEUS_1@300391/master.m3u8"
 
 
 def isGeneric():
@@ -34,181 +42,8 @@ def safe_unicode(value):
             return unicode(value, 'iso-8859-1')
 
 
-def clean_title(title):
-    """slugify the titles using the method that EITB uses in
-       the website:
-       - url: http://www.eitb.tv/resources/js/comun/comun.js
-       - method: string2url
-    """
-    translation_map = {
-        'À': 'A', 'Á': 'A', 'Â': 'A', 'Ã': 'A', 'Ä': 'A', 'Å': 'A', 'Æ': 'E',
-        'È': 'E', 'É': 'E', 'Ê': 'E', 'Ë': 'E',
-        'Ì': 'I', 'Í': 'I', 'Î': 'I', 'Ï': 'I',
-        'Ò': 'O', 'Ó': 'O', 'Ô': 'O', 'Ö': 'O',
-        'Ù': 'U', 'Ú': 'U', 'Û': 'U', 'Ü': 'U',
-        'Ñ': 'N', '?': '', '¿': '', '!': '',
-        '¡': '', ': ': '', '_': '-', 'º': '',
-        'ª': 'a', ',': '', '.': '', '(': '',
-        ')': '', '@': '', ' ': '-', '&': ''
-    }
-
-    val = safe_unicode(title).upper()
-    logger.info(val)
-    for k, v in translation_map.items():
-        val = val.replace(safe_unicode(k), safe_unicode(v))
-    logger.info(val)
-    return val.lower().encode('utf-8')
-
-def mainlist(item):
-    logger.info("[eitb.py] mainlist")
-    itemlist = []
-    itemlist.append( Item(channel=CHANNELNAME, title="Todo", action="programas", folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Categorías", action="categorias", folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="A-Z", action="alfabetico", folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Buscador" , action="search" , folder=True) )
-
-    return itemlist
-
-def search(item,texto):
-    logger.info("[eitb.py] search")
-
-    item.url = "?filter=" + texto
-    return programas(item)
-
-
-def alfabetico(item):
-    logger.info("[eitb.py] alfabetico")
-    itemlist=[]
-
-    letras = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-    for letra in letras:
-        itemlist.append( Item(channel=CHANNELNAME, title=letra, action="programas", category="alfabetico", url="?inicial="+letra, folder=True) )
-
-    return itemlist
-
-def categorias(item):
-    logger.info("[eitb.py] categorias")
-    itemlist=[]
-
-    url = 'http://www.eitb.tv/es/'
-
-    # Descarga la página
-    '''
-    <a href="" onclick="setPylstId('4104995165001','Vitoria-Gasteiz, capital de Euskadi','Vitoria-Gasteiz, capital de Euskadi');
-    hormigas.setHmigas('TV|Programas A-Z|TUV|Vitoria-Gasteiz, capital de Euskadi');return false;" title="Vitoria-Gasteiz, capital de Euskadi">Vitoria-Gasteiz, capital de Euskadi</a></li></ul></div><div id="bt_down" onmouseover="mnScrDown(this);" onmouseout="mnScrDwOut(this);"><img src="/resources/img/menu/bt_down.png" /></div></div></li><li class="submenu2" rel="wxyz"><a href="" onclick="return false;" title="wxyz">wxyz</a><img src="/resources/img/menu/flecha_item_sel.png" /><div class="ltrs" id="wxyz"><div id="bt_up" onmouseover="mnScrUp(this);" onmouseout="mnScrUpOut(this);"><img src="/resources/img/menu/bt_up.png" /></div><div class="scroll"><ul><li class="submenu3"><a href="" onclick="setPylstId('5561','Washington, ongi etorri','Washington, ongi etorri');hormigas.setHmigas('TV|Programas A-Z|WXYZ|Washington, ongi etorri');return false;" title="Washington, ongi etorri">Washington, ongi etorri</a></li><li class="submenu3"><a href="" onclick="setPylstId
-    '''
-    data = scrapertools.cachePage(url)
-    patron = "<li[^<]+<a href=\"\" onclick\=\"setPylstId\('\d+','[^']+','[^']+'\)\;"
-    patron += "hormigas\.setHormigas\('TV\|Categorías\|([^\|]+)\|[^']+'\)"
-    matches = re.compile(patron,re.DOTALL).findall(data)
-    if DEBUG: scrapertools.printMatches(matches)
-
-    unique_matches = list(set(matches))
-
-    for categoria in sorted(unique_matches):
-        itemlist.append( Item(channel=CHANNELNAME, title='{0} ({1})'.format(categoria, matches.count(categoria)), action="programas", category="categoria", url="?category="+categoria, folder=True) )
-
-    return itemlist
-
-def programas(item):
-    logger.info("[eitb.py] programas")
-    itemlist=[]
-
-    url = 'http://www.eitb.tv/es/'
-    filtro = None
-
-    # Descarga la página
-    data = scrapertools.cachePage(url)
-    if item.category == "categoria":
-        categoria=urlparse.parse_qs(item.url[1:])["category"][0]
-        patron = "<li[^>]*><a href=\"\" onclick\=\"setPylstId\('(\d+)','([^']+)','([^']+)'\)\;hormigas\.setHormigas\('TV\|Categorías\|" + categoria + "\|[^']+'\)"
-    elif item.category == "alfabetico":
-        inicial=urlparse.parse_qs(item.url[1:])["inicial"][0]
-        if inicial == "#":
-            inicial="^A-Za-z"
-        else:
-            inicial += inicial.lower()
-        patron = "<li[^>]*><a href=\"\" onclick\=\"setPylstId\('(\d+)','([" + inicial + "][^']+)','([^']+)'\)\;"
-    else:
-        try:
-            filtro=urlparse.parse_qs(item.url[1:])["filter"][0]
-        except:
-            filtro = False
-        patron = "<li[^>]*><a href=\"\" onclick\=\"setPylstId\('(\d+)','([^']+)','([^']+)'\)\;"
-
-
-    matches = re.compile(patron,re.DOTALL).findall(data)
-    if DEBUG: scrapertools.printMatches(matches)
-
-    oldid = -1
-    for id,titulo,titulo2 in sorted(set(matches), key=lambda match: (match[1] + match[2]).lower()):
-        if id == oldid:
-            continue
-        if filtro and filtro not in titulo.lower():
-            continue
-        scrapedtitle = titulo
-        if titulo!=titulo2:
-            scrapedtitle = scrapedtitle + " - " + titulo2
-        scrapedurl = "http://www.eitb.tv/es/get/playlist/"+id
-        scrapedthumbnail = ""
-        scrapedplot = ""
-        if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")
-
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , folder=True) )
-        oldid = id
-
-    return itemlist
-
-def detalle_programa(item):
-
-    data = scrapertools.cache_page(item.url)
-    data_json = load_json(data)
-
-    item.plot = data_json["desc_group"]
-
-    item.thumbnail = scrapertools.find_single_match(data,'<div class="col-xs-8 col-right"[^<]+<img src="([^"]+)"')
-
-    return item
-
-def episodios(item):
-    logger.info("[eitb.py] episodios")
-    itemlist=[]
-
-    # Descarga la página
-    data = scrapertools.cachePage(item.url)
-    logger.info(data)
-    episodios_json = load_json(data)
-    logger.info("[eitb.py] episodios: %s" % data)
-    if episodios_json == None : episodios_json = []
-
-    itemlist = []
-
-    for video in episodios_json['web_media']:
-        scrapedthumbnail = video['STILL_URL']
-        if scrapedthumbnail is None:
-            scrapedthumbnail = video['THUMBNAIL_URL']
-        if scrapedthumbnail is None:
-            scrapedthumbnail = ""
-        logger.info("scrapedthumbnail="+scrapedthumbnail)
-        scrapedtitle = safe_unicode(video['NAME_ES']).encode("utf-8")
-        scrapedplot = safe_unicode(video['SHORT_DESC_ES']).encode("utf8")
-
-        titulo_playlist = episodios_json['name_group'] + ' ' + episodios_json['name_playlist']
-        idPlaylist = episodios_json['id']
-        titulo_video = scrapedtitle
-        titulo_playlist = clean_title(titulo_playlist)
-        titulo_video = clean_title(titulo_video)
-        id_video = video['ID']
-        scrapedurl = 'http://www.eitb.tv/es/video/'+titulo_playlist+"/"+idPlaylist+"/"+id_video+"/"+titulo_video+"/";
-        if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")
-
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , server="eitb", url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , folder=False) )
-
-    return itemlist
-
 def load_json(data):
-    # callback to transform json string values to utf8
+    """ callback to transform json string values to utf8 """
     def to_utf8(dct):
         rdct = {}
         for k, v in dct.items() :
@@ -231,17 +66,113 @@ def load_json(data):
             for line in sys.exc_info():
                 logger.error("%s" % line)
 
-def test():
 
+def get_menu_items(data):
+    pattern = r'<node>\s*<title>[^<]+</title>\s*<title_lang>(?P<title>[^<]+)</title_lang>\s*<submenu\s+hash=\"(?P<id>[^\"]+)\"'
+    for item in get_parsed_items(data, pattern):
+        yield item
+
+
+def get_program_items(data):
+    pattern = r'<node>\s*<title>(?P<title>[^<]+)</title>\s*<submenu\s+hash=\"(?P<id>[^\"]+)\"[^>]+>'
+    for item in get_parsed_items(data, pattern):
+        yield item
+
+
+def get_episode_items(data):
+    pattern = r'<node>\s*<title>(?P<title>[^<]+)</title>\s*<id>(?P<id>[^<]+)</id>'
+    for item in get_parsed_items(data, pattern):
+        yield item
+
+
+def get_parsed_items(data, pattern):
+    matches = re.finditer(pattern, data)
+    for match in matches:
+        yield match.groupdict()
+
+
+# Core methods
+def mainlist(item):
+    logger.info("[eitb.py] mainlist")
+    data = scrapertools.cachePage(MENU_URL)
+    logger.info("[eitb.py] mainlist: %s" % data)
+    itemlist = []
+    items = get_menu_items(data)
+    for item in items:
+        itemlist.append(Item(channel=CHANNELNAME, title=item["title"], action="get_programs", folder=True, url=PROGRAMS_URL % item['id']))
+    itemlist.append(Item(channel=CHANNELNAME, title="Buscador", action="search", folder=True, url=SEARCH_URL))
+    itemlist.append(Item(channel=CHANNELNAME, title="Lo último", action="get_episodes", folder=True, url=LO_ULTIMO_URL))
+    itemlist.append(Item(channel=CHANNELNAME, title="Lo más visto", action="get_episodes", folder=True, url=LO_MAS_VISTO_URL))
+    itemlist.append(Item(channel=CHANNELNAME, title="ETBSAT", action="play", folder=False, url=ETBSAT_URL))
+    return itemlist
+
+
+def get_programs(item):
+    data = scrapertools.cachePage(item.url)
+    logger.info("[eitb.py] get_programs: %s" % data)
+    itemlist = []
+    program_items = get_program_items(data)
+    for item in program_items:
+        itemlist.append(Item(channel=CHANNELNAME, title=item["title"], action="get_programs", folder=True, url=PROGRAMS_URL % item['id']))
+    episode_items = get_episode_items(data)
+    for item in episode_items:
+        itemlist.append(Item(channel=CHANNELNAME, title=item["title"], action="get_episodes", folder=True, url=EPISODES_URL % item['id']))
+    itemlist.sort(key=lambda item: item.title)
+    return itemlist
+
+
+def get_episodes(item):
+    data = scrapertools.cachePage(item.url)
+    logger.info("[eitb.py] get_episodes: %s" % data)
+    itemlist = []
+    episodes = load_json(data)
+    if episodes:
+        playlist_id = episodes["id"]
+        for episode in episodes["web_media"]:
+            thumbnail = episode.get("STILL_URL")
+            if not thumbnail:
+                thumbnail = episode.get("THUMBNAIL_URL", "")
+            language = episode.get("IDIOMA", "ES")
+            title = safe_unicode(episode.get("NAME_%s" % language, "")).encode("utf-8")
+            plot = safe_unicode(episode.get("SHORT_DESC_%s" % language, "")).encode("utf8")
+            url = VIDEO_URL % (playlist_id, episode["ID"])
+            itemlist.append(Item(channel=CHANNELNAME, title=title, action="play", folder=False, url=url, server=CHANNELNAME, thumbnail=thumbnail, plot=plot))
+    return itemlist
+
+
+def search(item, text):
+    logger.info("[eitb.py] search")
+    post = urllib.urlencode({"search": text})
+    data = scrapertools.cachePage(item.url, post=post)
+    logger.info("[eitb.py] search: %s" % data)
+    itemlist = []
+    episodes = load_json(data)
+    for episode in episodes:
+        thumbnail = episode.get("THUMBNAIL_URL", "")
+        title_start = episode.get("NAME", "")
+        title_end = episode.get("TIT_VIDEO")
+        if not title_end:
+            title_end = episode.get("CAPITULO", "")
+        title = safe_unicode("%s (%s)" % (title_start, title_end)).encode("utf-8")
+        description = episode.get("DESC_VIDEO")
+        if not description:
+            description = episode.get("SHORT_DESC", "")
+        plot = safe_unicode(description).encode("utf8")
+        url = VIDEO_URL % (episode["ID_PLAYLIST"], episode["ID_VIDEO"])
+        itemlist.append(Item(channel=CHANNELNAME, title=title, action="play", folder=False, url=url, server=CHANNELNAME, thumbnail=thumbnail, plot=plot))
+    return itemlist
+
+
+def test():
     # Al entrar sale una lista de programas
-    programas_items = mainlist(Item())
-    if len(programas_items)==0:
-        print "Al entrar a mainlist no sale nada"
+    menu_items = mainlist(Item())
+    if len(menu_items) == 0:
+        print("Al entrar a mainlist no sale nada")
         return False
 
-    episodios_items = episodios(programas_items[0])
-    if len(episodios_items)==0:
-        print "El programa "+programas_items[0].title+" no tiene episodios"
+    program_items = get_programs(menu_items[0])
+    if len(program_items) == 0:
+        print("El programa %s no tiene episodios" % menu_items[0].title)
         return False
 
     return True
