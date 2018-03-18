@@ -36,9 +36,9 @@ def get_video_url(page_url, premium = False, user="", password="", video_passwor
 
         if id_video<>"":
             data = scrapertools.cachePage(urlbase % id_video)
-
             response = jsontools.load_json(data.decode('iso-8859-1').encode('utf8'))
-            video.append([ "HTTP [mp4]", response['media']['url']])
+            for entry in response['media']['url']:
+                video.append([ "HTTP [mp4 %s]" % entry['label'], entry['file']])
         else:
             # Es URL de video en directo
             video.append([ "HTTP [mp4]", page_url])
