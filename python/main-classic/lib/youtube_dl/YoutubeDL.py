@@ -298,7 +298,8 @@ class YoutubeDL(object):
     the downloader (see youtube_dl/downloader/common.py):
     nopart, updatetime, buffersize, ratelimit, min_filesize, max_filesize, test,
     noresizebuffer, retries, continuedl, noprogress, consoletitle,
-    xattr_set_filesize, external_downloader_args, hls_use_mpegts.
+    xattr_set_filesize, external_downloader_args, hls_use_mpegts,
+    http_chunk_size.
 
     The following options are used by the post processors:
     prefer_ffmpeg:     If True, use ffmpeg instead of avconv if both are available,
@@ -531,12 +532,16 @@ class YoutubeDL(object):
     def save_console_title(self):
         if not self.params.get('consoletitle', False):
             return
+        if self.params.get('simulate', False):
+            return
         if compat_os_name != 'nt' and 'TERM' in os.environ:
             # Save the title on stack
             self._write_string('\033[22;0t', self._screen_file)
 
     def restore_console_title(self):
         if not self.params.get('consoletitle', False):
+            return
+        if self.params.get('simulate', False):
             return
         if compat_os_name != 'nt' and 'TERM' in os.environ:
             # Restore the title from stack
@@ -969,6 +974,8 @@ class YoutubeDL(object):
                     'playlist': playlist,
                     'playlist_id': ie_result.get('id'),
                     'playlist_title': ie_result.get('title'),
+                    'playlist_uploader': ie_result.get('uploader'),
+                    'playlist_uploader_id': ie_result.get('uploader_id'),
                     'playlist_index': i + playliststart,
                     'extractor': ie_result['extractor'],
                     'webpage_url': ie_result['webpage_url'],
@@ -1024,7 +1031,7 @@ class YoutubeDL(object):
             '!=': operator.ne,
         }
         operator_rex = re.compile(r'''(?x)\s*
-            (?P<key>width|height|tbr|abr|vbr|asr|filesize|fps)
+            (?P<key>width|height|tbr|abr|vbr|asr|filesize|filesize_approx|fps)
             \s*(?P<op>%s)(?P<none_inclusive>\s*\?)?\s*
             (?P<value>[0-9.]+(?:[kKmMgGtTpPeEzZyY]i?[Bb]?)?)
             $
@@ -2225,8 +2232,16 @@ class YoutubeDL(object):
                 sys.exc_clear()
             except Exception:
                 pass
-        self._write_string('[debug] Python version %s - %s\n' % (
-            platform.python_version(), platform_name()))
+
+        def python_implementation():
+            impl_name = platform.python_implementation()
+            if impl_name == 'PyPy' and hasattr(sys, 'pypy_version_info'):
+                return impl_name + ' version %d.%d.%d' % sys.pypy_version_info[:3]
+            return impl_name
+
+        self._write_string('[debug] Python version %s (%s) - %s\n' % (
+            platform.python_version(), python_implementation(),
+            platform_name()))
 
         exe_versions = FFmpegPostProcessor.get_versions(self)
         exe_versions['rtmpdump'] = rtmpdump_version()

@@ -28,9 +28,9 @@
 <project name="tvalacarta" default="package">
 	<description>tvalacarta</description>
 
-    <property name="version" value="4.0.6"/>
-    <property name="versionboxee" value="5.9"/>
-    <property name="versiondate" value="27/11/2017"/>
+    <property name="version" value="4.0.7"/>
+    <property name="versionboxee" value="6.0"/>
+    <property name="versiondate" value="16/04/2018"/>
     <property name="versionchanges" value="Bugfix"/>
 
     <property name="target" value="../../target/python"/>

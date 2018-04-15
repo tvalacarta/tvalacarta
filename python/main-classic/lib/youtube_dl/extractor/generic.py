@@ -58,6 +58,7 @@ from .xhamster import XHamsterEmbedIE
 from .tnaflix import TNAFlixNetworkEmbedIE
 from .drtuber import DrTuberIE
 from .redtube import RedTubeIE
+from .tube8 import Tube8IE
 from .vimeo import VimeoIE
 from .dailymotion import DailymotionIE
 from .dailymail import DailyMailIE
@@ -100,6 +101,11 @@ from .megaphone import MegaphoneIE
 from .vzaar import VzaarIE
 from .channel9 import Channel9IE
 from .vshare import VShareIE
+from .mediasite import MediasiteIE
+from .springboardplatform import SpringboardPlatformIE
+from .yapfiles import YapFilesIE
+from .vice import ViceIE
+from .xfileshare import XFileShareIE
 
 
 class GenericIE(InfoExtractor):
@@ -1265,24 +1271,6 @@ class GenericIE(InfoExtractor):
             },
             'add_ie': ['Kaltura'],
         },
-        # EaglePlatform embed (generic URL)
-        {
-            'url': 'http://lenta.ru/news/2015/03/06/navalny/',
-            # Not checking MD5 as sometimes the direct HTTP link results in 404 and HLS is used
-            'info_dict': {
-                'id': '227304',
-                'ext': 'mp4',
-                'title': 'Навальный вышел на свободу',
-                'description': 'md5:d97861ac9ae77377f3f20eaf9d04b4f5',
-                'thumbnail': r're:^https?://.*\.jpg$',
-                'duration': 87,
-                'view_count': int,
-                'age_limit': 0,
-            },
-            'params': {
-                'skip_download': True,
-            },
-        },
         # referrer protected EaglePlatform embed
         {
             'url': 'https://tvrain.ru/lite/teleshow/kak_vse_nachinalos/namin-418921/',
@@ -1925,7 +1913,72 @@ class GenericIE(InfoExtractor):
                 'title': 'vl14062007715967',
                 'ext': 'mp4',
             }
-        }
+        },
+        {
+            'url': 'http://www.heidelberg-laureate-forum.org/blog/video/lecture-friday-september-23-2016-sir-c-antony-r-hoare/',
+            'md5': 'aecd089f55b1cb5a59032cb049d3a356',
+            'info_dict': {
+                'id': '90227f51a80c4d8f86c345a7fa62bd9a1d',
+                'ext': 'mp4',
+                'title': 'Lecture: Friday, September 23, 2016 - Sir Tony Hoare',
+                'description': 'md5:5a51db84a62def7b7054df2ade403c6c',
+                'timestamp': 1474354800,
+                'upload_date': '20160920',
+            }
+        },
+        {
+            'url': 'http://www.kidzworld.com/article/30935-trolls-the-beat-goes-on-interview-skylar-astin-and-amanda-leighton',
+            'info_dict': {
+                'id': '1731611',
+                'ext': 'mp4',
+                'title': 'Official Trailer | TROLLS: THE BEAT GOES ON!',
+                'description': 'md5:eb5f23826a027ba95277d105f248b825',
+                'timestamp': 1516100691,
+                'upload_date': '20180116',
+            },
+            'params': {
+                'skip_download': True,
+            },
+            'add_ie': [SpringboardPlatformIE.ie_key()],
+        },
+        {
+            'url': 'https://www.youtube.com/shared?ci=1nEzmT-M4fU',
+            'info_dict': {
+                'id': 'uPDB5I9wfp8',
+                'ext': 'webm',
+                'title': 'Pocoyo: 90 minutos de episódios completos Português para crianças - PARTE 3',
+                'description': 'md5:d9e4d9346a2dfff4c7dc4c8cec0f546d',
+                'upload_date': '20160219',
+                'uploader': 'Pocoyo - Português (BR)',
+                'uploader_id': 'PocoyoBrazil',
+            },
+            'add_ie': [YoutubeIE.ie_key()],
+            'params': {
+                'skip_download': True,
+            },
+        },
+        {
+            'url': 'https://www.yapfiles.ru/show/1872528/690b05d3054d2dbe1e69523aa21bb3b1.mp4.html',
+            'info_dict': {
+                'id': 'vMDE4NzI1Mjgt690b',
+                'ext': 'mp4',
+                'title': 'Котята',
+            },
+            'add_ie': [YapFilesIE.ie_key()],
+            'params': {
+                'skip_download': True,
+            },
+        },
+        {
+            'url': 'http://share-videos.se/auto/video/83645793?uid=13',
+            'md5': 'b68d276de422ab07ee1d49388103f457',
+            'info_dict': {
+                'id': '83645793',
+                'title': 'Lock up and get excited',
+                'ext': 'mp4'
+            },
+            'skip': 'TODO: fix nested playlists processing in tests',
+        },
         # {
         #     # TODO: find another test
         #     # http://schema.org/VideoObject
@@ -2172,7 +2225,11 @@ class GenericIE(InfoExtractor):
                 self._sort_formats(smil['formats'])
                 return smil
             elif doc.tag == '{http://xspf.org/ns/0/}playlist':
-                return self.playlist_result(self._parse_xspf(doc, video_id), video_id)
+                return self.playlist_result(
+                    self._parse_xspf(
+                        doc, video_id, xspf_url=url,
+                        xspf_base_url=compat_str(full_response.geturl())),
+                    video_id)
             elif re.match(r'(?i)^(?:{[^}]+})?MPD$', doc.tag):
                 info_dict['formats'] = self._parse_mpd_formats(
                     doc,
@@ -2251,7 +2308,10 @@ class GenericIE(InfoExtractor):
         # Look for Brightcove New Studio embeds
         bc_urls = BrightcoveNewIE._extract_urls(self, webpage)
         if bc_urls:
-            return self.playlist_from_matches(bc_urls, video_id, video_title, ie='BrightcoveNew')
+            return self.playlist_from_matches(
+                bc_urls, video_id, video_title,
+                getter=lambda x: smuggle_url(x, {'referrer': url}),
+                ie='BrightcoveNew')
 
         # Look for Nexx embeds
         nexx_urls = NexxIE._extract_urls(webpage)
@@ -2497,6 +2557,11 @@ class GenericIE(InfoExtractor):
         if redtube_urls:
             return self.playlist_from_matches(redtube_urls, video_id, video_title, ie=RedTubeIE.ie_key())
 
+        # Look for embedded Tube8 player
+        tube8_urls = Tube8IE._extract_urls(webpage)
+        if tube8_urls:
+            return self.playlist_from_matches(tube8_urls, video_id, video_title, ie=Tube8IE.ie_key())
+
         # Look for embedded Tvigle player
         mobj = re.search(
             r'<iframe[^>]+?src=(["\'])(?P<url>(?:https?:)?//cloud\.tvigle\.ru/video/.+?)\1', webpage)
@@ -2695,9 +2760,9 @@ class GenericIE(InfoExtractor):
             return self.url_result(viewlift_url)
 
         # Look for JWPlatform embeds
-        jwplatform_url = JWPlatformIE._extract_url(webpage)
-        if jwplatform_url:
-            return self.url_result(jwplatform_url, 'JWPlatform')
+        jwplatform_urls = JWPlatformIE._extract_urls(webpage)
+        if jwplatform_urls:
+            return self.playlist_from_matches(jwplatform_urls, video_id, video_title, ie=JWPlatformIE.ie_key())
 
         # Look for Digiteka embeds
         digiteka_url = DigitekaIE._extract_url(webpage)
@@ -2882,6 +2947,44 @@ class GenericIE(InfoExtractor):
         if vshare_urls:
             return self.playlist_from_matches(
                 vshare_urls, video_id, video_title, ie=VShareIE.ie_key())
+
+        # Look for Mediasite embeds
+        mediasite_urls = MediasiteIE._extract_urls(webpage)
+        if mediasite_urls:
+            entries = [
+                self.url_result(smuggle_url(
+                    compat_urlparse.urljoin(url, mediasite_url),
+                    {'UrlReferrer': url}), ie=MediasiteIE.ie_key())
+                for mediasite_url in mediasite_urls]
+            return self.playlist_result(entries, video_id, video_title)
+
+        springboardplatform_urls = SpringboardPlatformIE._extract_urls(webpage)
+        if springboardplatform_urls:
+            return self.playlist_from_matches(
+                springboardplatform_urls, video_id, video_title,
+                ie=SpringboardPlatformIE.ie_key())
+
+        yapfiles_urls = YapFilesIE._extract_urls(webpage)
+        if yapfiles_urls:
+            return self.playlist_from_matches(
+                yapfiles_urls, video_id, video_title, ie=YapFilesIE.ie_key())
+
+        vice_urls = ViceIE._extract_urls(webpage)
+        if vice_urls:
+            return self.playlist_from_matches(
+                vice_urls, video_id, video_title, ie=ViceIE.ie_key())
+
+        xfileshare_urls = XFileShareIE._extract_urls(webpage)
+        if xfileshare_urls:
+            return self.playlist_from_matches(
+                xfileshare_urls, video_id, video_title, ie=XFileShareIE.ie_key())
+
+        sharevideos_urls = [mobj.group('url') for mobj in re.finditer(
+            r'<iframe[^>]+?\bsrc\s*=\s*(["\'])(?P<url>(?:https?:)?//embed\.share-videos\.se/auto/embed/\d+\?.*?\buid=\d+.*?)\1',
+            webpage)]
+        if sharevideos_urls:
+            return self.playlist_from_matches(
+                sharevideos_urls, video_id, video_title)
 
         def merge_dicts(dict1, dict2):
             merged = {}

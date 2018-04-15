@@ -22,51 +22,11 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
     video_urls = []
 
-    media_url = scrapertools.find_single_match(data,"fichero='([^']+)'")
+    media_url = scrapertools.find_single_match(data,'var url = "([^"]+)"')
 
     if media_url!="":
-        video_urls.append( [ "mp4 [tvg]" , media_url ] )
+        video_urls.append( [ "mp4 [tvg]" , media_url+"/playlist.m3u8" ] )
     else:
-
-        '''
-        rtmp: {
-        
-            url: "http://www.crtvg.es/flowplayer3/flowplayer.rtmp-3.2.3.swf",
-            netConnectionUrl: "rtmp://media1.crtvg.es:80/vod" //Para VOD
-        },
-        clip: {
-
-            title: "A Revista FDS",
-            category: "Informativos",
-            subcategory: "A Revista FDS",
-            eventCategory: "A Revista FDS",
-            url: "mp4:00/0032/0032_20121216000000.mp4",
-            provider: "rtmp",
-            autoPlay: false,
-            //autoBuffering: true,
-            ipadUrl: "http://media1.crtvg.es:80/vod/_definst_/mp4:00/0032/0032_20121216000000.mp4/playlist.m3u8", //para ipad vod
-            start: 290,
-            duration: 5184,
-            scaling: "scale" //scaling: orig, // fit, half, orig,scale
-        }
-        '''
-
-        '''
-        rtmp: {
-            url: "http://www.crtvg.es/flowplayer3/flowplayer.rtmp-3.2.3.swf",
-            netConnectionUrl: "rtmp://media1.crtvg.es:80/vod" //Para VOD
-        },
-        clip: {
-            url: "mp4:00/0752/0752_20110129153400.mp4",
-            provider: "rtmp",
-            autoPlay: false,
-            //autoBuffering: true,
-            ipadUrl: "http://media1.crtvg.es:80/vod/_definst_/mp4:00/0752/0752_20110129153400.mp4/playlist.m3u8", //para ipad vod
-            start: 0,
-            duration: 0,
-            scaling: "fit" //scaling: orig, // fit, half, orig,scale
-        }
-        '''
         patron  = 'rtmp\: \{.*?netConnectionUrl\: "([^"]+)"'
         matches = re.compile(patron,re.DOTALL).findall(data)
         scrapertools.printMatches(matches)

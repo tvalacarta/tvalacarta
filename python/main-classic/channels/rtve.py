@@ -39,12 +39,13 @@ def loadlives(item):
 
     itemlist = []
 
-    url_la1 = "rtmp://rtvegeofs.fplive.net:1935/rtvegeoargmex-live-live/RTVE_LA1_LV3_WEB_GL7 swfUrl=http://swf.rtve.es/swf/4.3.13/RTVEPlayerVideo.swf pageUrl=http://www.rtve.es/directo/la-1/ live=true swfVfy=true"
-    url_la2 = "rtmp://rtvefs.fplive.net:1935/rtve-live-live/RTVE_LA2_LV3_WEB_GL0 swfUrl=http://swf.rtve.es/swf/4.3.13/RTVEPlayerVideo.swf pageUrl=http://www.rtve.es/directo/la-2/ live=true swfVfy=true"
-    url_tld = "rtmp://rtvegeofs.fplive.net:1935/rtvegeo-live-live/RTVE_TDP_LV3_WEB_GL1 swfUrl=http://swf.rtve.es/swf/4.3.13/RTVEPlayerVideo.swf pageUrl=http://www.rtve.es/directo/teledeporte/ live=true swfVfy=true"
-    url_24h = "rtmp://rtvefs.fplive.net:443/rtve2-live-live/RTVE_24H_LV3_WEB_GL8 swfUrl=http://swf.rtve.es/swf/4.3.13/RTVEPlayerVideo.swf pageUrl=http://www.rtve.es/directo/canal-24h/ live=true swfVfy=true"
+    url_la1 = "http://hlsliveamdgl7-lh.akamaihd.net/i/hlsdvrlive_1@583042/master.m3u8"
+    url_la2 = "http://hlsliveamdgl0-lh.akamaihd.net/i/hlslive_1@586367/master.m3u8"
+    url_tld = "http://hlsliveamdgl1-lh.akamaihd.net/i/hlsdvrlive_1@39732/master.m3u8"
+    url_24h = "http://hlsliveamdgl8-lh.akamaihd.net/i/hlsdvrlive_1@583030/master.m3u8"
+
     # Radio
-    url_rne = "http://radio1-fme.rtve.stream.flumotion.com/rtve/radio1.mp3.m3u"
+    url_rne = "http://rtve.stream.flumotion.com/rtve/radio1.mp3.m3u"
     url_cls = "http://radioclasica-fme.rtve.stream.flumotion.com/rtve/radioclasica.mp3.m3u"
     url_rd3 = "http://radio3-fme.rtve.stream.flumotion.com/rtve/radio3.mp3.m3u"
     url_rd4 = "http://radio4-fme.rtve.stream.flumotion.com/rtve/radio4.mp3.m3u"

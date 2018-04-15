@@ -121,6 +121,7 @@ def episodios(item,data=""):
     </div>
     '''
     patron  = '<div id="[^"]+" class="vid bloque[^<]+'
+    patron += '<div[^<]+'
     patron += '<div class="imagen[^<]+'
     patron += '<img title="[^"]+" alt="([^"]+)" src="([^"]+)"[^<]+'
     patron += '<div class="play">[^<]+'

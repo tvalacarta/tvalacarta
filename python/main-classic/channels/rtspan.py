@@ -193,6 +193,42 @@ def videos(item, load_all_pages=False):
 
         itemlist.append( Item(channel=__channel__, action="play", title=title, url=url, thumbnail=thumbnail, show=item.show, folder=False) )
 
+    bloque_iframe = scrapertools.find_single_match(data,'<div class="video-iframe">(.*?)<h2 class="header-section">')
+    logger.info("tvalacarta.channels.rtspan bloque_iframe="+bloque_iframe)    
+
+    youtube_url = scrapertools.find_single_match(bloque_iframe,'<iframe\s+width="[^"]+"\s+height="[^"]+"\s+src="[^"]+"')
+    logger.info("tvalacarta.channels.rtspan youtube_url="+youtube_url)    
+
+    if youtube_url!="":
+        youtube_id = scrapertools.find_single_match(youtube_url,'www.youtube.com/embed/([^"]+)"')
+        title = scrapertools.find_single_match(bloque_iframe,'<h2 class="header">([^<]+)</h2>')
+        url = urlparse.urljoin(item.url,scrapertools.find_single_match(bloque_iframe,'a href="([^"]+)"'))
+        thumbnail = "https://i.ytimg.com/vi/"+youtube_id+"/hqdefault.jpg"
+        itemlist.append( Item(channel=__channel__, action="play", title=title, url=url, thumbnail=thumbnail, aired_date="", folder=False) )
+
+        patron = '<a href="([^"]+)"\s+class="ration_16-9 bg-img" style="background-image. '
+        patron += "url\('([^']+)'\)[^<]+"
+        patron += '<i class="icond-video"[^<]+'
+        patron += '<span class="play"[^<]+</span[^<]+'
+        patron += '</i[^<]+</a[^<]+</div[^<]+'
+        patron += '<time class="date">([^<]+)</time.*?'
+        patron += '<h3 class="header"[^<]+'
+        patron += '<a[^>]+>([^<]+)<'
+
+        matches = re.compile(patron,re.DOTALL).findall(data)
+        if DEBUG: scrapertools.printMatches(matches)
+
+        for scrapedurl,scrapedthumbnail,fecha,scrapedtitle in matches:
+            scrapedday = scrapertools.find_single_match(fecha,'(\d+)\.\d+\.\d+')
+            scrapedmonth = scrapertools.find_single_match(fecha,'\d+\.(\d+)\.\d+')
+            scrapedyear = scrapertools.find_single_match(fecha,'\d+\.\d+\.(\d+)')
+            scrapeddate = scrapedyear + "-" + scrapedmonth + "-" + scrapedday
+
+            title = fecha.strip() + " - " + scrapedtitle.strip()
+            url = urlparse.urljoin(item.url,scrapedurl)
+            thumbnail = scrapedthumbnail
+            itemlist.append( Item(channel=__channel__, action="play", title=title, url=url, thumbnail=thumbnail, aired_date=scrapeddate, folder=False) )
+
     next_page_url = scrapertools.find_single_match(data,'<div class="listing__button listing__button_all-news listing__button_js" data-href="([^"]+)"')
     if next_page_url!="":
         next_page_item = Item(channel=__channel__, action="videos", title=">> Página siguiente" , url=urlparse.urljoin(item.url,next_page_url) , show=item.show, folder=True)

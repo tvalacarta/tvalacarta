@@ -186,7 +186,7 @@ def channels_list():
     #itemlist.append( Item( title="Contenidos Digitales Abiertos (Argentina)", channel="cda"    , language="ES" , category="N"   , type="generic" )) # Juan Pablo 01/02/2013
     #itemlist.append( Item( title="Crackle"                    , channel="crackle"              , language="ES" , category="T,I" , type="generic" )) # rsantaella 05/04/2013
     itemlist.append( Item( title="CYLTV (Castilla y León)"    , channel="cyltv"                , language="ES" , category="R"   , type="generic" )) # jesus 01/01/2013
-    itemlist.append( Item( title="Discovery Max"              , channel="discoverymax"         , language="ES" , category="T"   , type="generic" ))
+    #itemlist.append( Item( title="DPlay"                      , channel="dplay"                , language="ES" , category="T"   , type="generic" ))
     itemlist.append( Item( title="Dibujos.tv"                 , channel="dibujostv"            , language="ES" , category="I"   , type="generic" )) # jesus 04/08/2013
     #itemlist.append( Item( title="Disney Channel Replay"      , channel="disneychannel"        , language="ES" , category="I"   , type="generic" )) # jesus 05/04/2012
     itemlist.append( Item( title="Disney Junior"              , channel="disneyjunior"         , language="ES" , category="I"   , type="generic" )) # jesus 15/01/2013
@@ -224,7 +224,7 @@ def channels_list():
     itemlist.append( Item( title="RTVCE (Ceuta)"              , channel="rtvceuta"              , language="ES" , category="L"   , type="generic" ))
     #itemlist.append( Item( title="RTVV (Comunidad Valenciana)", channel="rtvv"                 , language="ES" , category="R"   , type="generic" ))
     itemlist.append( Item( title="Super 3 (Cataluña)"         , channel="super3"               , language="ES" , category="I"   , type="generic" )) # jesus 14/06/2016
-    itemlist.append( Item( title="TAL (Televisión de América Latina)", channel="tal"           , language="ES" , category="N"   , type="generic" )) # rsantaella 22/03/2013
+    #itemlist.append( Item( title="TAL (Televisión de América Latina)", channel="tal"           , language="ES" , category="N"   , type="generic" )) # rsantaella 22/03/2013
     itemlist.append( Item( title="TEC TV (Argentina)"         , channel="tectv"                , language="ES" , category="N"   , type="generic" )) # rsantaella 07/06/2013
     itemlist.append( Item( title="Telefe (Argentina)"         , channel="telefe"               , language="ES" , category="N"   , type="generic" )) # jesus 22/01/2012
     itemlist.append( Item( title="Telemadrid"                 , channel="telemadrid"           , language="ES" , category="R"   , type="generic", extra="rtmp" ))  # jesus 17/12/2012

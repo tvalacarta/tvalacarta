@@ -3,13 +3,13 @@ from __future__ import unicode_literals
 
 import re
 import json
-import base64
 import zlib
 
 from hashlib import sha1
 from math import pow, sqrt, floor
 from .common import InfoExtractor
 from ..compat import (
+    compat_b64decode,
     compat_etree_fromstring,
     compat_urllib_parse_urlencode,
     compat_urllib_request,
@@ -272,8 +272,8 @@ class CrunchyrollIE(CrunchyrollBaseIE):
     }
 
     def _decrypt_subtitles(self, data, iv, id):
-        data = bytes_to_intlist(base64.b64decode(data.encode('utf-8')))
-        iv = bytes_to_intlist(base64.b64decode(iv.encode('utf-8')))
+        data = bytes_to_intlist(compat_b64decode(data))
+        iv = bytes_to_intlist(compat_b64decode(iv))
         id = int(id)
 
         def obfuscate_key_aux(count, modulo, start):
@@ -392,7 +392,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                 'Downloading subtitles for ' + sub_name, data={
                     'subtitle_script_id': sub_id,
                 })
-            if not sub_doc:
+            if sub_doc is None:
                 continue
             sid = sub_doc.get('id')
             iv = xpath_text(sub_doc, 'iv', 'subtitle iv')
@@ -479,9 +479,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                     'video_quality': stream_quality,
                     'current_page': url,
                 })
-            if streamdata:
+            if streamdata is not None:
                 stream_info = streamdata.find('./{default}preload/stream_info')
-                if stream_info:
+                if stream_info is not None:
                     stream_infos.append(stream_info)
             stream_info = self._call_rpc_api(
                 'VideoEncode_GetStreamInfo', video_id,
@@ -490,7 +490,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                     'video_format': stream_format,
                     'video_encode_quality': stream_quality,
                 })
-            if stream_info:
+            if stream_info is not None:
                 stream_infos.append(stream_info)
             for stream_info in stream_infos:
                 video_encode_id = xpath_text(stream_info, './video_encode_id')
