@@ -13,22 +13,32 @@ from core.item import Item
 
 DEBUG = False
 CHANNELNAME = "extremaduratv"
+URL_DIRECTO = "http://hlstv.canalextremadura.es/livetv/smil:multistream.smil/playlist.m3u8"
 
 def isGeneric():
     return True
 
 def mainlist(item, load_all_pages=False):
-    logger.info("extremaduratv.mainlist")
+    logger.info("tvalacarta.channels.extremaduratv.mainlist")
 
     itemlist = []
     itemlist.append( Item(channel=CHANNELNAME, title="Programas"      , action="programas"    , url="http://www.canalextremadura.es/tv/programas", category="programas") )
     itemlist.append( Item(channel=CHANNELNAME, title="Archivo"        , action="programas"      , url="http://www.canalextremadura.es/tv/archivo", category="programas") )
-    itemlist.append( Item(channel=CHANNELNAME, title="ExtremaduraTV SAT en directo"        , action="play"      , extra="http://hlstv.canalextremadura.es/livetv/smil:multistream.smil/playlist.m3u8", category="programas") )
+    itemlist.append( Item(channel=CHANNELNAME, title="Directo"        , action="play"      , extra=URL_DIRECTO, category="programas", folder=False) )
+
+    return itemlist
+
+def directos(item=None):
+    logger.info("tvalacarta.channels.extremaduratv directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="Extremadura TV",   url=URL_DIRECTO, thumbnail="http://media.tvalacarta.info/canales/128x128/extremaduratv.png", category="Autonómicos", action="play", folder=False ) )
 
     return itemlist
 
 def programas(item, load_all_pages=False):
-    logger.info("extremaduratv.programas")
+    logger.info("tvalacarta.channels.extremaduratv.programas")
     itemlist = []
 
     # Descarga la página
@@ -86,7 +96,7 @@ def detalle_episodio(item):
     return item
 
 def episodios(item):
-    logger.info("extremaduratv.episodios")
+    logger.info("tvalacarta.channels.extremaduratv.episodios")
     itemlist = []
 
     # Descarga la página

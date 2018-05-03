@@ -15,6 +15,7 @@ from core import jsontools
 
 DEBUG = True
 CHANNELNAME = "sieterm"
+LIVE_URL = "http://rtvmurcia_01-lh.akamaihd.net/i/rtvmurcia_1_0@507973/master.m3u8"
 
 def isGeneric():
     return True
@@ -24,10 +25,21 @@ def mainlist(item):
 
     return categorias(item)
 
+def directos(item=None):
+    logger.info("tvalacarta.channels.sieterm directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="7 Televisión Región de Murcia",   url=LIVE_URL, thumbnail="http://media.tvalacarta.info/canales/128x128/sieterm.png", category="Autonómicos", action="play", folder=False ) )
+
+    return itemlist
+
 def categorias(item):
     logger.info("tvalacarta.channels.sieterm categorias")
 
     itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="Ver señal en directo" , action="play", server="directo", url=LIVE_URL, category="programas", folder=False) )
 
     data = scrapertools.cachePage("http://webtv.7tvregiondemurcia.es/")
     data = scrapertools.find_single_match(data,'<ul class="nav center">(.*?)</ul>')
@@ -216,49 +228,6 @@ def search(item,texto):
     item.url = "http://7tvregiondemurcia.es/historico/?bsq-historico%5Btitulo%5D="+urllib.quote(texto)+"&bsq-historico%5Bprograma%5D=&bsq-historico%5Byear%5D=0&bsq-historico%5Bmonth%5D=0&frmsearch=Buscar"
     return historico(item,load_all_pages=False, add_search_menu=False)
 
-# Antiguo historico
-def programas_antiguos(item, load_all_pages=False):
-    logger.info("tvalacarta.channels.sieterm programas_antiguos load_all_pages=="+repr(load_all_pages))
-
-    itemlist = []
-
-    data = scrapertools.cachePage(item.url)
-    
-    # Extrae las entradas (carpetas)
-    patron  = '<dt class="alacarta-video">[^<]+'
-    patron += '<a href="([^"]+)">([^<]+)</a>[^<]+'
-    patron += '</dt>[^<]+'
-    patron += '<dd style="height:100%;overflow:hidden;">[^<]+'
-    patron += '<a[^<]+'
-    patron += '<img src="([^"]+)"[^<]+'
-    patron += '</a>([^<]+)</dd>'
-    matches = re.compile(patron,re.DOTALL).findall(data)
-
-    itemlist = []
-    for match in matches:
-        # Atributos del vídeo
-        scrapedtitle = unicode( match[1].strip() , "iso-8859-1" , errors="ignore").encode("utf-8")
-        scrapedurl = urlparse.urljoin(item.url,match[0]).replace("&amp;","&")
-        scrapedthumbnail = urlparse.urljoin(item.url,match[2]).replace("&amp;","&")
-        scrapedplot = unicode( match[3].strip() , "iso-8859-1" , errors="ignore").encode("utf-8")
-        if (DEBUG): logger.info("title=["+scrapedtitle+"], url=["+scrapedurl+"], thumbnail=["+scrapedthumbnail+"]")
-
-        # Añade al listado de XBMC
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , show=scrapedtitle , view="videos" ) )
-
-    # Busca la página siguiente
-    next_page_url = scrapertools.find_single_match(data,'<a class="list-siguientes" href="([^"]+)" title="Ver siguientes a la cartas">Siguiente</a>')
-    if next_page_url!="":
-        next_page_url = urlparse.urljoin(item.url,next_page_url)
-        next_page_item = Item(channel=CHANNELNAME, title=">> Página siguiente" , action="programas_antiguos" , url=next_page_url , folder=True)
-
-        if load_all_pages:
-            itemlist.extend(programas_antiguos(next_page_item,load_all_pages=True))
-        else:
-            itemlist.append( next_page_item )
-
-    return itemlist
-
 def episodios(item, load_all_pages=False):
     logger.info("tvalacarta.channels.sieterm episodios")
 
@@ -348,7 +317,9 @@ def detalle_episodio(item):
 
 def play(item):
 
-    item.server="sieterm";
+    if item.server!="directo":
+        item.server="sieterm";
+    
     itemlist = [item]
 
     return itemlist
@@ -364,23 +335,12 @@ def test():
     items_programas = []
     for item_mainlist in items_mainlist:
 
-        if item_mainlist.action=="programas_antiguos":
-            items_programas = programas_antiguos(item_mainlist)
+        if item_mainlist.action=="historico":
+            items_videos_historico = historico(item_mainlist)
             break
 
-    if len(items_programas)==0:
-        return False,"No hay programas antiguos"
-
-    # Carga los episodios
-    items_episodios = episodios(items_programas[0])
-    if len(items_episodios)==0:
-        return False,"No hay episodios en programa antiguo "+items_programas[0].title
-
-    # Lee la URL del vídeo
-    item_episodio = detalle_episodio(items_episodios[0])
-    if item_episodio.media_url=="":
-        return False,"El conector no devuelve enlace para el vídeo "+item_episodio.title
-
+    if len(items_videos_historico)==0:
+        return False,"No hay videos historicos"
 
     # Busca un item con la lista de programas
     items_programas = []

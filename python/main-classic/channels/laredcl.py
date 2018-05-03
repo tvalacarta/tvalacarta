@@ -26,8 +26,15 @@ def isGeneric():
 def mainlist(item):
     logger.info("tvalacarta.channels.laredcl mainlist")
 
+    itemlist = []
+    
     item.url="http://lared.cl/programas"
-    return programas(item)
+    itemlist.extend(programas(item))
+    
+    item.url="http://lared.cl/archivo-programas"
+    itemlist.extend(programas(item))
+
+    return itemlist
 
 def programas(item):
     logger.info("tvalacarta.channels.laredcl programas")    
@@ -43,8 +50,7 @@ def programas(item):
     '''
     patron  = '<section class="block-items"[^<]+'
     patron += '<div class="title[^<]+'
-    patron += '<a href="([^"]+)"><strong>([^<]+)<'
-
+    patron += '<a href="([^"]+)">(.*?)</a'
 
     matches = re.compile(patron,re.DOTALL).findall(data)
     

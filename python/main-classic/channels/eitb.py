@@ -107,6 +107,15 @@ def mainlist(item):
     return itemlist
 
 
+def directos(item=None):
+    logger.info("tvalacarta.channels.eitb directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="ETB",        url=ETBSAT_URL, thumbnail="http://media.tvalacarta.info/canales/128x128/eitb.png", category="Autonómicos", action="play", folder=False ) )
+
+    return itemlist
+
 def get_programs(item):
     data = scrapertools.cachePage(item.url)
     logger.info("[eitb.py] get_programs: %s" % data)

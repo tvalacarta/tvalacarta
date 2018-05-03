@@ -34,15 +34,25 @@ def mainlist(item):
 
     return itemlist
 
+def directos(item=None):
+    logger.info("tvalacarta.channels.rtve directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="La 1",        url="http://hlsliveamdgl7-lh.akamaihd.net/i/hlsdvrlive_1@583042/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tvela1-transparente.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="La 2",        url="http://hlsliveamdgl0-lh.akamaihd.net/i/hlslive_1@586367/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tvela2-transparente.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Teledeporte", url="http://hlsliveamdgl1-lh.akamaihd.net/i/hlsdvrlive_1@39732/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tvetdp-transparente.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Canal 24H",   url="http://hlsliveamdgl8-lh.akamaihd.net/i/hlsdvrlive_1@583030/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tve24h-transparente.png", category="Nacionales", action="play", folder=False ) )
+
+    return itemlist
+
 def loadlives(item):
     logger.info("tvalacarta.channels.rtve play loadlives")
 
     itemlist = []
 
-    url_la1 = "http://hlsliveamdgl7-lh.akamaihd.net/i/hlsdvrlive_1@583042/master.m3u8"
-    url_la2 = "http://hlsliveamdgl0-lh.akamaihd.net/i/hlslive_1@586367/master.m3u8"
-    url_tld = "http://hlsliveamdgl1-lh.akamaihd.net/i/hlsdvrlive_1@39732/master.m3u8"
-    url_24h = "http://hlsliveamdgl8-lh.akamaihd.net/i/hlsdvrlive_1@583030/master.m3u8"
+    for directo in directos(item):
+        itemlist.append(directo)
 
     # Radio
     url_rne = "http://rtve.stream.flumotion.com/rtve/radio1.mp3.m3u"
@@ -52,12 +62,6 @@ def loadlives(item):
     url_rd5 = "http://radio5-fme.rtve.stream.flumotion.com/rtve/radio5.mp3.m3u"
     url_rex = "http://radioexterior-fme.rtve.stream.flumotion.com/rtve/radioexterior.mp3.m3u"
 
-    itemlist.append( Item(channel=CHANNELNAME, title="La 1",        action="play", url=url_la1, folder=False) )
-    itemlist.append( Item(channel=CHANNELNAME, title="La 2",        action="play", url=url_la2, folder=False) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Teledeporte", action="play", url=url_tld, folder=False) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Canal 24H",   action="play", url=url_24h, folder=False) )
-
-    # Radio
     itemlist.append( Item(channel=CHANNELNAME, title="Radio: Radio Nacional", action="play", url=url_rne, folder=False) )
     itemlist.append( Item(channel=CHANNELNAME, title="Radio: Radio Clásica",  action="play", url=url_cls, folder=False) )
     itemlist.append( Item(channel=CHANNELNAME, title="Radio: Radio 3",        action="play", url=url_rd3, folder=False) )

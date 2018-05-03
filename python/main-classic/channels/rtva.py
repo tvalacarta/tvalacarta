@@ -14,6 +14,7 @@ from core.item import Item
 DEBUG = False
 CHANNELNAME = "rtva"
 MAIN_URL = "http://www.canalsur.es/programas_tv.html"
+LIVE_URL = "http://canalsur-live.hls.adaptive.level3.net/hls-live/canalsur_live-rtva/_definst_/live.m3u8"
 
 def isGeneric():
     return True
@@ -21,7 +22,21 @@ def isGeneric():
 def mainlist(item):
     logger.info("tvalacarta.channels.rtva mainlist")
     
-    return programas(item)
+    itemlist = []
+    itemlist.append( Item(channel=CHANNELNAME, title="Ver señal en directo" , action="play", url=LIVE_URL, category="programas", folder=False) )
+
+    itemlist.extend(programas(item))
+    
+    return itemlist
+
+def directos(item=None):
+    logger.info("tvalacarta.channels.rtva directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="Canal Sur",   url=LIVE_URL, thumbnail="http://media.tvalacarta.info/canales/128x128/rtva.png", category="Autonómicos", action="play", folder=False ) )
+
+    return itemlist
 
 def programas(item, load_all_pages=False):
     logger.info("tvalacarta.channels.rtva programas")
@@ -89,37 +104,38 @@ def detalle_programa(item):
 
     return item
 
-def episodios(item, load_all_pages=False):
+def episodios(item, load_all_pages=False, buscar_detalle=True):
     logger.info("tvalacarta.channels.rtva episodios")
 
     # Descarga la página
     intentos = 0
-    while intentos<5:
+    while intentos<1:
         data = scrapertools.cachePage(item.url)
-        data = scrapertools.find_single_match(data,'<section id="mas_programas" class="slider">(.*?)</section>')
-        logger.info("data="+data)
-        if data=="":
+        bloque = scrapertools.find_single_match(data,'<section id="mas_programas" class="slider">(.*?)</section>')
+        logger.info("bloque="+bloque)
+        if bloque=="":
             intentos = intentos + 1
             import time
             time.sleep(2)
         else:
             break
 
-    patron  = '<img src="([^"]+)"[^<]+'
+    patron  = '<a href="([^"]+)"[^<]+'
+    patron += '<div class="relative"[^<]+'
+    patron += '<img src="([^"]+)"[^<]+'
     patron += '<div class="playP"[^<]+'
     patron += '</div[^<]+'
     patron += '</div[^<]+'
     patron += '<span class="titulo">([^<]+)</span><br[^<]+'
     patron += '<div class="fecha[^>]+><b><small>([^<]+)</small></b></div[^<]+'
     patron += '<div class="descripcion[^>]+>([^<]*)</div[^<]+'
-    patron += '<div class="fecha_hora hidden">([^<]+)</div[^<]+'
-    patron += '<div class="video[^>]+>([^<]+)</div>'
+    patron += '<div class="fecha_hora hidden">([^<]+)</div'
 
-    matches = re.compile(patron,re.DOTALL).findall(data)
+    matches = re.compile(patron,re.DOTALL).findall(bloque)
     if DEBUG: scrapertools.printMatches(matches)
 
     itemlist = []
-    for scrapedthumbnail,scrapedtitle,fecha,scrapedplot,fechahora,media_url in matches:
+    for scrapedurl,scrapedthumbnail,scrapedtitle,fecha,scrapedplot,fechahora in matches:
         try:
             dia = " ("+fecha.split(" ")[1]+")"
         except:
@@ -128,11 +144,18 @@ def episodios(item, load_all_pages=False):
             except:
                 dia = ""
         title = scrapedtitle + dia
-        url = item.url
+        url = scrapedurl
         thumbnail = scrapedthumbnail
         plot = scrapedplot
         if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-        itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , url=url, page=url , thumbnail=thumbnail, fanart=thumbnail, plot=plot , extra=media_url, show=item.show , folder=False, viewmode="movie_with_plot") )
+        itemlist.append( Item(channel=CHANNELNAME, title=title , action="play", server="rtva", url=url, page=url , thumbnail=thumbnail, fanart=thumbnail, plot=plot, show=item.show , folder=False, viewmode="movie_with_plot") )
+
+    if len(itemlist)==0 and buscar_detalle:
+        detalle_url_list = scrapertools.find_multiple_matches(data,'<a href="(http://www.canalsur.es/television/programas/[^\/]+/detalle/\d+.html)')
+        logger.info("detalle_url_list="+repr(detalle_url_list))
+        if len(detalle_url_list)>0:
+            item.url = detalle_url_list[-1]
+            return episodios(item,buscar_detalle=False)
 
     return itemlist
 
@@ -144,24 +167,14 @@ def detalle_episodio(item):
 
     return item
 
-def play(item,page_data=""):
-    logger.info("tvalacarta.channels.rtva play")
-
-    itemlist = []
-
-    if item.extra<>"":
-        itemlist.append( Item(channel=CHANNELNAME, title=item.title , action="play" , server="directo" , url=item.extra, thumbnail=item.thumbnail, plot=item.plot , show=item.show , folder=False) )
-
-    return itemlist
-
 def test():
 
     programas_items = mainlist(Item())
-    if len(programas_items)==0:
-        print "No devuelve programas en "+categorias_items[0]
+    if len(programas_items)==1:
+        print "No devuelve programas"
         return False
 
-    episodios_items = episodios(programas_items[0])
+    episodios_items = episodios(programas_items[1])
     if len(episodios_items)==1:
         print "No devuelve videos en "+programas_items[0].title
         return False

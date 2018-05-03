@@ -9,48 +9,34 @@
 #import os
 #from core import config
 
-import re
+import re,urllib2
 from core import scrapertools
 from core import logger
 from core import jsontools
 
 def get_video_url(page_url, premium = False, user="", password="", video_password="", page_data=""):
 
-    logger.info("[vuittv.py] get_video_url(page_url='%s')" % page_url)
+    logger.info("tvalacarta.servers.vuittv get_video_url page_url="+page_url)
 
-    video = []
-    urlbase = "http://64.74.101.75:/services/mobile/streaming/index/master.m3u8?videoId=%s&pubId=%s"
+    data = scrapertools.cache_page(page_url)
+    url2 = scrapertools.find_single_match(data,'<iframe width="[^"]+" height="[^"]+" scrolling="[^"]+" data-src="(http://www-arucitys-com.filesusr.com[^"]+)"')
+    logger.info("url2="+url2)
 
-    try:
+    data = scrapertools.cache_page(url2)
+    media_url = scrapertools.find_single_match(data,'"sourceURL"\:"([^"]+)"')
+    logger.info("media_url="+media_url)
 
-        if page_url.startswith("rtmp://"):
-            video.append([ "HTTP [mp4]", page_url])
-        else:
-            #
-            # Busca url del video
-            #
-            # Ex: <iframe id="entry-player" src="//players.brightcove.net/1589608506001/78ec8cae-ae89-481a-8e95-b434e884e65c_default/index.html?videoId=5145516230001&autoplay"
-            #
-            data = scrapertools.downloadpage(page_url)
-            data = data.replace("\\\"","")
-            #logger.info("DATA: " + str(data))
+    media_url = urllib2.unquote(media_url)
+    logger.info("media_url="+media_url)
+    
+    video_urls = []
+    video_urls.append([ scrapertools.get_filename_from_url(media_url)[-4:]+" [vuittv]", media_url ])
 
-            patron = '<iframe id="entry-player" src="([^"]+)"'
-            matches = re.compile(patron,re.DOTALL).findall(data)
-            #logger.info("MATCHES: " + str(matches))
+    return video_urls
 
-            if len(matches) > 0:
-                pat = 'players.brightcove.net/(\d+)/.*?/index.html\?videoId=(\d+)'
-                mat = re.compile(pat,re.DOTALL).findall(matches[0])
-                #logger.info("MAT: " + str(mat))
-                url_final = urlbase % (mat[0][1], mat[0][0])
-            else:
-                url_final = ""
+# Encuentra vídeos del servidor en el texto pasado
+def find_videos(data):
+    encontrados = set()
+    devuelve = []
 
-            video.append([ "HTTP [mp4]", url_final])
-
-    except:
-        import traceback
-        logger.info(traceback.format_exc())
-
-    return video
+    return devuelve

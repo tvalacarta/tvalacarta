@@ -1,4 +1,4 @@
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 #------------------------------------------------------------
 # tvalacarta - XBMC Plugin
 # Canal EURONEWS
@@ -14,27 +14,28 @@ from core import jsontools
 
 DEBUG = False
 CHANNELNAME = "euronews"
+#http://es.euronews.com/api/watchlive.json
+URL_LIVE = "http://euronews-es-p-cdn.hexaglobe.net/6dd6ac8fcf6104dd218dcf51db9c907c/5ae9b637/euronews/euronews-euronews-website-web-responsive-2/ewnsabrespri_spa.smil/playlist.m3u8"
 
 def isGeneric():
     return True
 
+
 def mainlist(item):
-    logger.info("tvalacarta.euronews mainlist")
+    logger.info("tvalacarta.channels.euronews mainlist")
 
     itemlist = []
 
-    data = scrapertools.cache_page("http://www.euronews.com/programs")
-    data = scrapertools.find_single_match(data,'<ul class="menu vertical">(.*?)</div[^<]+</li[^<]+</ul>')
-    '''
-    <option  dir="ltr" style="text-align:left" lang="en" value="http://www.euronews.com/">English</option>
-    <option class="alt"  dir="ltr" style="text-align:left" lang="fr" value="http://fr.euronews.com/">Français</option>
-    <option  dir="ltr" style="text-align:left" lang="de" value="http://de.euronews.com/">Deutsch</option>
-    <option class="alt"  dir="ltr" style="text-align:left" lang="it" value="http://it.euronews.com/">Italiano</option>
-    '''
-    patron = '<a href="([^"]+)"[^>]+>([^<]+)</a>'
-    matches = re.findall(patron,data,re.DOTALL)
-    for url,idioma in matches:
-        itemlist.append( Item(channel=CHANNELNAME, title=idioma, action="programas", view="programs", url=url) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Ver la seÃ±al en directo",  action="play", url = URL_LIVE, folder=False) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Programas",                action="programas", url="http://es.euronews.com/programas") )
+
+    return itemlist
+
+def directos(item=None):
+    logger.info("tvalacarta.channels.euronews directos")
+
+    itemlist = []
+    itemlist.append( Item(channel=CHANNELNAME, title="Euronews", url=URL_LIVE, thumbnail="http://media.tvalacarta.info/canales/128x128/euronews.png", category="Nacionales", action="play", folder=False ) )
 
     return itemlist
 
@@ -52,7 +53,7 @@ def programas(item):
     </div>
     <div class="program-txt column medium-7 large-7 x-large-7 small-7">
     <h3>Futuris</h3>
-    <p>últimas noticias sobre los principales proyectos científicos y tecnológicos en Europa, descubrir los secretos de la investigación, la ciencia y la tecnología, todo ello en vídeo a la carta</p>
+    <p>Ãºltimas noticias sobre los principales proyectos cientÃ­ficos y tecnolÃ³gicos en Europa, descubrir los secretos de la investigaciÃ³n, la ciencia y la tecnologÃ­a, todo ello en vÃ­deo a la carta</p>
     </div>
     '''
     patron  = '<div class="letter-programs"[^<]+'
@@ -86,13 +87,13 @@ def videos(item):
             title = json_object["title"]
             url = json_object["canonical"]
             thumbnail = json_object["images"][0]["url"].replace("{{w}}","960").replace("{{h}}","540")
-            plot = json_object["plainText"]
+            plot = json_object["leadin"]
 
             import datetime
             aired_date = datetime.datetime.fromtimestamp( json_object["publishedAt"] ).strftime('%Y-%m-%d %H:%M:%S')
             logger.info("aired_date="+repr(aired_date))
 
-            # Intenta acceder al vídeo, si no tiene deja que la excepción salte y el vídeo no se añada
+            # Intenta acceder al vÃ­deo, si no tiene deja que la excepciÃ³n salte y el vÃ­deo no se aÃ±ada
             video_element = json_object["videos"][0]
 
             try:
@@ -105,7 +106,8 @@ def videos(item):
 
             itemlist.append( Item(channel=CHANNELNAME, action="play", server="euronews", title=title, url=url, thumbnail=thumbnail, plot=plot, aired_date=aired_date, duration=duration, show=item.show, folder=False) )
         except:
-            logger.info("Error al cargar "+title)
+            import traceback
+            logger.info("Error al cargar "+title+", "+traceback.format_exc())
 
     return itemlist
 
@@ -126,7 +128,7 @@ def detalle_episodio(item):
 
     return item
 
-# Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
+# VerificaciÃ³n automÃ¡tica de canales: Esta funciÃ³n debe devolver "True" si todo estÃ¡ ok en el canal.
 def test():
 
     idiomas_items = mainlist(Item())

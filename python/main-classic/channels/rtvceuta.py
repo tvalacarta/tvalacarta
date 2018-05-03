@@ -82,39 +82,30 @@ def episodios(item):
 
     for scrapedurl,scrapedtitle in matches:
         title = scrapedtitle
-        thumbnail = ""
 
-        # Codifica el vídeo como un parametro de la página del programa, para poder obtenerlo después y seguir teniendo un enlace válido al episodio
+        if "youtu.be" in scrapedurl:
+            youtube_id = scrapertools.find_single_match(scrapedurl,'youtu.be/([0-9A-Za-z_-]{11})')
+            url = "http://www.youtube.com/watch?v="+youtube_id
+            thumbnail = "https://i.ytimg.com/vi/"+youtube_id+"/hqdefault.jpg"
+            server="youtube"
+            
+        else:
+            # Codifica el vídeo como un parametro de la página del programa, para poder obtenerlo después y seguir teniendo un enlace válido al episodio
 
-        # programa: http://www.rtvce.es/programas/28-on-line
-        # video: http://teledifusionvod.es:7088/html5ceutatv/ftpceutatv/online/febrero/ONLINE%2011-02-2016.mp4
-        # resultado: http://www.rtvce.es/programas/28-on-line?url=http%3A%2F%2Fteledifusionvod.es%3A7088%2Fhtml5ceutatv%2Fftpceutatv%2Fonline%2Ffebrero%2FONLINE%252011-02-2016.mp4
+            # programa: http://www.rtvce.es/programas/28-on-line
+            # video: http://teledifusionvod.es:7088/html5ceutatv/ftpceutatv/online/febrero/ONLINE%2011-02-2016.mp4
+            # resultado: http://www.rtvce.es/programas/28-on-line?url=http%3A%2F%2Fteledifusionvod.es%3A7088%2Fhtml5ceutatv%2Fftpceutatv%2Fonline%2Ffebrero%2FONLINE%252011-02-2016.mp4
 
-        video_url = urllib.urlencode({"url":scrapedurl})
-        url = item.url + "?" + video_url
+            url = scrapedurl
+            thumbnail = ""
+            server="directo"
 
         plot = ""
-        itemlist.append( Item(channel=__channel__, action="play", title=title, url=url, thumbnail=thumbnail, plot=plot, show=item.show, folder=False))
+        itemlist.append( Item(channel=__channel__, action="play", title=title, url=url, server=server, thumbnail=thumbnail, plot=plot, show=item.show, folder=False))
 
     next_page_url = scrapertools.find_single_match(data,'<a class="nextpostslink" rel="next" href="([^"]+)">')
     if next_page_url!="":
         itemlist.append( Item(channel=__channel__, title=">> Página siguiente" , action="episodios" , url=urlparse.urljoin(item.url,next_page_url), show=item.show) )
-
-    return itemlist
-
-def play(item):
-    logger.info("tvalacarta.channels.rtvceuta play")
-
-    # Extrae el parámetro "url" recibido, ese es el vídeo
-    import urlparse
-    parsed_url = urlparse.urlparse(item.url)
-    logger.info("tvalacarta.channels.rtvceuta parsed_url="+repr(parsed_url))
-    params = urlparse.parse_qs(parsed_url.query)
-    logger.info("tvalacarta.channels.rtvceuta params="+repr(params))
-    logger.info("tvalacarta.channels.rtvceuta url="+repr(params["url"][0]))
-
-    itemlist = []
-    itemlist.append( Item(channel=__channel__, action="play", title=item.title, url=params["url"][0], thumbnail=item.thumbnail, plot=item.plot, show=item.show, folder=False))
 
     return itemlist
 

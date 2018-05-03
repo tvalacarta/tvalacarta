@@ -33,7 +33,7 @@ def mainlist(item):
     logger.info("[mitele.py] mainlist")
 
     itemlist = []
-    itemlist.append( Item(channel=__channel__, title="Directo"   , action="loadlives" , thumbnail = ""))
+    itemlist.append( Item(channel=__channel__, title="Directos"   , action="directos" , thumbnail = ""))
     itemlist.append( Item(channel=__channel__, title="Series"    , action="series"  , category="series"    , thumbnail = "" , extra="series"))
     itemlist.append( Item(channel=__channel__, title="Programas"    , action="series"  , category="programas"    , thumbnail = "" , extra="programas"))
     itemlist.append( Item(channel=__channel__, title="Informativos"    , action="series"  , category="informativos"    , thumbnail = "" , extra="informativos"))
@@ -255,6 +255,17 @@ def capitulos(item):
     itemlist.sort(key=lambda item: item.extra, reverse=True)
     return itemlist
 
+def directos(item=None):
+    logger.info("tvalacarta.channels.rtve directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=__channel__, action="play", title="Telecinco", url="http://telecinco-mediaset-esp-live.secure.footprint.net/mediaset/telecinco/stream1/streamPlaylist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/telecinco.png", category="Nacionales", folder=False) )
+    itemlist.append( Item(channel=__channel__, action="play", title="Cuatro", url="http://cuatro-mediaset-esp-live.secure.footprint.net/mediaset/cuatro/stream1/streamPlaylist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/cuatro.png", category="Nacionales", folder=False) )
+    itemlist.append( Item(channel=__channel__, action="play", title="Divinity", url="https://mdslivehls-i.akamaihd.net/hls/live/571648/divinity/bitrate_4.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/divinity.png", category="Nacionales", folder=False) )
+    itemlist.append( Item(channel=__channel__, action="play", title="FDF", url="https://mdslivehls-i.akamaihd.net/hls/live/571650/fdf/bitrate_4.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/fdf.png", category="Nacionales", folder=False) )
+
+    return itemlist
 
 def loadlives(item):
     logger.info("[mitele.py] loadlives")
@@ -275,9 +286,15 @@ def loadlives(item):
             title = canal.capitalize() + " [[COLOR red]" + programa + "[/COLOR]]"
             url = "http://indalo.mediaset.es/mmc-player/api/mmc/v1/%s/live/flash.json" % canal
             data_channel = scrapertools.downloadpage(url)
-            embed_code = jsontools.load_json(data_channel)["locations"][0]["yoo"]
+
+            try:
+                embed_code = jsontools.load_json(data_channel)["locations"][0]["yoo"]
+            except:
+                continue
+            
             if not embed_code:
                 continue
+            
             url = "http://player.ooyala.com/player.js?embedCode="+embed_code
             itemlist.append(item.clone(title=title, action="play", server="mitele", url=url))
 

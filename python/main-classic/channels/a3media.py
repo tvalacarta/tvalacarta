@@ -226,22 +226,33 @@ def episodios(item):
                 itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra = str(extra), folder=False) )
     return itemlist
 
+def directos(item=None):
+    logger.info("tvalacarta.channels.a3media directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="La Sexta",    url="http://a3live-lh.akamaihd.net/i/lasexta_1@35272/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/lasexta.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Antena 3",    url="http://a3live-lh.akamaihd.net/i/antena3/antena3_1@35248/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/antena3.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Mega", url="http://a3live-lh.akamaihd.net/i/mghds/geomega_1@328914/index_2_av-b.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/mega.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Neox", url="http://a3live-lh.akamaihd.net/i/nxhds/geoneox_1@35261/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/neox.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Nova", url="http://a3live-lh.akamaihd.net/i/nvhds/geonova_1@379404/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/nova.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="A3Series", url="http://a3live-lh.akamaihd.net/i/a3shds/geoa3series_1@122775/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/a3series.png", category="Nacionales", action="play", folder=False ) )
+
+    return itemlist
+
 # Cargar menú de directos
 def loadlives(item):
     logger.info("tvalacarta.channels.a3media play loadlives")
 
     itemlist = []
 
-    url_lasexta  = "http://a3live-lh.akamaihd.net/i/lasexta_1@35272/master.m3u8"
-    url_antena3  = "http://a3live-lh.akamaihd.net/i/antena3/antena3_1@35248/master.m3u8"
-    url_neox  = "http://a3live-lh.akamaihd.net/i/neox/neox_1@35261/master.m3u8"
     url_ondacero  = "rtmp://ondacerofms35livefs.fplive.net:1935/ondacerofms35live-live/stream-madrid swfVfy=http://www.atresplayer.com/static/swf/swf/oc/AUPlayerBlack.swf pageUrl=http://www.atresplayer.com/directos/radio/onda-cero/ live=true"
-    url_europafm = "rtmp://antena3fms35geobloqueolivefs.fplive.net:1935/antena3fms35geobloqueolive-live/stream-europafm swfVfy=http://www.atresplayer.com/static/swf/swf/efm/AUPlayerBlack.swf pageUrl=http://www.atresplayer.com/directos/radio/europa-fm/ live=true"
+    url_europafm  = "rtmp://antena3fms35geobloqueolivefs.fplive.net:1935/antena3fms35geobloqueolive-live/stream-europafm swfVfy=http://www.atresplayer.com/static/swf/swf/efm/AUPlayerBlack.swf pageUrl=http://www.atresplayer.com/directos/radio/europa-fm/ live=true"
     url_melodiafm = "rtmp://ondacerogeofms35livefs.fplive.net:1935/ondacerogeofms35live-live/stream-ondamelodia swfVfy=http://www.atresplayer.com/static/swf/swf/mfm/AUPlayerBlack.swf pageUrl=http://www.atresplayer.com/directos/radio/melodia-fm/ live=true"
 
-    itemlist.append( Item(channel=CHANNELNAME, title="La Sexta", action="play", url=url_lasexta, folder=False) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Antena 3", action="play", url=url_antena3, folder=False) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Neox",     action="play", url=url_neox,    folder=False) )
+    for directo in directos(item):
+        itemlist.append(directo)
+
     itemlist.append( Item(channel=CHANNELNAME, title="Radio: Onda Cero",   action="play", url=url_ondacero,  folder=False) )
     itemlist.append( Item(channel=CHANNELNAME, title="Radio: Europa FM",   action="play", url=url_europafm,  folder=False) )
     itemlist.append( Item(channel=CHANNELNAME, title="Radio: Melodía FM",   action="play", url=url_melodiafm,  folder=False) )

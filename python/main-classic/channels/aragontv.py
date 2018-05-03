@@ -16,6 +16,7 @@ from core.item import Item
 
 DEBUG = config.get_setting("debug")
 CHANNELNAME = "aragontv"
+LIVE_URL = "http://aragontv.stream.flumotion.com/aragontv/live-hls/main.m3u8"
 
 def isGeneric():
     return True
@@ -24,10 +25,21 @@ def mainlist(item):
     logger.info("tvalacarta.channels.aragontv mainlist")
 
     itemlist = []
+    itemlist.append( Item(channel=CHANNELNAME, title="Ver señal en directo" , action="play", url=LIVE_URL, category="programas", folder=False) )
+
     itemlist.append( Item(channel=CHANNELNAME, title="Últimos vídeos añadidos" , url="http://alacarta.aragontelevision.es/por-fecha/" , action="episodios" , folder=True, view="videos") )
     itemlist.append( Item(channel=CHANNELNAME, title="Informativos" , url="http://alacarta.aragontelevision.es/informativos" , action="episodios" , folder=True, view="videos") )
     itemlist.append( Item(channel=CHANNELNAME, title="Todos los programas" , url="http://alacarta.aragontelevision.es/programas" , action="programas" , folder=True, view="programs") )
     itemlist.append( Item(channel=CHANNELNAME, title="Buscador" , action="search" , folder=True, view="videos") )
+
+    return itemlist
+
+def directos(item=None):
+    logger.info("tvalacarta.channels.aragontv directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="Aragón TV",   url=LIVE_URL, thumbnail="http://media.tvalacarta.info/canales/128x128/aragontv.png", category="Autonómicos", action="play", folder=False ) )
 
     return itemlist
 
@@ -226,7 +238,7 @@ def subcategorias(pageurl):
 def test():
     
     items_mainlist = mainlist(Item())
-    items_programas = programas(items_mainlist[2])
+    items_programas = programas(items_mainlist[3])
 
     # El canal tiene estructura programas -> episodios -> play
     if len(items_programas)==0:

@@ -23,13 +23,13 @@ __language__ = "ES"
 __creationdate__ = "20121130"
 
 DEBUG = config.get_setting("debug")
+LIVE_URL = "https://5a61de8ed719d.streamlock.net/live/ngrp:hispantv_all/playlist.m3u8"
 
 def isGeneric():
     return True
 
 def mainlist(item):
     logger.info("tvalacarta.channels.hispantv mainlist")
-
     return categorias(item)
 
 def categorias(item):
@@ -38,6 +38,16 @@ def categorias(item):
     itemlist = []
     itemlist.append( Item(channel=__channel__, title="Programas", action="programas", url="http://www.hispantv.com/programas") )
     itemlist.append( Item(channel=__channel__, title="Series", action="programas", url="http://www.hispantv.com/series") )
+    itemlist.append( Item(channel=__channel__, title="Ver señal en directo" , action="play", server="directo", url=LIVE_URL, category="programas", folder=False) )
+
+    return itemlist
+
+def directos(item=None):
+    logger.info("tvalacarta.channels.hispantv directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=__channel__, title="Hispan TV (Irán)",   url=LIVE_URL, thumbnail="http://media.tvalacarta.info/canales/128x128/hispantv.png", category="Nacionales", action="play", folder=False ) )
 
     return itemlist
 
@@ -153,14 +163,17 @@ def detalle_episodio(item):
 def play(item):
     logger.info("tvalacarta.channels.hispantv play")
 
-    itemlist = []
-    data = scrapertools.cachePage(item.url)
-    video_url = scrapertools.find_single_match(data,'<a href="([^"]+)[^>]+>Ver en <i class="icon-youtube')
-    if video_url!="":
-        itemlist.append( Item(channel=__channel__, action="play", server="youtube", title=item.title, url=video_url, thumbnail=item.thumbnail, plot=item.plot, folder=False))
+    if item.server!="directo":
+        itemlist = []
+        data = scrapertools.cachePage(item.url)
+        video_url = scrapertools.find_single_match(data,'<a href="([^"]+)[^>]+>Ver en <i class="icon-youtube')
+        if video_url!="":
+            itemlist.append( Item(channel=__channel__, action="play", server="youtube", title=item.title, url=video_url, thumbnail=item.thumbnail, plot=item.plot, folder=False))
+        else:
+            video_url = scrapertools.find_single_match(data,'<a href="([^"]+)" class="btn btn-default" target="_blank">Descargar')
+            itemlist.append( Item(channel=__channel__, action="play", server="directo", title=item.title, url=video_url, thumbnail=item.thumbnail, plot=item.plot, folder=False))
     else:
-        video_url = scrapertools.find_single_match(data,'<a href="([^"]+)" class="btn btn-default" target="_blank">Descargar')
-        itemlist.append( Item(channel=__channel__, action="play", server="directo", title=item.title, url=video_url, thumbnail=item.thumbnail, plot=item.plot, folder=False))
+        itemlist = [item]
 
     return itemlist
 

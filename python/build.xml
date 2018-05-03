@@ -28,10 +28,10 @@
 <project name="tvalacarta" default="package">
 	<description>tvalacarta</description>
 
-    <property name="version" value="4.0.7"/>
-    <property name="versionboxee" value="6.0"/>
-    <property name="versiondate" value="16/04/2018"/>
-    <property name="versionchanges" value="Bugfix"/>
+    <property name="version" value="4.1.0"/>
+    <property name="versionboxee" value="6.1"/>
+    <property name="versiondate" value="02/05/2018"/>
+    <property name="versionchanges" value="New section for live streams"/>
 
     <property name="target" value="../../target/python"/>
     <property file='${user.home}/build.properties'/>
@@ -536,6 +536,8 @@
             </fileset>
         </copy>
 
+        <copydir src="main-classic/lib" dest="${target}/plex/tvalacarta.bundle/Contents/Libraries/Shared/lib"/>
+
         <!-- copy plex specific files -->
         <copy file="version-plex/Info.plist" todir="${target}/plex/tvalacarta.bundle/Contents" overwrite="true"/>
         <copy file="version-plex/DefaultPrefs.json" todir="${target}/plex/tvalacarta.bundle/Contents" overwrite="true"/>
@@ -547,6 +549,7 @@
 
         <copy file="version-plex/config.py" todir="${target}/plex/tvalacarta.bundle/Contents/Libraries/Shared/core" overwrite="true"/>
         <copy file="version-plex/logger.py" todir="${target}/plex/tvalacarta.bundle/Contents/Libraries/Shared/core" overwrite="true"/>
+        <copy file="version-plex/plugintools.py" todir="${target}/plex/tvalacarta.bundle/Contents/Libraries/Shared/" overwrite="true"/>
 
         <copy file="version-plex/en.json" todir="${target}/plex/tvalacarta.bundle/Contents/Strings" overwrite="true"/>
 

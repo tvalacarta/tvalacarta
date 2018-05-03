@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window>
+	<defaultcontrol>2</defaultcontrol>
+	<allowoverlays>false</allowoverlays>
+	<controls>
+
+		<control type="group" id="101">
+			<posx>0</posx><posy>545</posy>
+			<width>1280</width><height>175</height>
+			<visible>true</visible>
+
+		    <!-- info background -->
+		    <control type="image" id="102">
+				<posx>0</posx><posy>0</posy>
+				<width>1280</width><height>175</height>
+				<texture>player-info-background.png</texture>
+		    </control>
+
+		    <!-- channel logo -->
+		    <control type="image" id="103">
+				<posx>25</posx><posy>25</posy>
+				<width>128</width><height>128</height>
+				<texture>player-info-background.png</texture>
+		    </control>
+
+		    <!-- now -->
+		    <control type="textbox" id="104">
+				<posx>176</posx><posy>20</posy>
+				<width>760</width><height>128</height>
+				<textcolor>FFFFFFFF</textcolor>
+				<align>left</align>
+				<label></label>
+		    </control>
+
+		    <!-- next -->
+		    <control type="textbox" id="105">
+				<posx>960</posx><posy>20</posy>
+				<width>310</width><height>128</height>
+				<textcolor>FFFFFFFF</textcolor>
+				<align>right</align>
+				<label></label>
+		    </control>
+
+		</control>
+
+	</controls>
+</window>

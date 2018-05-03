@@ -13,133 +13,43 @@ from core import logger
 from core import scrapertools
 from core import jsontools
 from core.item import Item
+import youtube_channel
 
-DEBUG = config.get_setting("debug")
-CHANNELNAME = "canal22"
-PROGRAMAS_URL = "http://canal22.org.mx/alacarta/"
+CHANNELNAME="canal22"
 
 def isGeneric():
     return True
 
 def mainlist(item):
-    logger.info("tvalacarta.channels.canal22 mainlist")
-
-    return programas(Item(channel=CHANNELNAME))
-
-def programas(item):
-    logger.info("tvalacarta.channels.canal22 programas")
 
     itemlist = []
-
-    if item.url=="":
-        item.url=PROGRAMAS_URL
-
-    data = scrapertools.cache_page(item.url)
-    data = scrapertools.find_single_match(data,'<section class="int_programas">(.*?)</section')
-
-    patron  = '<a href="([^"]+)"[^<]+'
-    patron += '<div class="programas"[^<]+'
-    patron += '<img src="([^"]+)"[^<]+'
-    patron += '<div class="tit">([^<]+)</div>'
-    matches = re.compile(patron,re.DOTALL).findall(data)
-    if DEBUG: scrapertools.printMatches(matches)
-
-    for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
-        title = unicode( scrapedtitle.strip() , "iso-8859-1" , errors="ignore").encode("utf-8")
-        thumbnail = scrapedthumbnail
-        plot = ""
-        url = urlparse.urljoin(item.url,scrapedurl)
-        if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-        itemlist.append( Item( channel=item.channel , title=title , action="episodios", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail, view="videos" ) )
-
-    return itemlist
-
-def detalle_programa(item):
-
-    data = scrapertools.cache_page(item.page)
-
-    item.plot = scrapertools.find_single_match(data,'<article class="span8"[^<]+<div class="contenido_noticia">(.*?)</div>')
-    item.plot = scrapertools.htmlclean(item.plot).strip()
-
-    item.thumbnail = scrapertools.find_single_match(data,'<img src="([^"]+)" alt="" class="img-det-not">')
-
-    #item.title = scrapertools.find_single_match(data,'<article class="span8"[^<]+<h2>([^<]+)</h2>')
-
-    return item
-
-def episodios(item):
-    logger.info("tvalacarta.channels.canal22 episodios")
-    itemlist = []
-
-    data = scrapertools.cache_page(item.url)
-
-    '''
-    <a class="itemgo" href="?c=d&p=13&n=0_uq0p39bt&ti=33">
-    <div class="programas" cap="214">
-    <img src="http://cdn.kaltura.com/p/1768131/sp/176813100/thumbnail/entry_id/0_uq0p39bt/width/256/height/154">
-    <div class="tit">Basura urbana</div>
-    '''
-
-    patron  = '<a class="itemgo" href="([^"]+)"[^<]+'
-    patron += '<div class="programas"[^<]+'
-    patron += '<img src="([^"]+)"[^<]+'
-    patron += '<div class="tit">([^<]+)</div'
-
-    matches = re.compile(patron,re.DOTALL).findall(data)
-    if DEBUG: scrapertools.printMatches(matches)
-
-    for scrapedurl,scrapedthumbnail,scrapedtitle in matches:
-        title = unicode( scrapedtitle.strip() , "iso-8859-1" , errors="ignore").encode("utf-8")
-        thumbnail = scrapedthumbnail
-        plot = ""
-        url = urlparse.urljoin(item.url,scrapedurl)
-        if (DEBUG): logger.info("title=["+title+"], url=["+url+"], thumbnail=["+thumbnail+"]")
-        itemlist.append( Item( channel=item.channel , title=title , action="play", server="canal22", url=url , thumbnail=thumbnail , plot=plot , show=title , fanart=thumbnail, folder=False ) )
-
-    return itemlist
-
-def detalle_episodio(item):
-
-    item.geolocked = "0"
     
-    try:
-        from servers import canal22 as servermodule
-        video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[0][1]
-    except:
-        import traceback
-        print traceback.format_exc()
-        item.media_url = ""
+    # El primer nivel de menú es un listado por canales
+    itemlist.append( Item(channel=CHANNELNAME, title="Directos"          , action="loadlives", folder=True))
 
-    return item
-
-def play(item):
-
-    item.server="canal22";
-    itemlist = [item]
+    itemlist.extend(youtube_channel.playlists(item,"canal22"))
 
     return itemlist
 
-# Test de canal
-# Devuelve: Funciona (True/False) y Motivo en caso de que no funcione (String)
 def test():
-    
-    # Carga el menu principal
-    items_programas = mainlist(Item())
+    return youtube_channel.test("canal22")
 
-    if len(items_programas)==0:
-        return False,"No hay programas"
+def loadlives(item):
+    logger.info("tvalacarta.channels.rtve play loadlives")
 
-    for item_programa in items_programas:
-        items_episodios = episodios(item_programa)
-        if len(items_episodios)>0:
-            break
+    itemlist = []
 
-    if len(items_episodios)==0:
-        return False,"No hay episodios"
+    for directo in directos(item):
+        itemlist.append(directo)
 
-    item_episodio = detalle_episodio(items_episodios[0])
-    if item_episodio.media_url=="":
-        return False,"El conector no devuelve enlace para el vídeo "+item_episodio.title
+    return itemlist
 
-    return True,""
+def directos(item=None):
+    logger.info("tvalacarta.channels.rtve directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="Canal 22.1",        url="http://api.new.livestream.com/accounts/16458468/events/4574813/live.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/canal22.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Canal 22.2",        url="http://api.new.livestream.com/accounts/16458468/events/6932143/live.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/canal22.png", category="Nacionales", action="play", folder=False ) )
+
+    return itemlist

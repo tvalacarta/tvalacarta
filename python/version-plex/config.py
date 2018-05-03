@@ -7,6 +7,12 @@
 import os
 from types import *
 
+PLUGIN_NAME = "tvalacarta"
+PLATFORM_NAME = "plex"
+
+def is_xbmc():
+    return False
+
 def get_system_platform():
     return ""
     
@@ -65,7 +71,7 @@ def get_temp_file(filename):
     return ""
 
 def get_runtime_path():
-    return os.getcwd()
+   return os.path.abspath( os.path.join( os.path.dirname(__file__) , ".." ) )
 
 def get_data_path():
     return os.getcwd()

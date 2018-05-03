@@ -30,6 +30,8 @@ def get_video_url(page_url, premium = False, user="", password="", video_passwor
             if id_video=="":
                 id_video = scrapertools.find_single_match(page_url,'/tv3/super3/.*?/.*?/video/(\d+)')
             if id_video=="":
+                id_video = scrapertools.find_single_match(page_url,'/tv3/super3/.*?/.*?/video/fitxa-programa/(\d+)')
+            if id_video=="":
                 id_video = scrapertools.find_single_match(page_url,'/video/(\d+)')
         else:
             id_video = scrapertools.find_single_match(page_url,'/videos/(\d+)/.*?')
@@ -38,14 +40,16 @@ def get_video_url(page_url, premium = False, user="", password="", video_passwor
             data = scrapertools.cachePage(urlbase % id_video)
             response = jsontools.load_json(data.decode('iso-8859-1').encode('utf8'))
             for entry in response['media']['url']:
-                video.append([ "HTTP [mp4 %s]" % entry['label'], entry['file']])
+                video.append([ "http [mp4 %s]" % entry['label'], entry['file']])
         else:
             # Es URL de video en directo
-            video.append([ "HTTP [mp4]", page_url])
+            video.append([ "http [mp4]", page_url])
 
     except:
         import traceback
         logger.info(traceback.format_exc())
+
+    video.reverse()
 
     return video
 

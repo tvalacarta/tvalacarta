@@ -31,7 +31,7 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     matches = re.compile(patron,re.DOTALL).findall(data)
 
     for media_url,content_type in matches:
-        video_urls.append( [ "("+scrapertools.get_filename_from_url(media_url)[-4:]+") [canal10]" , media_url ] )
+        video_urls.append( [ "("+scrapertools.get_filename_from_url(media_url)[-4:]+") [canal10]" , "http:"+media_url ] )
 
     for video_url in video_urls:
         logger.info("tvalacarta.servers.canal10 %s - %s" % (video_url[0],video_url[1]))

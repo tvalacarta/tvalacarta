@@ -26,6 +26,15 @@ def mainlist(item):
     logger.info("tvalacarta.channels.dwspan mainlist")
     return programas(Item())
 
+def directos(item=None):
+    logger.info("tvalacarta.channels.aragontv directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="DW (Español)",   url="http://dwstream3-lh.akamaihd.net/i/dwstream3_live@124409/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/dwspan.png", category="Nacionales", action="play", folder=False ) )
+
+    return itemlist
+
 def programas(item):
     logger.info("tvalacarta.channels.dwspan programas")
     itemlist = []

@@ -15,6 +15,7 @@ from core.item import Item
 
 DEBUG = False
 CHANNELNAME = "adn40"
+LIVE_URL = "http://aztecalive-lh.akamaihd.net/i/0kus659k5_1@501884/master.m3u8"
 
 def isGeneric():
     return True
@@ -30,7 +31,9 @@ def categorias(item):
     item.url = "http://www.adn40.mx/json/videoteca/index.json"
 
     itemlist = []
-    
+
+    itemlist.append( Item(channel=CHANNELNAME, title="Ver señal en directo" , action="play", server="directo", url=LIVE_URL, category="programas", folder=False) )
+
     # Descarga la página
     data = scrapertools.cache_page(item.url)
     json_data = jsontools.load_json(data)    
@@ -42,6 +45,15 @@ def categorias(item):
         plot = ""
 
         itemlist.append( Item(channel=CHANNELNAME, title=title , url=url, thumbnail=thumbnail, plot=plot, action="programas", folder=True) )
+
+    return itemlist
+
+def directos(item=None):
+    logger.info("tvalacarta.channels.adn40 directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="ADN 40",   url=LIVE_URL, thumbnail="http://media.tvalacarta.info/canales/128x128/adn40.png", category="Nacionales", action="play", folder=False ) )
 
     return itemlist
 
@@ -92,11 +104,37 @@ def episodios(item):
 def test():
 
     # Comprueba que la primera opción tenga algo
-    categorias_items = mainlist(Item())
-    programas_items = programas(categorias_items[0])
-    episodios_items = episodios(programas_items[0])
+    categorias_itemlist = mainlist(Item())
+    if len(categorias_itemlist)<=1:
+        return False,"No hay categorias en el menu principal"
 
-    if len(episodios_items)>0:
-        return True
+    categoria_item = categorias_itemlist[1]
+    programas_itemlist = programas(categoria_item)
+    if len(programas_itemlist)==0:
+        return False,"No hay programas en la categoria "+categoria_item.title
 
-    return False
+    programa_item = programas_itemlist[0]
+    episodios_itemlist = episodios(programa_item)
+
+    if len(episodios_itemlist)==0:
+        return False,"No hay episodios en "+programa_item.title
+
+    episodio_item = episodios_itemlist[0]
+
+    from servers import adn40 as server
+    video_urls = server.get_video_url(episodio_item.url)
+
+    if len(video_urls)==0:
+        return False,"No funciona el vídeo "+episodio_item.title+" en el programa "+programa_item.title
+
+    # Verifica los directos
+    directos_itemlist = directos(Item())
+
+    for directo_item in directos_itemlist:
+
+        try:
+            data = scrapertools.cache_page(directo_item.url)
+        except:
+            return False,"Falla el canal en directo "+directo_item.title
+
+    return True,""

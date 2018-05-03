@@ -1,11 +1,16 @@
+import sys
+import os
+import bridge
+import channelselector
 import re, datetime
+from core import config
+
+sys.path.append (os.path.join( config.get_runtime_path(), 'lib' ))
 
 # Passing log and config to an external library
 # Credits to https://gist.github.com/mikew/5011984
-import bridge
 bridge.init(Log,Prefs,Locale)
 
-import channelselector
 from core.item import Item
 
 ###################################################################################################
@@ -126,7 +131,8 @@ def canal(channel_name="",action="",caller_item_serialized=None):
         else:
             Log.Info("caller_item_serialized="+caller_item_serialized)
             caller_item = Item()
-            caller_item.deserialize(caller_item_serialized)
+            caller_item.fromurl(caller_item_serialized)
+        
         Log.Info("caller_item="+str(caller_item))
 
         Log.Info("Importando...")
@@ -164,8 +170,10 @@ def canal(channel_name="",action="",caller_item_serialized=None):
                 pass
             
             if action!="play":
-                oc.add(DirectoryObject(key=Callback(canal, channel_name=channel_name, action=item.action, caller_item_serialized=item.serialize()), title=item.title, thumb=item.thumbnail))
-            
+                cb = Callback(canal, channel_name=channel_name, action=item.action, caller_item_serialized=item.tourl())
+                do = DirectoryObject(key=cb, title=item.title, thumb=item.thumbnail)
+                oc.add(do)
+
             else:
                 Log.Info("Llamando a la funcion play comun")
 

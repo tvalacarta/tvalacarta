@@ -137,6 +137,19 @@ def run(item=None):
 
             #xbmctools.add_items_to_kodi_directory(itemlist, item)
 
+        elif item.action=="player_directo":
+
+            from core import window_player_background
+            from channels import directos
+            import plugintools
+
+            window = window_player_background.PlayerWindowBackground("player_background.xml",plugintools.get_runtime_path())
+            window.setItemlist(directos.build_channel_list())
+            window.setCurrentPosition(item.position)
+            window.doModal()
+            del window
+            return
+
         # Action in certain channel specified in "action" and "channel" parameters
         else:
 

@@ -14,6 +14,7 @@ from core.item import Item
 
 DEBUG = config.get_setting("debug")
 CHANNELNAME = "montecarlo"
+LIVE_URL = "http://api.new.livestream.com/accounts/152816/events/4235094/live.m3u8"
 
 def isGeneric():
     return True
@@ -22,8 +23,18 @@ def mainlist(item):
     logger.info("tvalacarta.channels.montecarlo mainlist")
 
     itemlist = []
+    itemlist.append( Item(channel=CHANNELNAME, title="Ver señal en directo" , action="play", server="directo", url=LIVE_URL, category="programas", folder=False) )
     itemlist.append( Item(channel=CHANNELNAME, title="Programas"      , action="programas"    , url="http://www.montecarlotv.com.uy/programas") )
     itemlist.append( Item(channel=CHANNELNAME, title="Videoteca"      , action="programas"    , url="http://www.montecarlotv.com.uy/videoteca") )
+
+    return itemlist
+
+def directos(item=None):
+    logger.info("tvalacarta.channels.rtve directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="Montecarlo TV",        url=LIVE_URL, thumbnail="http://media.tvalacarta.info/canales/128x128/montecarlo.png", category="Nacionales", action="play", folder=False ) )
 
     return itemlist
 
@@ -169,7 +180,9 @@ def detalle_episodio(item):
 
 def play(item):
 
-    item.server="montecarlo";
+    if item.server!="directo":
+        item.server="montecarlo"
+
     itemlist = [item]
 
     return itemlist

@@ -53,18 +53,29 @@ def mainlist(item):
     return itemlist
 
 
+def directos(item=None):
+    logger.info("tvalacarta.channels.rtve directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=__channel__, title="TV3", action="play", url="http://ccma-tva-es-abertis-live.hls.adaptive.level3.net/es/ngrp:tv3_web/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tv3.png", category="Autonómicos", folder=False) )
+    itemlist.append( Item(channel=__channel__, title="TV3 CAT", action="play", url="http://ccma-tva-int-abertis-live.hls.adaptive.level3.net/int/ngrp:tv3cat_web/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tv3.png", category="Autonómicos", folder=False) )
+    itemlist.append( Item(channel=__channel__, title="3/24", action="play", url="http://ccma-tva-int-abertis-live.hls.adaptive.level3.net/int/ngrp:324_web/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tv3.png", category="Autonómicos", folder=False) )
+    itemlist.append( Item(channel=__channel__, title="33/Super3", action="play", url="http://ccma-tva-es-abertis-live.hls.adaptive.level3.net/es/ngrp:c33_web/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tv3.png", category="Autonómicos", folder=False) )
+    itemlist.append( Item(channel=__channel__, title="Esports3", action="play", url="http://ccma-tva-es-abertis-live.hls.adaptive.level3.net/es/ngrp:es3_web/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tv3.png", category="Autonómicos", folder=False) )
+
+    return itemlist
+
 # Cargar menú de directos
 def loadlives(item):
     logger.info("tvalacarta.channels.tv3 loadlives")
 
     itemlist = []
 
+    for directo in directos(item):
+        itemlist.append(directo)
+
     # Probado desde fuera de España. Cambiar "int" por "es" o viceversa si no funcionara
-    url_tv3         = "http://ccma-tva-es-abertis-live.hls.adaptive.level3.net/es/ngrp:tv3_web/playlist.m3u8"
-    url_tv3c        = "http://ccma-tva-int-abertis-live.hls.adaptive.level3.net/int/ngrp:tv3cat_web/playlist.m3u8"
-    url_324         = "http://ccma-tva-int-abertis-live.hls.adaptive.level3.net/int/ngrp:324_web/playlist.m3u8"
-    url_33          = "http://ccma-tva-es-abertis-live.hls.adaptive.level3.net/es/ngrp:c33_web/playlist.m3u8"
-    url_esp3        = "http://ccma-tva-es-abertis-live.hls.adaptive.level3.net/es/ngrp:es3_web/playlist.m3u8"
     url_catradio    = "http://ccma-radioa-int-abertis-live.hls.adaptive.level3.net/int/mp4:catradio/chunklist.m3u8"
     url_catinf      = "http://ccma-radioa-int-abertis-live.hls.adaptive.level3.net/int/mp4:catinform/chunklist.m3u8"
     url_catmus      = "http://ccma-radioa-int-abertis-live.hls.adaptive.level3.net/int/mp4:catmusica/chunklist.m3u8"
@@ -76,11 +87,6 @@ def loadlives(item):
     url_icatrumba   = "http://ccma-radioa-int-abertis-live.hls.adaptive.level3.net/int/mp4:icatrumba/chunklist.m3u8"
     url_icatmon     = "http://ccma-radioa-int-abertis-live.hls.adaptive.level3.net/int/mp4:icatmon/chunklist.m3u8"
 
-    itemlist.append( Item(channel=__channel__, title="TV3", action="play", url=url_tv3, folder=False) )
-    itemlist.append( Item(channel=__channel__, title="TV3 CAT", action="play", url=url_tv3c, folder=False) )
-    itemlist.append( Item(channel=__channel__, title="3/24", action="play", url=url_324, folder=False) )
-    itemlist.append( Item(channel=__channel__, title="33/Super3", action="play", url=url_33, folder=False) )
-    itemlist.append( Item(channel=__channel__, title="Esports3", action="play", url=url_esp3, folder=False) )
     itemlist.append( Item(channel=__channel__, title="Catalunya Ràdio", action="play", url=url_catradio, folder=False) )
     itemlist.append( Item(channel=__channel__, title="Catalunya Informació", action="play", url=url_catinf, folder=False) )
     itemlist.append( Item(channel=__channel__, title="CatMúsica", action="play", url=url_catmus, folder=False) )
