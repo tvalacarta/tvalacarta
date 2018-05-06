@@ -22,38 +22,19 @@ def mainlist(item):
     logger.info("tvalacarta.channels.telemadrid mainlist")
 
     itemlist = []
-    itemlist.append( Item(channel=CHANNELNAME, title="Telemadrid" , url="http://www.telemadrid.es/programas/directorio_programas" , action="canal", folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="laOtra" , url="http://www.telemadrid.es/laotra/directorio_programas" , action="canal", folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Telemadrid" , url="http://www.telemadrid.es/programas/directorio_programas" , action="programas", folder=True) )
+    itemlist.append( Item(channel=CHANNELNAME, title="laOtra" , url="http://www.telemadrid.es/laotra/directorio_programas" , action="programas", folder=True) )
 
     return itemlist
 
-def canal(item):
-    logger.info("tvalacarta.channels.telemadrid canal")
+def programas(item):
+    logger.info("tvalacarta.channels.telemadrid programas")
 
     itemlist = []
     
     # Descarga la página
     data = scrapertools.cache_page(item.url)
     
-    '''
-    <li class="views-row views-row-6 views-row-even">
-    <a href="/talcomoson" class="imagen">
-    <img src="http://www.telemadrid.es/sites/default/files/images/logo_talcomoson.jpg" alt="logo_talcomoson" title="logo_talcomoson"  class="image image-_original " width="230" height="190" />
-    </a>   
-    <a href="/talcomoson" class="titulo">Tal como Son</a>
-    <p><p>Un reportero de <B>Tal Como Son</b> pasa un día en la vida de un famoso. En cada programa aparecen cuatro personajes relevantes de la vida social. Personalidades del mundo de la cultura, la empresa, la aristocracia, el deporte. Conocemos aspectos desconocidos para el telespectador de la vida de estas celebridades de universos muy distintos.</p></p>
-    </li>
-    '''
-
-    '''
-    <a class="playerIco imagen" href="http://www.telemadrid.es/ruta179" >
-    <img width="142" height="106" class="image image-destacado" title="Ruta 179" alt="Ruta 179 visita Piñuecar y Gandullas" src="http://www.telemadrid.es/sites/default/files/Images2015/pinuecar_gandullas.jpg">
-    </a>
-    <a class="titulo" href="http://www.telemadrid.es/ruta179" >Ruta 179</a>
-    <span>Nos vamos de ruta por la Comunidad de Madrid</span>                       
-    </li>
-    '''
-
     # Extrae las zonas de los programas
     patron = '<li class="views-row(.*?</li>)'
     matches = re.compile(patron,re.DOTALL).findall(data)
@@ -78,6 +59,13 @@ def canal(item):
         plot = scrapertools.htmlclean(plot)
         plot = plot.replace("693 056 799","")
         plot = plot.replace("680 116 002","")
+        plot = plot.replace("+34687591531","")
+        plot = plot.replace("+34682500200","")
+        plot = plot.replace("+34616080863","")
+        plot = plot.replace("Whatsapp del programa:","")
+        plot = plot.replace("WhatsApp:","")
+        plot = scrapertools.htmlclean(plot)
+        plot = plot.strip()
 
         if title!="":
             itemlist.append( Item(channel=CHANNELNAME, title=title , url=url, thumbnail=thumbnail, plot=plot, action="episodios", show=title, folder=True) )

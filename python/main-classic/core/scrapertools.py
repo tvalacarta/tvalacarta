@@ -918,8 +918,10 @@ def htmlclean(cadena):
     cadena = cadena.replace("</option>","")
 
     cadena = re.compile("<i[^>]*>",re.DOTALL).sub("",cadena)
+    cadena = re.compile("<I[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</iframe>","")
     cadena = cadena.replace("</i>","")
+    cadena = cadena.replace("</I>","")
     
     cadena = re.compile("<table[^>]*>",re.DOTALL).sub("",cadena)
     cadena = cadena.replace("</table>","")

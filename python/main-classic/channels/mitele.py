@@ -7,6 +7,7 @@
 # v11
 #------------------------------------------------------------
 
+import re
 from core import logger
 from core import config
 from core import scrapertools       
@@ -114,7 +115,19 @@ def series(item):
     data = jsontools.load_json(data)["hits"]["hits"]
     
     for child in data:
+
         child = child["_source"]
+
+        emision = "No"
+        
+        for additional_metadata in child["additional_metadata"]:
+
+            if additional_metadata["key"]=="categoria_principal":
+                category_slug = additional_metadata["value"]
+            
+            if additional_metadata["key"]=="en_emision":
+                emision = additional_metadata["value"]
+
         title = child["localizable_titles"][0]["title_long"]
         emision = child["additional_metadata"][2]["value"]
         if emision == "Si":
@@ -135,8 +148,19 @@ def series(item):
             plot = child["localizable_titles"][0]["summary_long"]
         except:
             plot = ""
+
+        if category_slug=="_ca_series":
+            category_slug="_ca_series-online"
+        elif category_slug=="_ca_programas":
+            category_slug="_ca_programas-tv"
+
+        clean_title = re.compile("\[COLOR.*?\[\/COLOR\]",re.DOTALL).sub("",title)
+        clean_title = scrapertools.slugify(clean_title)
+        page = "https://www.mitele.es/"+category_slug[4:]+"/"+clean_title+"/"+child["external_id"]
+        logger.info("page="+page)
+
         url = child["external_id"]
-        itemlist.append( Item(channel=__channel__, action="temporadas" , title=title,  fulltitle=title, url=url, thumbnail=thumbnail, plot=plot, show=title, category=item.category, fanart=fanart))
+        itemlist.append( Item(channel=__channel__, action="temporadas" , title=title,  fulltitle=title, url=url, thumbnail=thumbnail, plot=plot, show=title, category=item.category, page = page, fanart=fanart))
 
     itemlist.sort(key=lambda item: item.title)
 
