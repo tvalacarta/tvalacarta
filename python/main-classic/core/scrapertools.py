@@ -16,6 +16,8 @@ import logger
 import re
 import downloadtools
 import socket
+import socks
+from core import config
 
 # True - Muestra las cabeceras HTTP en el log
 # False - No las muestra
@@ -28,6 +30,12 @@ CACHE_NUNCA = "2"   # No cachear nada
 CACHE_PATH = config.get_setting("cache.dir")
 
 DEBUG = True
+
+# Proxy
+if (config.get_setting("proxy_a3media") == "true"):
+    socks.set_default_proxy(socks.SOCKS5, config.get_setting('proxy_server'), int(config.get_setting('proxy_port')))
+    socket.socket = socks.socksocket
+
 
 def cache_page(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']],modo_cache=CACHE_ACTIVA, timeout=socket.getdefaulttimeout()):
     return cachePage(url,post,headers,modo_cache,timeout=timeout)

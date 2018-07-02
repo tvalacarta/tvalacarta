@@ -20,6 +20,11 @@
     <setting id="modo_cache" type="enum" lvalues="30039|30040|30041" label="30038" default="0" visible="false"/>
     <setting id="cache.dir" type="text" label="30042" default="" visible="false"/>
     <setting id="youtube_special_formats" type="bool" label="Mostrar opciones solo audio / solo video en YouTube" default="false"/>
+
+    <setting type="sep" />
+    <setting id="proxy_a3media" type="bool" label="Proxy para a3media" default="false"/>
+    <setting id="proxy_server" type="text" label="Proxy server"  enable="eq(-1,true)" default=""/>
+    <setting id="proxy_port" type="number" label="Proxy port"  enable="!eq(-1,)+eq(-2,true)" default=""/>
   </category>
 
   <category label="Cuentas de usuario">
