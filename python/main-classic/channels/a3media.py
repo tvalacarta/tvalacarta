@@ -18,8 +18,6 @@ CHANNELNAME = "a3media"
 CHANNELID = "5a6b32667ed1a834493ec03b"
 MAXLIST = 20
 
-ANDROID_HEADERS = [ ["User-Agent","Dalvik/1.6.0 (Linux; U; Android 4.3; GT-I9300 Build/JSS15J"] ]
-
 account = (config.get_setting("a3mediaaccount") == "true" )
 
 def isGeneric():
@@ -59,7 +57,7 @@ def mainlist(item):
 
     #urlchannels="https://api.atresplayer.com/client/v1/info/categories/"+CHANNELID
     sections = [
-		("series",      "5a6a1b22986b281d18a512b8"),
+		("series",       "5a6a1b22986b281d18a512b8"),
 		("programas",    "5a6a1ba0986b281d18a512b9"),
 		("noticias",     "5a6a215e986b281d18a512bc"),
 		("telenovelas",  "5a6a2313986b281d18a512be"),
@@ -128,6 +126,16 @@ def secciones(item):
                 itemlist.append(Item(channel=CHANNELNAME, title=scrapedtitle, action="temporadas", url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, folder=True))
             else:
                 itemlist.append(Item(channel=CHANNELNAME, title="["+visibility+"] "+scrapedtitle, action="", url="", thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, folder=False))
+
+    # Paginador
+    if lista.has_key('pageInfo'):
+        total = lista['pageInfo']['totalPages']
+        page = lista['pageInfo']['pageNumber'] + 1
+        if total > 1 and page < total:
+            nextUrl = item.url[:item.url.find('&page=')] if '&page=' in item.url else item.url
+            nextUrl = nextUrl+"&page="+str(page)
+            nextTitle = "Página siguiente ("+str(page)+"/"+str(total)+") > > > > "
+            itemlist.append(Item(channel=CHANNELNAME, title=nextTitle, action="secciones", url=nextUrl, folder=True))
 
     return itemlist
 
