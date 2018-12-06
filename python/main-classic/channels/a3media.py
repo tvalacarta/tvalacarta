@@ -210,7 +210,7 @@ def episodios(item):
         elif tipo == "PREMIUM":
             scrapedtitle = scrapedtitle + " (P)"
 
-        scrapedurl = "http://servicios.atresplayer.com/api/urlVideo/%s/%s/" % (episode, "android_tablet") 
+        scrapedurl = "http://servicios.atresplayer.com/api/urlVideo/%s/%s/" % (episode, "android_tablet")
         extra = episode
         if entry.has_key('storyline'): scrapedplot = entry['storyline']
         else: scrapedplot = item.plot
@@ -220,10 +220,16 @@ def episodios(item):
             if tipo == "FREE" or tipo == "REGISTER": #carga los videos que gratuitos y con registro
                 # Añade al listado
                 itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra = str(extra), folder=False) )
+            #    logger.debug(tipo + " -> Añadido (1)")
+            #else:
+            #    logger.debug(tipo + " -> No añadido (1)")
         else:
             if tipo == "FREE": #solo carga los videos que no necesitan registro ni premium
                 # Añade al listado
                 itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra = str(extra), folder=False) )
+            #    logger.debug(tipo + " -> Añadido (2)")
+            #else:
+            #    logger.debug(tipo + " -> No añadido (2)")
     return itemlist
 
 def directos(item=None):
@@ -284,7 +290,7 @@ def play(item):
         data = scrapertools.cachePage(url,headers=ANDROID_HEADERS)
         logger.info(data)
         lista = jsontools.load_json(data)
-        if lista != None: 
+        if lista != None:
             item.url = lista['resultObject']['es']
             logger.info("tvalacarta.channels.a3media item.url="+item.url)
             itemlist.append(item)
@@ -323,7 +329,7 @@ def bbcode_kodi2html(text):
 # Test de canal
 # Devuelve: Funciona (True/False) y Motivo en caso de que no funcione (String)
 def test():
-    
+
     items_mainlist = mainlist(Item())
     series_item = None
     for item in items_mainlist:
@@ -332,7 +338,7 @@ def test():
 
     if series_menu_item is None:
         return False,"No hay sección Series en el menu"
-            
+
     # El canal tiene estructura menu -> series -> temporadas -> episodios -> play
     series_items = secciones(series_menu_item)
     if len(series_items)==0:

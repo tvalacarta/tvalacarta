@@ -55,7 +55,7 @@ def loadlives(item):
         itemlist.append(directo)
 
     # Radio
-    url_rne = "http://rtve.stream.flumotion.com/rtve/radio1.mp3.m3u"
+    url_rne = "http://rtve-mp3-radiolive.flumotion.com/rtve/rtve-rne.mp3.m3u"
     url_cls = "http://radioclasica-fme.rtve.stream.flumotion.com/rtve/radioclasica.mp3.m3u"
     url_rd3 = "http://radio3-fme.rtve.stream.flumotion.com/rtve/radio3.mp3.m3u"
     url_rd4 = "http://radio4-fme.rtve.stream.flumotion.com/rtve/radio4.mp3.m3u"
