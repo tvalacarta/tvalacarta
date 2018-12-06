@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <version>
 	<name>tvalacarta</name>
-	<tag>4.1.0</tag>
-	<version>4010</version>
-	<date>02/05/2018</date>
+	<tag>4.1.1</tag>
+	<version>4011</version>
+	<date>06/12/2018</date>
 	<changes>New section for live streams</changes>
 </version>

@@ -28,12 +28,12 @@
 <project name="tvalacarta" default="package">
 	<description>tvalacarta</description>
 
-    <property name="version" value="4.1.0"/>
-    <property name="versionboxee" value="6.1"/>
-    <property name="versiondate" value="02/05/2018"/>
-    <property name="versionchanges" value="New section for live streams"/>
+    <property name="version" value="4.1.1"/>
+    <property name="versionboxee" value="6.2"/>
+    <property name="versiondate" value="06/12/2018"/>
+    <property name="versionchanges" value="General update"/>
 
-    <property name="target" value="../../target/python"/>
+    <property name="target" value="../../../dist/tvalacarta/"/>
     <property file='${user.home}/build.properties'/>
 
 	<!-- init ===================================================================== -->
