@@ -79,8 +79,8 @@ def build_channel_list():
     from channels import dwspan
     channel_list.extend(dwspan.directos())
 
-    from channels import vuittv
-    channel_list.extend(vuittv.directos())
+    #from channels import vuittv
+    #channel_list.extend(vuittv.directos())
 
     from channels import adn40
     channel_list.extend(adn40.directos())

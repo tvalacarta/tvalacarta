@@ -287,7 +287,9 @@ def directos(item=None):
     itemlist.append( Item(channel=__channel__, action="play", title="Telecinco", url="http://telecinco-mediaset-esp-live.secure.footprint.net/mediaset/telecinco/stream1/streamPlaylist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/telecinco.png", category="Nacionales", folder=False) )
     itemlist.append( Item(channel=__channel__, action="play", title="Cuatro", url="http://cuatro-mediaset-esp-live.secure.footprint.net/mediaset/cuatro/stream1/streamPlaylist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/cuatro.png", category="Nacionales", folder=False) )
     itemlist.append( Item(channel=__channel__, action="play", title="Divinity", url="https://mdslivehls-i.akamaihd.net/hls/live/571648/divinity/bitrate_4.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/divinity.png", category="Nacionales", folder=False) )
-    itemlist.append( Item(channel=__channel__, action="play", title="FDF", url="https://mdslivehls-i.akamaihd.net/hls/live/571650/fdf/bitrate_4.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/fdf.png", category="Nacionales", folder=False) )
+    itemlist.append( Item(channel=__channel__, action="play", title="Energy", url="https://mdslivehlsb-i.akamaihd.net/hls/live/623617/energy/bitrate_4.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/energy.png", category="Nacionales", folder=False) )
+    itemlist.append( Item(channel=__channel__, action="play", title="Be Mad", url="https://mdslivehlsb-i.akamaihd.net/hls/live/623615/bemad/bitrate_4.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/bemad.png", category="Nacionales", folder=False) )
+    itemlist.append( Item(channel=__channel__, action="play", title="FDF", url="https://mdslivehls-i.akamaihd.net/hls/live/571650/fdf/bitrate_4.m3u8?xtreamiptv.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/fdf.png", category="Nacionales", folder=False) )
 
     return itemlist
 

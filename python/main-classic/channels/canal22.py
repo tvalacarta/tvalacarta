@@ -49,7 +49,6 @@ def directos(item=None):
 
     itemlist = []
 
-    itemlist.append( Item(channel=CHANNELNAME, title="Canal 22.1",        url="http://api.new.livestream.com/accounts/16458468/events/4574813/live.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/canal22.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Canal 22.2",        url="http://api.new.livestream.com/accounts/16458468/events/6932143/live.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/canal22.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Canal 22",        url="http://api.new.livestream.com/accounts/27390802/events/8239465/live.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/canal22.png", category="Nacionales", action="play", folder=False ) )
 
     return itemlist

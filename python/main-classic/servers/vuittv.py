@@ -30,7 +30,7 @@ def get_video_url(page_url, premium = False, user="", password="", video_passwor
     logger.info("media_url="+media_url)
     
     video_urls = []
-    video_urls.append([ scrapertools.get_filename_from_url(media_url)[-4:]+" [vuittv]", media_url ])
+    video_urls.append([ scrapertools.get_filename_from_url(media_url)[-4:], media_url ])
 
     return video_urls
 

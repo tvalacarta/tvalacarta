@@ -13,17 +13,19 @@ from core import logger
 from core import config
 
 def get_video_url( page_url , premium = False , user="" , password="", video_password="", page_data="" ):
-    logger.info("tvalacarta.channels.extremaduratv get_video_url(page_url='%s')" % page_url)
+    logger.info("tvalacarta.servers.extremadura get_video_url(page_url='%s')" % page_url)
     video_urls = []
 
-    logger.info("url="+page_url)
-    video_urls.append( [ "para iOS (mp4) [extremaduratv]" , url[0:7]+urllib.quote(url[7:]) ] )
+    data = scrapertools.cache_page(page_url)
+    media_url = scrapertools.find_single_match(data,'"&src=([^"]+)"\s+\+\s+"&poster')
+    logger.info("media_url="+repr(media_url))
+    media_url = urllib.unquote(media_url)
+    logger.info("media_url="+repr(media_url))
 
-    #http://www.canalextremadura.es/alacarta/tv/videos/extremadura-desde-el-aire
-    #<div id="mediaplayer" rel="rtmp://canalextremadurafs.fplive.net/canalextremadura/#tv/S-B5019-006.mp4#535#330"></div>
-    url = scrapertools.find_single_match(data,'data-vidUrl="([^\#]+)')
-    logger.info("url="+url)
-    video_urls.append( [ "para Web (rtmp) [extremaduratv]" , url[0:7]+urllib.quote(url[7:]) ] )
+    video_urls.append( [ "("+scrapertools.get_filename_from_url(media_url)[-4:]+")" , media_url ] )
+
+    for video_url in video_urls:
+        logger.info("tvalacarta.servers.extremadura %s - %s" % (video_url[0],video_url[1]))
 
     return video_urls
 
@@ -32,20 +34,4 @@ def find_videos(data):
     encontrados = set()
     devuelve = []
 
-    patronvideos  = '(http://www.canalextremadura.es/alacarta/tv/videos/([a-z0-9\-]+)'
-    logger.info("tvalacarta.channels.extremaduratv find_videos #"+patronvideos+"#")
-    matches = re.compile(patronvideos,re.DOTALL).findall(data)
-
-    for match in matches:
-        titulo = "[extremaduratv]"
-        url = match
-        if url not in encontrados:
-            logger.info("  url="+url)
-            devuelve.append( [ titulo , url , 'tvg' ] )
-            encontrados.add(url)
-        else:
-            logger.info("  url duplicada="+url)
-            
-            
     return devuelve
-

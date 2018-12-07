@@ -237,12 +237,12 @@ def directos(item=None):
 
     itemlist = []
 
-    itemlist.append( Item(channel=CHANNELNAME, title="La Sexta",    url="http://a3live-lh.akamaihd.net/i/lasexta_1@35272/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/lasexta.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Antena 3",    url="http://a3live-lh.akamaihd.net/i/antena3/antena3_1@35248/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/antena3.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Mega", url="http://a3live-lh.akamaihd.net/i/mghds/geomega_1@328914/index_2_av-b.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/mega.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Neox", url="http://a3live-lh.akamaihd.net/i/nxhds/geoneox_1@35261/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/neox.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Nova", url="http://a3live-lh.akamaihd.net/i/nvhds/geonova_1@379404/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/nova.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="A3Series", url="http://a3live-lh.akamaihd.net/i/a3shds/geoa3series_1@122775/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/a3series.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="La Sexta",    url="https://pull2c-i.akamaized.net/geolasexta/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/lasexta.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Antena 3",    url="https://pull2b-i.akamaized.net/geoantena3/bitrate_1.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/antena3.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Mega", url="https://pull2a-i.akamaized.net/geomega/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/mega.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Neox", url="https://pull2b-i.akamaized.net/geoneox/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/neox.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Nova", url="https://pull1c-i.akamaized.net/geonova/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/nova.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="A3Series", url="https://pull2a-i.akamaized.net/a3series/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/a3series.png", category="Nacionales", action="play", folder=False ) )
 
     return itemlist
 

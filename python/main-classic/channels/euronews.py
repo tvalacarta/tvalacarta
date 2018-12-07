@@ -26,7 +26,7 @@ def mainlist(item):
 
     itemlist = []
 
-    itemlist.append( Item(channel=CHANNELNAME, title="Ver la señal en directo",  action="play", url = URL_LIVE, folder=False) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Ver la señal en directo",  action="directos") )
     itemlist.append( Item(channel=CHANNELNAME, title="Programas",                action="programas", url="http://es.euronews.com/programas") )
 
     return itemlist
@@ -35,7 +35,18 @@ def directos(item=None):
     logger.info("tvalacarta.channels.euronews directos")
 
     itemlist = []
-    itemlist.append( Item(channel=CHANNELNAME, title="Euronews", url=URL_LIVE, thumbnail="http://media.tvalacarta.info/canales/128x128/euronews.png", category="Nacionales", action="play", folder=False ) )
+    try:
+        data = scrapertools.cache_page("https://es.euronews.com/api/watchlive.json")
+        data_json = jsontools.load_json(data)
+
+        data = scrapertools.cache_page("https:"+data_json["url"])
+        data_json = jsontools.load_json(data)
+        live_url = data_json["primary"]
+
+        itemlist.append( Item(channel=CHANNELNAME, title="Euronews", url=live_url, thumbnail="http://media.tvalacarta.info/canales/128x128/euronews.png", category="Nacionales", action="play", folder=False ) )
+    except:
+        import traceback
+        logger.info(traceback.format_exc())
 
     return itemlist
 
@@ -113,7 +124,7 @@ def videos(item):
 
 def detalle_episodio(item):
 
-    # Ahora saca de PakaPaka la URL
+    # Ahora saca la URL
     data = scrapertools.cache_page(item.url)
 
     item.geolocked = "0"    

@@ -16,29 +16,40 @@ logger.info("tvalacarta.channels.dplay init")
 
 DEBUG = False
 CHANNELNAME = "dplay"
-
+BASE_URL = "http://es.dplay.com/series/"
 
 def isGeneric():
     return True
 
-
 def mainlist(item):
     logger.info("tvalacarta.channels.dplay mainlist")
-    itemlist = []
-    itemlist.append( Item(channel=CHANNELNAME, title="Series", action="programas", url="http://es.dplay.com/series/", folder=True) )
-    return itemlist
+    
+    return programas(Item(url="http://es.dplay.com/series/"))
 
 def programas(item):
     logger.info("tvalacarta.channels.dplay programas")
 
     itemlist = []
+
+    # Download page
     data = scrapertools.cache_page(item.url)
-    data = scrapertools.find_single_match(data, '<h1 class="margin_left">Lista de programas A-Z</h1>(.*?)<div class="clear"></div>')
     
-    patron = '<li><a href="([^"]+)">([^<]+)</a>'
+    # Parse programs
+    patron  = '<div class="b-alphabetical-list__single-show[^<]+'
+    patron += '<a href="([^"]+)"[^<]+'
+    patron += '<div class="e-grid-show e-grid-show--float"[^<]+'
+    patron += '<figure class="e-grid-show__container placeholder"[^<]+'
+    patron += '<img class="e-grid-show__image carousel-image lazy-load" lazy-src="([^"]+)"[^<]+'
+    patron += '<figcaption class="e-grid-show__info"[^<]+'
+    patron += '<h4 class="e-grid-show__title">([^<]+)</h4>'
     matches = scrapertools.find_multiple_matches(data, patron)
-    for scrapedurl, scrapedtitle in matches:
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle, action="temporadas", url=urlparse.urljoin(item.url,scrapedurl), show=scrapedtitle, folder=True) )
+
+    # Build item list
+    for scraped_url, scraped_thumbnail, title in matches:
+        url = urlparse.urljoin(item.url,scraped_url)
+        # https://eu2-prod-images.disco-api.com/2018/07/12/show-1510-309576665834820.jpg?w=680&f=jpg&p=true&q=75
+        thumbnail = scraped_thumbnail.split("?")[0]
+        itemlist.append( Item(channel=CHANNELNAME, title=title, action="temporadas", url=url, thumbnail=thumbnail, show=title, folder=True) )
 
     return itemlist
 
@@ -54,13 +65,20 @@ def temporadas(item):
     logger.info("tvalacarta.channels.dplay temporadas")
 
     itemlist = []
-    data = scrapertools.cache_page(item.url)
 
-    patron  = '<div class="episode_carousel"[^<]+'
-    patron += '<h2 class="carousel-title">([^<]+)</h2>'
+    # Download page
+    data = scrapertools.cache_page(item.url)
+    show_id = scrapertools.find_single_match(data,"data-type='shows' data-uid='(\d+)'")
+
+    # Filter only seasons section, for an easier parse
+    data = scrapertools.find_single_match(data,'<div class="e-form-dropdown-body">(.*?)</div>')
+    
+    # Parse seasons
+    patron  = '<input type="radio" id="Temporada(\d+)" name="carouselSeasonDropdown" value="([^"]+)">'
     matches = scrapertools.find_multiple_matches(data, patron)
-    for scrapedtitle in matches:
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle, action="episodios", url=urlparse.urljoin(item.url,"episodios/"+scrapertools.slugify(scrapedtitle)), show=item.show, folder=True) )
+    for season_number,season_label in matches:
+        url = "https://es.dplay.com/ajax/carousel/?show_id="+show_id+"&season_number="+season_number+"&count=100&offset=0&cellstyle=type2"
+        itemlist.append( Item(channel=CHANNELNAME, title=season_label, action="episodios", url=url, show=item.show, folder=True) )
 
     return itemlist
 
@@ -69,68 +87,54 @@ def episodios(item):
 
     itemlist = []
 
+    # Download page
+    data = scrapertools.cache_page(item.url)
+
     '''
-    <li class="single_episode_element episode-slide ">
-    <a href="/dmax/en-mitad-de-la-nada/temporada-1-episodio-14-regreso-a-la-veta-principal/">
-    <div class="caros-ep-duration animated_delayed">
-    <div class="container_clock" data-duration='44'></div>
-    <p class="animated_delayed" data-duration='44'>44 min</p>
+    <div class="carousel-cell">
+
+    <a href="/dmax/acuarios-xxl/temporada-5-episodio-14-equipo-de-musica-para-los-chicago-bull/">
+    <div class="e-grid-episode">
+    <figure class="e-grid-episode__container ">
+    <div class="e-grid-episode__image-container placeholder">
+    <img class="e-grid-episode__image carousel-image "
+    data-flickity-lazyload="https://eu2-prod-images.disco-api.com/2017/09/16/videoasset-16199-1505539939396.jpeg?w=480&f=jpg&p=true&q=75">
     </div>
-    <figure class="caros-ep-img-container animated_delayed">
 
-    <img class="img-responsive" src="https://dplay-south-prod-images.disco-api.com/2017/01/18/videoasset-16577-1506071092087.jpg?w=480&f=jpg&p=true&q=75" alt="" />
-    </figure>
+    <figcaption class="e-grid-episode__info">
 
-    <figcaption>
-    <h4 class="caros-show-title">En mitad de la nada</h4>
-    <h5 class="caros-ep-title">Regreso a la veta principal </h5>
-    </figcaption>
-    <span class="play_cta">
-    <div class="triangle_css animated_delayed"></div>
-    play  
-    </span>
-    <span class="published_date  old_content ">18/01/2017</span>
-    </a>
-    </li>
+    <h4 class="e-grid-episode__title">Equipo de música para los Chicago Bull</h4>
+    <h5 class="e-grid-episode__description">
+    <span class="e-grid-episode__episode-season">E.14 T.5 - </span>
+    <span class="e-grid-episode__episode-descr">PARA TODOS LOS PÚBLICOS. La estrella de los Chicago Bulls, Jimmy Butler, encarga a Wayde y Brett un acuario en forma de radiocasete que se ilumina y del que sale música.</span>
+    </h5>
+
+    <span class="e-grid-episode__date">30/06/2016</span>
+    <span class="e-grid-episode__duration">44 min&nbsp;&nbsp;
     '''
-
-    patron  = '<li class="single_episode_element episode-slide[^<]+'
+    # Parse episodes
+    patron  = '<div class="carousel-cell"[^<]+'
     patron += '<a href="([^"]+)"[^<]+'
-    patron += '<div class="caros-ep-duration animated_delayed"[^<]+'
-    patron += '<div class="container_clock" data-duration=\'(\d+)\'></div[^<]+'
-    patron += '<p class="animated_delayed"[^>]+>[^<]+</p[^<]+'
+    patron += '<div class="e-grid-episode"[^<]+'
+    patron += '<figure class="e-grid-episode__container[^<]+'
+    patron += '<div[^<]+'
+    patron += '<img class="[^"]+"\s+data-flickity-lazyload="([^"]+)"[^<]+'
     patron += '</div[^<]+'
-    patron += '<figure class="caros-ep-img-container animated_delayed"[^<]+'
-    patron += '<img class="img-responsive" src="([^"]+)" alt="" />
-    patron += '</figure>
-    patron += '<figcaption>
-    patron += '<h4 class="caros-show-title">En mitad de la nada</h4>
-    patron += '<h5 class="caros-ep-title">Regreso a la veta principal </h5>
-    patron += '</figcaption>
-    patron += '<span class="play_cta">
-    patron += '<div class="triangle_css animated_delayed"></div>
-    patron += 'play  
-    patron += '</span>
-    patron += '<span class="published_date  old_content ">18/01/2017</span>
-    patron += '</a>
-    patron += '</li>
-
+    patron += '<figcaption class="e-grid-episode__info"[^<]+'
+    patron += '<h4 class="e-grid-episode__title">([^<]+)</h4[^<]+'
+    patron += '<h5 class="e-grid-episode__description">(.*?)</h5[^<]+'
+    patron += '<span class="e-grid-episode__date">([^<]+)</span[^<]+'
+    patron += '<span class="e-grid-episode__duration">([^<]+)<'
     matches = scrapertools.find_multiple_matches(data, patron)
-    for scrapedurl, scrapedthumbnail, scrapedtitle, scrapedplot in matches:
-        scrapedurl = item.url + scrapedurl
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle, action="play", url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot, fanart=fanart, show=item.show, folder=False) )
 
-    if len(itemlist) < 2:
-        itemlist.append( Item(channel=CHANNELNAME, title="No hay episodios completos disponibles", action="", url="", thumbnail=fanart, plot=sinopsis, fanart=fanart, folder=False) )
-    if clips:
-        itemlist.append( Item(channel=CHANNELNAME, title="[COLOR red]>> Clips de vídeo[/COLOR]", action="episodios", url=url_clips, thumbnail=fanart, plot=sinopsis, fanart=fanart, folder=True) )
-    return itemlist
-
-def play(item):
-    logger.info("tvalacarta.channels.dplay play")
-    itemlist = []
-    data = scrapertools.cache_page(item.url).replace("\n","")
-    url = url_brightcove(item.url.rsplit("#")[1], data)
-    itemlist.append( Item(channel=CHANNELNAME, title="", action="play", url=url, server="dplay", thumbnail=item.thumbnail, plot=item.plot, folder=False) )
+    for scraped_url, scraped_thumbnail, title, scraped_plot, scraped_date, scraped_duration in matches:
+        url = urlparse.urljoin(item.url,scraped_url)
+        # https://eu2-prod-images.disco-api.com/2018/07/12/show-1510-309576665834820.jpg?w=680&f=jpg&p=true&q=75
+        thumbnail = scraped_thumbnail.split("?")[0]
+        plot = scrapertools.htmlclean(scraped_plot).strip()
+        plot = re.compile("\s+",re.DOTALL).sub(" ",plot)
+        aired_date = scrapertools.parse_date(scraped_date)
+        duration = scrapertools.htmlclean(scraped_duration)
+        itemlist.append( Item(channel=CHANNELNAME, title=title, action="play", server="dplay", url=url, thumbnail=thumbnail, plot=plot, aired_date=aired_date, duration=duration, show=item.show, folder=False) )
 
     return itemlist

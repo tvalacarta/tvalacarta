@@ -84,14 +84,22 @@ def programas(item, load_all_pages=False):
     return itemlist
 
 def detalle_programa(item):
-
     return item
 
 def detalle_episodio(item):
 
-    #data = scrapertools.cachePage(item.url)
+    # Ahora saca la URL
+    data = scrapertools.cache_page(item.url)
 
-    item.media_url = item.extra #scrapertools.find_single_match(data,'file\:\s+"([^"]+)"')
+    try:
+        from servers import extremaduratv as servermodule
+        video_urls = servermodule.get_video_url(item.url)
+        item.media_url = video_urls[0][1]
+        item.plot = scrapertools.find_single_match(data,'<meta property="og:description" content="([^<]+)"')
+    except:
+        import traceback
+        print traceback.format_exc()
+        item.media_url = ""
 
     return item
 
@@ -102,54 +110,50 @@ def episodios(item):
     # Descarga la página
     data = scrapertools.cachePage(item.url)
 
-    '''
-    <div class="modal-video-ajax modal-video modal fade color-tv" id="modalTV2_33318" tabindex="-1" role="dialog" aria-labelledby="modalTV2_33318Label" aria-hidden="true"
-    data-video-imagen-modal="http://www.canalextremadura.es/sites/default/files/styles/nuevo_dise_o_-_grande/public/imagenes-nuevo-disenio/tv-a-la-carta/_desdeelaire.jpg?itok=FmvSbPkH"
-    data-video-video-mobile="http://iphonevod.canalextremadura.es/S-B4583-009.mp4"
-    data-video-url="/alacarta/tv/videos/extremadura-desde-el-aire-3"
-    data-video-titulo-modal="El Reino del Pata Negra"
-    data-video-id-nodo="33318"
-    data-video-video-modal="rtmp://canalextremadura.cdn.canalextremadura.es/canalextremadura/tv/S-B4583-009.mp4"
-    '''
-    patron  = '<div class="modal-video-ajax(.*?<div class="barra-cerrar-modal)'
-    matches = re.findall(patron,data,re.DOTALL)
+    # En la primera página debe parsear los destacados
+    if "?page" not in item.url:
+        patron  = '<div class="ipost clearfix">(.*?<li><i class="icon-calendar3"></i[^<]+<span class="date-display-single">[^<]+</span>)'
+        matches = re.findall(patron,data,re.DOTALL)
+        logger.info("matches="+repr(matches))
 
-    # Las páginas siguientes se saltan los dos primeros vídeos (son destacados que se repiten)
-    if "?page" in item.url:
-        saltar = 2
-    else:
-        saltar = 0
+        for match in matches:
+
+            title = scrapertools.find_single_match(match,'<h3[^>]+>([^<]+)</h3>').strip()
+            url = urlparse.urljoin(item.url,scrapertools.find_single_match(match,'<a href="([^"]+)"'))
+            thumbnail = urlparse.urljoin(item.url,scrapertools.find_single_match(match,'<img class="image_fade" src="([^"]+)"'))
+            plot = ""
+            aired_date = scrapertools.find_single_match(match,'<span class="date-display-single">([^<]+)</span>')
+            aired_date = scrapertools.parse_date(aired_date).strip()
+            if aired_date=="":
+                aired_date = scrapertools.parse_date(title).strip()
+
+            if title!="":
+                itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="extremaduratv" , plot=plot, url=url, thumbnail=thumbnail, fanart=thumbnail, show=item.show, aired_date=aired_date, view="videos", folder=False) )
+
+
+
+    patron  = '<div class="col-md-4 col-sm-4 col-xs-6">(.*?<li><i class="icon-calendar3"></i[^<]+<span class="date-display-single">[^<]+</span>)'
+    matches = re.findall(patron,data,re.DOTALL)
 
     for match in matches:
 
-        if saltar>0:
-            saltar = saltar - 1
-            continue
+        title = scrapertools.find_single_match(match,'<h4[^>]+>([^<]+)</h4>').strip()
+        url = urlparse.urljoin(item.url,scrapertools.find_single_match(match,'<a href="([^"]+)"'))
+        thumbnail = urlparse.urljoin(item.url,scrapertools.find_single_match(match,'<img class="image_fade" src="([^"]+)"'))
+        plot = ""
+        aired_date = scrapertools.find_single_match(match,'<span class="date-display-single">([^<]+)</span>')
+        aired_date = scrapertools.parse_date(aired_date).strip()
+        if aired_date=="":
+            aired_date = scrapertools.parse_date(title).strip()
 
-        title = scrapertools.find_single_match(match,'data-video-titulo-modal="([^"]+)"')
-        url = urlparse.urljoin(item.url,scrapertools.find_single_match(match,'data-video-url="([^"]+)"'))
-        thumbnail = urlparse.urljoin(item.url,scrapertools.find_single_match(match,'data-video-imagen-modal="([^"]+)"'))
-        plot = scrapertools.find_single_match(match,'<blockquote class="nomargin">(.*?)</blockquote>').strip()
-        aired_date = scrapertools.parse_date(title)
-        extra = urlparse.urljoin(item.url,scrapertools.find_single_match(match,'data-video-video-modal="([^"]+)"'))
-
-        itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="extremaduratv" , plot=plot, url=url, thumbnail=thumbnail, fanart=thumbnail, show=item.show, aired_date=aired_date, extra=extra, view="videos", folder=False) )
+        if title!="":
+            itemlist.append( Item(channel=CHANNELNAME, title=title , action="play" , server="extremaduratv" , plot=plot, url=url, thumbnail=thumbnail, fanart=thumbnail, show=item.show, aired_date=aired_date, view="videos", folder=False) )
 
     if len(itemlist)>0:
         next_page_url = scrapertools.find_single_match(data,'<li class="pager-next"><a title="[^"]+" href="([^"]+)"')
         next_page_url = urlparse.urljoin(item.url,next_page_url)
         next_page_item = Item(channel=CHANNELNAME, title=">> Página siguiente" , action="episodios" , url=next_page_url)
         itemlist.append( next_page_item )
-
-    return itemlist
-
-def play(item,page_data=""):
-    logger.info("tvalacarta.channels.extremaduratv play")
-
-    itemlist = []
-
-    if item.extra<>"":
-        itemlist.append( Item(channel=CHANNELNAME, title=item.title , action="play" , server="directo" , url=item.extra, thumbnail=item.thumbnail, plot=item.plot , show=item.show , folder=False) )
 
     return itemlist
 

@@ -39,10 +39,10 @@ def directos(item=None):
 
     itemlist = []
 
-    itemlist.append( Item(channel=CHANNELNAME, title="La 1",        url="http://hlsliveamdgl7-lh.akamaihd.net/i/hlsdvrlive_1@583042/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tvela1-transparente.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="La 2",        url="http://hlsliveamdgl0-lh.akamaihd.net/i/hlslive_1@586367/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tvela2-transparente.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Teledeporte", url="http://hlsliveamdgl1-lh.akamaihd.net/i/hlsdvrlive_1@39732/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tvetdp-transparente.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Canal 24H",   url="http://hlsliveamdgl8-lh.akamaihd.net/i/hlsdvrlive_1@583030/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tve24h-transparente.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="La 1",        url="http://rtvev4-live.hss.adaptive.level3.net/egress/ahandler/rtvegl7/la1_lv3_aosv4_gl7/la1_lv3_aosv4_gl7.isml/la1_lv3_aosv4_gl7-audio=128000-video=400000.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tvela1-transparente.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="La 2",        url="http://rtvev4-live.hss.adaptive.level3.net/egress/ahandler/rtvegl0/la2_lv3_aosv4_gl0/la2_lv3_aosv4_gl0.isml/la2_lv3_aosv4_gl0-audio=128000-video=400000.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tvela2-transparente.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Teledeporte", url="http://rtvev4-live.hss.adaptive.level3.net/egress/ahandler/rtvegl1/tdphd_lv3_aosv4_gl1/tdphd_lv3_aosv4_gl1.isml/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tvetdp-transparente.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Canal 24H",   url="http://rtvev4-live.hss.adaptive.level3.net/egress/ahandler/rtvegl0/irtve01_lv3_aosv4_gl0/irtve01_lv3_aosv4_gl0.isml/irtve01_lv3_aosv4_gl0-audio=128000-video=400000.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tve24h-transparente.png", category="Nacionales", action="play", folder=False ) )
 
     return itemlist
 

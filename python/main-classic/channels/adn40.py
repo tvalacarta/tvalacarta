@@ -15,7 +15,7 @@ from core.item import Item
 
 DEBUG = False
 CHANNELNAME = "adn40"
-LIVE_URL = "http://aztecalive-lh.akamaihd.net/i/0kus659k5_1@501884/master.m3u8"
+LIVE_URL = "http://aztecalive-lh.akamaihd.net/i/0e3hprpxt_1@735658/master.m3u8"
 
 def isGeneric():
     return True

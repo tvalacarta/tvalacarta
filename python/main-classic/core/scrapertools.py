@@ -16,7 +16,6 @@ import logger
 import re
 import downloadtools
 import socket
-import socks
 from core import config
 
 # True - Muestra las cabeceras HTTP en el log
@@ -33,9 +32,14 @@ DEBUG = True
 
 # Proxy
 if (config.get_setting("proxy_a3media") == "true"):
-    socks.set_default_proxy(socks.SOCKS5, config.get_setting('proxy_server'), int(config.get_setting('proxy_port')))
-    socket.socket = socks.socksocket
-
+    try:
+        import socks
+        socks.set_default_proxy(socks.SOCKS5, config.get_setting('proxy_server'), int(config.get_setting('proxy_port')))
+        socket.socket = socks.socksocket
+    except:
+        logger.info("tvalacarta.core.scrapertools sockets module not available")
+        import traceback
+        logger.info(traceback.format_exc())
 
 def cache_page(url,post=None,headers=[['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12']],modo_cache=CACHE_ACTIVA, timeout=socket.getdefaulttimeout()):
     return cachePage(url,post,headers,modo_cache,timeout=timeout)
@@ -1444,6 +1448,8 @@ def parse_date(cadena,formato="dmy"):
     scrapeddate = find_single_match(cadena,"(\d+ de [^\s]+ de \d+)")
     if scrapeddate!="":
         scrapedday = find_single_match(scrapeddate,"(\d+) de [^\s]+ de \d+")
+        if scrapedday!="" and len(scrapedday.strip())==1:
+            scrapedday="0"+scrapedday
         scrapedmonth = find_single_match(scrapeddate,"\d+ de ([^\s]+) de \d+")
         scrapedyear = find_single_match(scrapeddate,"\d+ de [^\s]+ de (\d+)")
 
@@ -1481,6 +1487,8 @@ def parse_date(cadena,formato="dmy"):
     scrapeddate = find_single_match(cadena,"(\d+ [a-zA-Z]+ \d+)")
     if scrapeddate!="":
         scrapedday = find_single_match(scrapeddate,"(\d+) [a-zA-Z]+ \d+")
+        if scrapedday!="" and len(scrapedday.strip())==1:
+            scrapedday="0"+scrapedday
         scrapedmonth = find_single_match(scrapeddate,"\d+ ([a-zA-Z]+) \d+")
         scrapedyear = find_single_match(scrapeddate,"\d+ [a-zA-Z]+ (\d+)")
 
