@@ -31,6 +31,7 @@ def mainlist(item):
     itemlist.append( Item(channel=CHANNELNAME, title="La 2"              , action="canal" , thumbnail = "" , url="http://www.rtve.es/alacarta/tve/la2/", extra="la2"))
     itemlist.append( Item(channel=CHANNELNAME, title="Canal 24 horas"    , action="canal" , thumbnail = "" , url="http://www.rtve.es/alacarta/tve/24-horas/", extra="24-horas"))
     itemlist.append( Item(channel=CHANNELNAME, title="Teledeporte"       , action="canal" , thumbnail = "" , url="http://www.rtve.es/alacarta/tve/teledeporte/", extra="teledeporte"))
+    itemlist.append( Item(channel=CHANNELNAME, title="Playz"             , action="canal" , thumbnail = "" , url="http://www.rtve.es/alacarta/tve/playz/", extra="playz"))
 
     return itemlist
 
@@ -80,7 +81,7 @@ def canal(item):
     itemlist.append( Item(channel=CHANNELNAME, title="Todos los programas" , action="programas" , url="" , extra=item.extra+"/todos/1"))
 
     # Descarga la página que tiene el desplegable de categorias de programas
-    url = "http://www.rtve.es/alacarta/programas/tve/todos/1/"
+    url = "http://www.rtve.es/alacarta/programas/"+item.extra+"/todos/1/"
     data = scrapertools.cachePage(url)
 
     # Extrae las categorias de programas
