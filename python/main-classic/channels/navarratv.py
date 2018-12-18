@@ -36,20 +36,18 @@ from core.item import Item
 DEBUG = False
 __channel__ = "navarratv"
 
-def isGeneric():
-    return True
-
 def mainlist(item):
     logger.info("tvalacarta.channels.navarratv mainlist")
 
-    item.url="http://www.natv.es/Alacarta"
-    item.view="programs"
-    return programas(item)
+    return programas(Item())
 
 def programas(item):
     logger.info("tvalacarta.channels.navarratv programas")    
 
     itemlist = []
+
+    item.url="http://www.natv.es/Alacarta"
+    item.view="programs"
 
     # Descarga la página
     data = scrapertools.cache_page(item.url)
@@ -84,9 +82,6 @@ def programas(item):
         itemlist.append( Item(channel=__channel__, action="episodios", title=title, show=title, url=url, thumbnail=thumbnail, fanart=thumbnail, plot=plot, folder=True))
 
     return itemlist
-
-def detalle_programa(item):
-    return item
 
 def episodios(item,load_all_pages=True):
     logger.info("tvalacarta.channels.navarratv episodios")    
@@ -127,25 +122,9 @@ def episodios(item,load_all_pages=True):
         yt_id = scrapertools.find_single_match(scrapedurl,"/yt/([^/]+)/")
         url = "https://www.youtube.com/watch?v="+yt_id
         title = scrapertools.safe_unicode(scrapedtitle).encode("utf-8").strip()
-        plot = ""
+        plot = scrapedplot.strip()
+        aired_date = scrapertools.parse_date(title)
 
-        itemlist.append( Item(channel=__channel__, action="play", server="youtube", title=title, url=url, thumbnail=thumbnail, fanart=thumbnail, show=item.show, plot=plot, folder=True))
+        itemlist.append( Item(channel=__channel__, action="play", server="navarratv", title=title, url=url, thumbnail=thumbnail, fanart=thumbnail, show=item.show, aired_date=aired_date, plot=plot, folder=False))
 
     return itemlist
-
-
-# Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
-def test():
-    
-    # Mainlist es la lista de programas
-    programas_items = mainlist(Item())
-    if len(programas_items)==0:
-        print "No encuentra los programas"
-        return False
-
-    episodios_items = videos(programas_items[0])
-    if len(episodios_items)==0:
-        print "El programa '"+programas_items[0].title+"' no tiene episodios"
-        return False
-
-    return True

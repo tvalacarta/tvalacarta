@@ -18,9 +18,6 @@ DEBUG = config.get_setting("debug")
 CHANNELNAME = "aragontv"
 LIVE_URL = "http://aragontv.stream.flumotion.com/aragontv/live-hls/main.m3u8"
 
-def isGeneric():
-    return True
-
 def mainlist(item):
     logger.info("tvalacarta.channels.aragontv mainlist")
 
@@ -143,6 +140,16 @@ def episodios(item,data=""):
     matches = re.compile(patron,re.DOTALL).findall(data)
     #if DEBUG: scrapertools.printMatches(matches)
 
+    if len(matches)==0:
+        # El buscador tiene un formato distinto
+        patron  = '<div id="[^"]+" class="vid bloque[^<]+'
+        patron += '<div class="imagen[^<]+'
+        patron += '<img title="[^"]+" alt="([^"]+)" src="([^"]+)"[^<]+'
+        patron += '<div class="play">[^<]+'
+        patron += '<a href="([^"]+)".*?'
+        patron += '<span class="fecha">(.*?)</span>'
+        matches = re.compile(patron,re.DOTALL).findall(data)
+
     itemlist = []
     for match in matches:
         # Interpreta la fecha
@@ -232,24 +239,3 @@ def subcategorias(pageurl):
         itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , show=scrapedtitle, folder=True, view="videos") )
 
     return itemlist
-
-# Test de canal
-# Devuelve: Funciona (True/False) y Motivo en caso de que no funcione (String)
-def test():
-    
-    items_mainlist = mainlist(Item())
-    items_programas = programas(items_mainlist[3])
-
-    # El canal tiene estructura programas -> episodios -> play
-    if len(items_programas)==0:
-        return False,"No hay programas"
-
-    items_episodios = episodios(items_programas[0])
-    if len(items_episodios)==0:
-        return False,"No hay episodios en "+items_programas[0].title
-
-    item_episodio = detalle_episodio(items_episodios[0])
-    if item_episodio.media_url=="":
-        return False,"El conector no devuelve enlace para el vídeo "+item_episodio.title
-
-    return True,""

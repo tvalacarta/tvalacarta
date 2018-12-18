@@ -1,29 +1,24 @@
 # -*- coding: utf-8 -*-
 #------------------------------------------------------------
 # pelisalacarta - XBMC Plugin
-# Conector para rtpa
+# Conector para sietetvandalucia
 # http://blog.tvalacarta.info/plugin-xbmc/pelisalacarta/
 #------------------------------------------------------------
 
-import urlparse,urllib2,urllib,re
-import os
-
-from core import scrapertools
 from core import logger
-from core import config
+from core import scrapertools
+from core import jsontools
+
+import urllib
 
 def get_video_url( page_url , premium = False , user="" , password="", video_password="", page_data="" ):
-    logger.info("tvalacarta.servers.rtpa get_video_url(page_url='%s')" % page_url)
+    logger.info("tvalacarta.servers.sietetvandalucia get_video_url(page_url='%s')" % page_url)
 
     data = scrapertools.cache_page(page_url)
+    media_url = scrapertools.find_single_match(data,'<a class="enlace-social icon_download[^"]+" title="Descargar[^"]+" href="([^"]+)"')
 
-    url = scrapertools.get_match(data,"<source src='([^']+)' type='video/mp4'")
-    
     video_urls = []
-    video_urls.append( [ "(.mp4)" , url ] )
-
-    for video_url in video_urls:
-        logger.info("tvalacarta.servers.rtpa %s - %s" % (video_url[0],video_url[1]))
+    video_urls.append(["(.mp4)", media_url])
 
     return video_urls
 

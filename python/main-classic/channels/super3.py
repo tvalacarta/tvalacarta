@@ -39,11 +39,6 @@ from servers import servertools
 __channel__ = "super3"
 __title__ = "super3"
 
-DEBUG = config.get_setting("debug")
-
-def isGeneric():
-    return True
-
 def mainlist(item):
     logger.info("tvalacarta.channels.super3 mainlist")
 
@@ -81,15 +76,6 @@ def programas(item):
         itemlist.append( Item(channel=__channel__, action="episodios", title=title, show=title, url=url, thumbnail=thumbnail, fanart=thumbnail, plot=plot, folder=True))
 
     return itemlist
-
-def detalle_programa(item):
-
-    data = scrapertools.cache_page(item.url)
-
-    item.plot = scrapertools.find_single_match(data,'<meta\s*name="description"\s*content="([^"]+)"')
-    item.plot = scrapertools.htmlclean(item.plot).strip()
-
-    return item
 
 def episodios(item,load_all_pages=True):
     logger.info("tvalacarta.channels.super3 episodios")
@@ -140,6 +126,8 @@ def episodios(item,load_all_pages=True):
 
     for match in matches:
         thumbnail = scrapertools.find_single_match(match,'<img class="foto" src="([^"]+)"')
+        if not thumbnail.startswith("http"):
+            thumbnail = "http:"+thumbnail
         url = urlparse.urljoin( item.url , scrapertools.find_single_match(match,'<a class="media-object" href="([^"]+)"') )
         title = scrapertools.find_single_match(match,'<h2 id="destacat_a[^>]+>([^<]+)</h2>')
         plot = ""
@@ -157,42 +145,3 @@ def episodios(item,load_all_pages=True):
         logger.info("tvalacarta.channels.super3 episodios No hay paginación")
 
     return itemlist
-
-def detalle_episodio(item):
-
-    data = scrapertools.cache_page(item.url)
-
-    item.geolocked = "0"    
-    try:
-        from servers import tv3 as servermodule
-        video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[0][1]
-    except:
-        import traceback
-        print traceback.format_exc()
-        item.media_url = ""
-
-    return item
-
-def play(item):
-
-    item.server="tv3";
-    itemlist = [item]
-
-    return itemlist
-
-# Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
-def test():
-    
-    # Mainlist es la lista de programas
-    programas_items = mainlist(Item())
-    if len(programas_items)==0:
-        print "No encuentra los programas"
-        return False
-
-    episodios_items = videos(programas_items[0])
-    if len(episodios_items)==0:
-        print "El programa '"+programas_items[0].title+"' no tiene episodios"
-        return False
-
-    return True

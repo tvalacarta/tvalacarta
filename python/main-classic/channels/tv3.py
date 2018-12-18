@@ -147,6 +147,7 @@ def loadprogram(item):
         matches = re.compile(patron,re.DOTALL).findall(subpage[0])
         if len(matches) > 0:
             for program in matches:
+                logger.info("program="+repr(program))
                 try:
                     # Crea entradas
                     scrapedtitle = str(program[1]).replace("&quot;", "'").strip()
@@ -171,9 +172,17 @@ def loadprogram(item):
 
 def detalle_programa(item):
 
-    data = scrapertools.cache_page(item.url)
+    # http://www.ccma.cat/tv3/alacarta/10cites/ultims-programes/
+    url = item.url.replace("/tv3/alacarta/","/tv3/")
+    url = url.replace("/ultims-programes","")
+
+    data = scrapertools.cache_page(url)
 
     item.plot = scrapertools.find_single_match(data,'<meta name="description" content="([^"]+)"')
+    try:
+        item.plot = scrapertools.decodeHtmlentities(item.plot)
+    except:
+        pass
     item.plot = scrapertools.htmlclean(item.plot).strip()
 
     item.thumbnail = scrapertools.find_single_match(data,'<meta property="og:image" content="([^"]+)"')

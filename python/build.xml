@@ -28,9 +28,9 @@
 <project name="tvalacarta" default="package">
 	<description>tvalacarta</description>
 
-    <property name="version" value="4.1.1"/>
-    <property name="versionboxee" value="6.2"/>
-    <property name="versiondate" value="06/12/2018"/>
+    <property name="version" value="4.1.2"/>
+    <property name="versionboxee" value="6.3"/>
+    <property name="versiondate" value="17/12/2018"/>
     <property name="versionchanges" value="General update"/>
 
     <property name="target" value="../../../dist/tvalacarta/"/>

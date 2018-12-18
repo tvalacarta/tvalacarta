@@ -14,6 +14,7 @@ from core.item import Item
 
 DEBUG = False
 CHANNELNAME = "apunt"
+LIVE_URL = "https://cflive-emea.live-delivery.ooyala.com/out/u/jb44pwd2tj7w5/111819/wyYXIxZTE6okZbyKLzxq8TXa4a-SQlAO/cs/d77d4356674b449695b1c0f19fbd6fae.m3u8"
 
 def isGeneric():
     return True
@@ -22,6 +23,7 @@ def mainlist(item):
     logger.info("tvalacarta.channels.apunt mainlist")
 
     itemlist = []
+    itemlist.append( Item(channel=CHANNELNAME, title="Ver señal en directo" , action="play", url=LIVE_URL, category="programas", folder=False) )
     itemlist.append( Item(channel=CHANNELNAME, title="A la carta" , action="programas_apunt", folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="La Colla" , action="programas_lacolla", folder=True) )
 
@@ -149,37 +151,11 @@ def episodios(item):
 
     return itemlist
 
-def detalle_programa(item):
-    return item
+def directos(item=None):
+    logger.info("tvalacarta.channels.aragontv directos")
 
-def detalle_episodio(item):
+    itemlist = []
 
-    # Ahora saca la URL
-    data = scrapertools.cache_page(item.url)
+    itemlist.append( Item(channel=CHANNELNAME, title="À punt",   url=LIVE_URL, thumbnail="http://media.tvalacarta.info/canales/128x128/apunt.png", category="Autonómicos", action="play", folder=False ) )
 
-    try:
-        from servers import extremaduratv as servermodule
-        video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[0][1]
-        item.plot = scrapertools.find_single_match(data,'<meta itemprop="description" content="(.*?)">')
-        item.plot = scrapertools.decodeHtmlentities(item.plot)
-        item.plot = scrapertools.htmlclean(item.plot)
-    except:
-        import traceback
-        print traceback.format_exc()
-        item.media_url = ""
-
-    return item
-
-# Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
-def test():
-
-    # Comprueba que la primera opción tenga algo
-    categorias_items = mainlist(Item())
-    programas_items = programas(categorias_items[0])
-    episodios_items = episodios(programas_items[0])
-
-    if len(episodios_items)>0:
-        return True
-
-    return False
+    return itemlist

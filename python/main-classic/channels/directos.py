@@ -64,6 +64,9 @@ def build_channel_list():
     from channels import mitele
     channel_list.extend(mitele.directos())
 
+    from channels import apunt
+    channel_list.extend(apunt.directos())
+
     from channels import aragontv
     channel_list.extend(aragontv.directos())
 

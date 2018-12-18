@@ -20,18 +20,14 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     result = ydl.extract_info(page_url, download=False)
     logger.info("tvalacarta.server.rtve get_video_url result="+repr(result))
 
-    if "ext" in result and "url" in result:
-        video_urls.append(["(opción 1) [rtve]", scrapertools.safe_unicode(result['url']).encode('utf-8')+"|User-Agent=Mozilla/5.0"])
-    else:
-
-        if "entries" in result:
-            for entry in result["entries"]:
-                video_urls.append(["(opción 1) [rtve]", scrapertools.safe_unicode(entry['url']).encode('utf-8')+"|User-Agent=Mozilla/5.0"])
-
     try:
-        alternate_video_urls = descargavideos.get_video_url(page_url)
-        for video_url in alternate_video_urls:
-            video_urls.append(["(opción 2) [rtve]", video_url[1]+"|User-Agent=Mozilla/5.0"])
+        if "ext" in result and "url" in result:
+            video_urls.append(["[rtve]", scrapertools.safe_unicode(result['url']).encode('utf-8')+"|User-Agent=Mozilla/5.0"])
+        else:
+
+            if "entries" in result:
+                for entry in result["entries"]:
+                    video_urls.append(["[rtve]", scrapertools.safe_unicode(entry['url']).encode('utf-8')+"|User-Agent=Mozilla/5.0"])
     except:
         import traceback
         logger.info("tvalacarta.server.rtve get_video_url "+traceback.format_exc())

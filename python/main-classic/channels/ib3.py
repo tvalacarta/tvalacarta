@@ -12,7 +12,7 @@ from core.item import Item
 
 DEBUG = True
 CHANNELNAME = "ib3"
-MAIN_URL = "http://ib3tv.com/carta"
+MAIN_URL = "https://ib3.org/carta"
 
 def isGeneric():
     return True
@@ -27,7 +27,6 @@ def mainlist(item):
     itemlist.append( Item(channel=CHANNELNAME, title="Esports"         , action="categoria" , extra="Esports", url=MAIN_URL, folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Retransmissions" , action="categoria" , extra="Retransmissió", url=MAIN_URL, folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Arxiu"           , action="categoria" , extra="ARXIU", url=MAIN_URL, folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Programes [A-Z] (thumbnail)" , action="programas" , url=MAIN_URL, folder=True) )
 
     return itemlist
 

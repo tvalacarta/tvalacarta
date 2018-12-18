@@ -96,6 +96,8 @@ def detalle_episodio(item):
         video_urls = servermodule.get_video_url(item.url)
         item.media_url = video_urls[0][1]
         item.plot = scrapertools.find_single_match(data,'<meta property="og:description" content="([^<]+)"')
+        item.plot = scrapertools.decodeHtmlentities(item.plot)
+        item.plot = scrapertools.htmlclean(item.plot).strip()
     except:
         import traceback
         print traceback.format_exc()

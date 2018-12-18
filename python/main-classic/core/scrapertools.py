@@ -1455,7 +1455,7 @@ def parse_date(cadena,formato="dmy"):
 
         scrapedmonth = scrapedmonth.lower()[0:3]
 
-        if scrapedmonth=="ene":
+        if scrapedmonth in ["ene","gen"]:
             scrapedmonth="01"
         elif scrapedmonth=="feb":
             scrapedmonth="02"
@@ -1463,7 +1463,7 @@ def parse_date(cadena,formato="dmy"):
             scrapedmonth="03"
         elif scrapedmonth=="abr":
             scrapedmonth="04"
-        elif scrapedmonth=="may":
+        elif scrapedmonth in ["may","mai"]:
             scrapedmonth="05"
         elif scrapedmonth=="jun":
             scrapedmonth="06"
@@ -1471,13 +1471,13 @@ def parse_date(cadena,formato="dmy"):
             scrapedmonth="07"
         elif scrapedmonth=="ago":
             scrapedmonth="08"
-        elif scrapedmonth=="sep":
+        elif scrapedmonth in ["sep","set"]:
             scrapedmonth="09"
         elif scrapedmonth=="oct":
             scrapedmonth="10"
         elif scrapedmonth=="nov":
             scrapedmonth="11"
-        elif scrapedmonth=="dic":
+        elif scrapedmonth in ["dic","dec","des"]:
             scrapedmonth="12"
 
         aired_date = scrapedyear+"-"+scrapedmonth+"-"+scrapedday
@@ -1494,7 +1494,7 @@ def parse_date(cadena,formato="dmy"):
 
         scrapedmonth = scrapedmonth.lower()[0:3]
 
-        if scrapedmonth=="ene":
+        if scrapedmonth in ["ene","gen"]:
             scrapedmonth="01"
         elif scrapedmonth=="feb":
             scrapedmonth="02"
@@ -1502,7 +1502,7 @@ def parse_date(cadena,formato="dmy"):
             scrapedmonth="03"
         elif scrapedmonth=="abr":
             scrapedmonth="04"
-        elif scrapedmonth=="may":
+        elif scrapedmonth in ["may","mai"]:
             scrapedmonth="05"
         elif scrapedmonth=="jun":
             scrapedmonth="06"
@@ -1510,13 +1510,13 @@ def parse_date(cadena,formato="dmy"):
             scrapedmonth="07"
         elif scrapedmonth=="ago":
             scrapedmonth="08"
-        elif scrapedmonth=="sep":
+        elif scrapedmonth in ["sep","set"]:
             scrapedmonth="09"
         elif scrapedmonth=="oct":
             scrapedmonth="10"
         elif scrapedmonth=="nov":
             scrapedmonth="11"
-        elif scrapedmonth=="dic":
+        elif scrapedmonth in ["dic","dec","des"]:
             scrapedmonth="12"
 
         aired_date = scrapedyear+"-"+scrapedmonth+"-"+scrapedday
