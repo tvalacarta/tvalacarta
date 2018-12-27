@@ -15,19 +15,37 @@ from core import jsontools
 DEBUG = False
 CHANNELNAME = "tvg"
 
-def isGeneric():
-    return True
-
 def mainlist(item):
-    logger.info("[tvg.py] mainlist")
+    logger.info("tvalacarta.channels.tvg mainlist")
     itemlist=[]
+    itemlist.append( Item(channel=CHANNELNAME, title="Directos"    , action="loadlives", folder=True))
     itemlist.append( Item(channel=CHANNELNAME, title="Últimos"     , action="novedades"  , url="http://www.crtvg.es/tvg/a-carta"))
     itemlist.append( Item(channel=CHANNELNAME, title="Do A ao Z"   , action="programas"  , url="http://www.crtvg.es/tvg/a-carta"))
     itemlist.append( Item(channel=CHANNELNAME, title="Categorías"  , action="categorias" , url="http://www.crtvg.es/tvg/a-carta"))
     return itemlist
 
+def directos(item=None):
+    logger.info("tvalacarta.channels.tvg directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="TVG Europa",   url="http://europa-crtvg.flumotion.com/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tvg.png", category="Autonómicos", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="TVG América",   url="http://america-crtvg.flumotion.com/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tvg.png", category="Autonómicos", action="play", folder=False ) )
+
+    return itemlist
+
+def loadlives(item):
+    logger.info("tvalacarta.channels.rtve play loadlives")
+
+    itemlist = []
+
+    for directo in directos(item):
+        itemlist.append(directo)
+
+    return itemlist
+
 def novedades(item):
-    logger.info("[tvg.py] novedades")
+    logger.info("tvalacarta.channels.tvg novedades")
     itemlist = []
 
     # Lee la página del programa
@@ -68,7 +86,7 @@ def novedades(item):
     return itemlist
 
 def categorias(item):
-    logger.info("[tvg.py] categorias")
+    logger.info("tvalacarta.channels.tvg categorias")
     itemlist=[]
     
     # Extrae los programas
@@ -113,7 +131,7 @@ def categorias(item):
     return itemlist
 
 def programas(item):
-    logger.info("[tvg.py] programas")
+    logger.info("tvalacarta.channels.tvg programas")
     itemlist=[]
     
     # Extrae los programas
@@ -149,23 +167,8 @@ def programas(item):
 
     return itemlist
 
-def detalle_programa(item):
-
-    #http://www.crtvg.es/tvg/a-carta/programa/vivir-aqui
-    #http://www.crtvg.es/tvg/programas/vivir-aqui
-    url = item.url.replace("a-carta/programa","programas")
-
-    data = scrapertools.cache_page(url)
-    
-    item.plot = scrapertools.find_single_match(data,'<meta name="description" content="([^"]+)"')
-    item.plot = scrapertools.htmlclean(item.plot).strip()
-
-    item.thumbnail = scrapertools.find_single_match(data,'<meta property="og:image" content="([^"]+)"')
-
-    return item
-
 def episodios(item, load_all_pages = False):
-    logger.info("[tvg.py] episodios")
+    logger.info("tvalacarta.channels.tvg episodios")
     itemlist = []
 
     # Lee la página del programa y extrae el id_programa
@@ -187,7 +190,7 @@ def episodios(item, load_all_pages = False):
         
         # Lee la primera página de episodios
         #http://www.crtvg.es/ax/tvgalacartabuscador/programa:33517/pagina:1/seccion:294/titulo:/mes:null/ano:null/temporada:null
-        logger.info("[tvg.py] videos - hay programa")
+        logger.info("tvalacarta.channels.tvg videos - hay programa")
         url = "http://www.crtvg.es/ax/tvgalacartabuscador/programa:"+id_programa+"/pagina:1/seccion:294/titulo:/mes:null/ano:null/temporada:null"
         headers=[]
         headers.append(["User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:17.0) Gecko/20100101 Firefox/17.0"])
@@ -249,32 +252,6 @@ def episodios(item, load_all_pages = False):
             itemlist.append( next_page_item )
 
         break
-
-    return itemlist
-
-def detalle_episodio(item):
-
-    item.geolocked = "0"
-
-    data = scrapertools.cache_page(item.url)
-    item.plot = scrapertools.find_single_match(data,'<div class="destacado-info-resumen">(.*?)</div>')
-    item.plot = scrapertools.htmlclean(item.plot).strip()
-
-    try:
-        from servers import tvg as servermodule
-        video_urls = servermodule.get_video_url(item.url,page_data=data)
-        item.media_url = video_urls[0][1]
-    except:
-        import traceback
-        print traceback.format_exc()
-        item.media_url = ""
-
-    return item
-
-def play(item):
-
-    item.server="tvg";
-    itemlist = [item]
 
     return itemlist
 

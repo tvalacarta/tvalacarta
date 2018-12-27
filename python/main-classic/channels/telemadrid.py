@@ -16,9 +16,6 @@ DEBUG = False
 CHANNELNAME = "telemadrid"
 BASE_URL = "http://www.telemadrid.es/"
 
-def isGeneric():
-    return True
-
 def mainlist(item):
     logger.info("tvalacarta.channels.telemadrid mainlist")
 
@@ -67,7 +64,9 @@ def episodios(item):
     patron += '<time class="card__dateline" itemprop="dateline datePublished" datetime="[^"]+">([^<]+)</time>'
     matches = scrapertools.find_multiple_matches(data,patron)
 
-    for thumbnail,scraped_url,title,scraped_aired_date in matches:
+    for thumbnail,scraped_url,scraped_title,scraped_aired_date in matches:
+        title = scrapertools.decodeHtmlentities(scraped_title)
+        title = scrapertools.htmlclean(title)
         url = urlparse.urljoin(item.url,scraped_url)
         aired_date = scrapertools.parse_date(scraped_aired_date)
         itemlist.append( Item(channel=CHANNELNAME, action="play", server="telemadrid", title=title, show=item.show, url=url, thumbnail=thumbnail, aired_date=aired_date, folder=False))
@@ -94,28 +93,6 @@ def episodios(item):
         itemlist.append( Item(channel=CHANNELNAME, title=">> Página siguiente" , url=urlparse.urljoin(item.url,next_page_url), action="episodios", show=item.show, folder=True) )
 
     return itemlist
-
-def detalle_programa(item):
-    return item
-
-def detalle_episodio(item):
-
-    # Ahora saca la URL
-    data = scrapertools.cache_page(item.url)
-
-    try:
-        from servers import extremaduratv as servermodule
-        video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[0][1]
-        item.plot = scrapertools.find_single_match(data,'<meta itemprop="description" content="(.*?)">')
-        item.plot = scrapertools.decodeHtmlentities(item.plot)
-        item.plot = scrapertools.htmlclean(item.plot)
-    except:
-        import traceback
-        print traceback.format_exc()
-        item.media_url = ""
-
-    return item
 
 # Verificación automática de canales: Esta función debe devolver "True" si todo está ok en el canal.
 def test():

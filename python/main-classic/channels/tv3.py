@@ -61,7 +61,7 @@ def directos(item=None):
     itemlist.append( Item(channel=__channel__, title="TV3", action="play", url="http://ccma-tva-es-abertis-live.hls.adaptive.level3.net/es/ngrp:tv3_web/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tv3.png", category="Autonómicos", folder=False) )
     itemlist.append( Item(channel=__channel__, title="TV3 CAT", action="play", url="http://ccma-tva-int-abertis-live.hls.adaptive.level3.net/int/ngrp:tv3cat_web/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tv3.png", category="Autonómicos", folder=False) )
     itemlist.append( Item(channel=__channel__, title="3/24", action="play", url="http://ccma-tva-int-abertis-live.hls.adaptive.level3.net/int/ngrp:324_web/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tv3.png", category="Autonómicos", folder=False) )
-    itemlist.append( Item(channel=__channel__, title="33/Super3", action="play", url="http://ccma-tva-es-abertis-live.hls.adaptive.level3.net/es/ngrp:c33_web/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tv3.png", category="Autonómicos", folder=False) )
+    itemlist.append( Item(channel=__channel__, title="33/Super3", action="play", url="http://ccma-tva-es-abertis-live.hls.adaptive.level3.net/es/ngrp:c33_web/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/super3.png", category="Autonómicos", folder=False) )
     itemlist.append( Item(channel=__channel__, title="Esports3", action="play", url="http://ccma-tva-es-abertis-live.hls.adaptive.level3.net/es/ngrp:es3_web/playlist.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/tv3.png", category="Autonómicos", folder=False) )
 
     return itemlist

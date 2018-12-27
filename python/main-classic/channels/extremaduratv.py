@@ -15,9 +15,6 @@ DEBUG = False
 CHANNELNAME = "extremaduratv"
 URL_DIRECTO = "http://hlstv.canalextremadura.es/livetv/smil:multistream.smil/playlist.m3u8"
 
-def isGeneric():
-    return True
-
 def mainlist(item, load_all_pages=False):
     logger.info("tvalacarta.channels.extremaduratv.mainlist")
 
@@ -82,28 +79,6 @@ def programas(item, load_all_pages=False):
             itemlist.append( next_page_item )
 
     return itemlist
-
-def detalle_programa(item):
-    return item
-
-def detalle_episodio(item):
-
-    # Ahora saca la URL
-    data = scrapertools.cache_page(item.url)
-
-    try:
-        from servers import extremaduratv as servermodule
-        video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[0][1]
-        item.plot = scrapertools.find_single_match(data,'<meta property="og:description" content="([^<]+)"')
-        item.plot = scrapertools.decodeHtmlentities(item.plot)
-        item.plot = scrapertools.htmlclean(item.plot).strip()
-    except:
-        import traceback
-        print traceback.format_exc()
-        item.media_url = ""
-
-    return item
 
 def episodios(item):
     logger.info("tvalacarta.channels.extremaduratv.episodios")

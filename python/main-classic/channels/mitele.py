@@ -40,7 +40,7 @@ def mainlist(item):
     itemlist.append( Item(channel=__channel__, title="Informativos"    , action="series"  , category="informativos"    , thumbnail = "" , extra="informativos"))
     itemlist.append( Item(channel=__channel__, title="Deportes"    , action="series"  , category="deportes"    , thumbnail = "" , extra="deportes"))
     itemlist.append( Item(channel=__channel__, title="Gran Hermano"    , action="temporadas"  , category="entretenimiento"    , thumbnail = "" , url="0000000026548"))
-    itemlist.append( Item(channel=__channel__, title="Documentales"    , action="documentales"  , category="divulgacion"    , thumbnail = ""))
+    #itemlist.append( Item(channel=__channel__, title="Documentales"    , action="documentales"  , category="divulgacion"    , thumbnail = ""))
     itemlist.append( Item(channel=__channel__, title="Música"    , action="series"  , category="musica"    , thumbnail = "" , extra="musica"))
     itemlist.append( Item(channel=__channel__, title="TV Movies"    , action="series"  , category="cine"    , thumbnail = "" , extra="tv-movies"))
     itemlist.append( Item(channel=__channel__, title="Buscar"    , action="search"))
@@ -157,10 +157,11 @@ def series(item):
         clean_title = re.compile("\[COLOR.*?\[\/COLOR\]",re.DOTALL).sub("",title)
         clean_title = scrapertools.slugify(clean_title)
         page = "https://www.mitele.es/"+category_slug[4:]+"/"+clean_title+"/"+child["external_id"]
+        uid = "https://www.mitele.es/"+category_slug[4:]+"/"+clean_title
         logger.info("page="+page)
 
         url = child["external_id"]
-        itemlist.append( Item(channel=__channel__, action="temporadas" , title=title,  fulltitle=title, url=url, thumbnail=thumbnail, plot=plot, show=title, category=item.category, page = page, fanart=fanart))
+        itemlist.append( Item(channel=__channel__, action="temporadas" , title=title,  fulltitle=title, url=url, thumbnail=thumbnail, plot=plot, show=title, category=item.category, page=page, uid=uid, fanart=fanart))
 
     itemlist.sort(key=lambda item: item.title)
 
@@ -215,7 +216,8 @@ def temporadas(item):
 
     for child in data:
         child = child["_source"]
-        title = child["localizable_titles"][0]["title_long"]
+        logger.info("child="+repr(child))
+        title = child["localizable_titles"][0]["title_medium"]
 
         try:
             thumbnail = child["images"][0]["url"]
@@ -234,7 +236,9 @@ def temporadas(item):
             plot = item.plot
         url = item.url
         season = child["season_number"]
-        itemlist.append( Item(channel=__channel__, action="capitulos" , title=title,  fulltitle=title, url=url, thumbnail=thumbnail, plot=plot, show=title, category=item.category, fanart=fanart, extra=season))
+        page = item.page+"/"+repr(season)
+        uid = item.uid
+        itemlist.append( Item(channel=__channel__, action="capitulos" , title=title,  fulltitle=title, url=url, thumbnail=thumbnail, plot=plot, page=page, uid=uid, show=item.show, category=item.category, fanart=fanart, extra=season))
     
     itemlist.sort(key=lambda item: int(item.extra), reverse=True)
     return itemlist
@@ -256,6 +260,8 @@ def capitulos(item):
                 title = child["localizable_titles"][0]["title_sort_name"] + " - " + child["localizable_titles"][0]["title_medium"]
             except:
                 title = child["localizable_titles"][0]["title_long"]
+            
+            title = item.title + " " + title
 
             try:
                 thumbnail = child["images"][0]["url"]
@@ -274,7 +280,8 @@ def capitulos(item):
                 plot = item.plot
             url = "http://player.ooyala.com/player.js?embedCode="+child["videos"][0]["embed_code"]
             orden = int(child["episode_number"])
-            itemlist.append( Item(channel=__channel__, action="play" , title=title,  fulltitle=title, url=url, server="mitele", thumbnail=thumbnail, plot=plot, show=title, category=item.category, fanart=fanart, extra=orden, folder=False))
+            page = item.uid+"/"+child["internal_id"]+"/player"
+            itemlist.append( Item(channel=__channel__, action="play" , title=title,  fulltitle=title, url=url, server="mitele", thumbnail=thumbnail, plot=plot, page=page, show=item.show, category=item.category, fanart=fanart, extra=orden, folder=False))
     
     itemlist.sort(key=lambda item: item.extra, reverse=True)
     return itemlist

@@ -106,6 +106,12 @@ def build_channel_list():
     from channels import euronews
     channel_list.extend(euronews.directos())
 
+    from channels import rtpa
+    channel_list.extend(rtpa.directos())
+
+    from channels import tvg
+    channel_list.extend(tvg.directos())
+
     channel_list = sorted(channel_list, key=lambda i: i.category if i.category!="Nacionales" else "0")
 
     return channel_list

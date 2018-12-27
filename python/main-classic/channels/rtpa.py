@@ -17,17 +17,26 @@ from core.item import Item
 DEBUG = config.get_setting("debug")
 CHANNELNAME = "rtpa"
 PROGRAMAS_URL = "http://www.rtpa.es/json/vod_programas.json"
-
-def isGeneric():
-    return True
+LIVE_URL = "https://rtpa-live-hls.flumotion.com/playlist.m3u8"
 
 def mainlist(item):
     logger.info("tvalacarta.channels.rtpa mainlist")
 
     itemlist = []
+    itemlist.append( Item(channel=CHANNELNAME, title="Ver señal en directo" , action="play", url=LIVE_URL, category="programas", folder=False) )
+
     itemlist.append( Item(channel=CHANNELNAME, title="Últimos vídeos añadidos" , url="http://www.rtpa.es/json/vod_parrilla_8.json" , action="novedades" , folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Programas actuales (con sinopsis)" , url="http://www.rtpa.es/json/programas_actuales_tpa.json" , action="programas_actuales" , folder=True) )
     itemlist.append( Item(channel=CHANNELNAME, title="Todos los programas" , url=PROGRAMAS_URL , action="programas" , folder=True) )
+
+    return itemlist
+
+def directos(item=None):
+    logger.info("tvalacarta.channels.aragontv directos")
+
+    itemlist = []
+
+    itemlist.append( Item(channel=CHANNELNAME, title="RTPA (Asturias)",   url=LIVE_URL, thumbnail="http://media.tvalacarta.info/canales/128x128/rtpa.png", category="Autonómicos", action="play", folder=False ) )
 
     return itemlist
 
@@ -111,19 +120,6 @@ def programas(item):
 
     return itemlist
 
-def detalle_programa(item):
-
-    data = scrapertools.cache_page(item.page)
-
-    item.plot = scrapertools.find_single_match(data,'<article class="span8"[^<]+<div class="contenido_noticia">(.*?)</div>')
-    item.plot = scrapertools.htmlclean(item.plot).strip()
-
-    item.thumbnail = scrapertools.find_single_match(data,'<img src="([^"]+)" alt="" class="img-det-not">')
-
-    #item.title = scrapertools.find_single_match(data,'<article class="span8"[^<]+<h2>([^<]+)</h2>')
-
-    return item
-
 def episodios(item):
     logger.info("tvalacarta.channels.rtpa episodios")
     itemlist = []
@@ -171,28 +167,6 @@ def episodios(item):
 
     return itemlist
 
-def detalle_episodio(item):
-
-    item.geolocked = "0"
-    
-    try:
-        from servers import rtpa as servermodule
-        video_urls = servermodule.get_video_url(item.url)
-        item.media_url = video_urls[0][1]
-    except:
-        import traceback
-        print traceback.format_exc()
-        item.media_url = ""
-
-    return item
-
-def play(item):
-
-    item.server="rtpa";
-    itemlist = [item]
-
-    return itemlist
-
 # Test de canal
 # Devuelve: Funciona (True/False) y Motivo en caso de que no funcione (String)
 def test():
@@ -215,10 +189,5 @@ def test():
     items_episodios = episodios(items_programas[0])
     if len(items_episodios)==0:
         return False,"No hay episodios en "+items_programas[0].title
-
-    # Lee la URL del vídeo
-    item_episodio = detalle_episodio(items_episodios[0])
-    if item_episodio.media_url=="":
-        return False,"El conector no devuelve enlace para el vídeo "+item_episodio.title
 
     return True,""
