@@ -136,42 +136,46 @@ def episodios(item):
 
     '''
     <div class="carousel-cell">
-
-    <a href="/dmax/acuarios-xxl/temporada-5-episodio-14-equipo-de-musica-para-los-chicago-bull/">
+    
+    <a href="/dmax/acuarios-xxl/temporada-6-episodio-6-el-acuario-real-de-prince-royce/">
     <div class="e-grid-episode">
     <figure class="e-grid-episode__container ">
+           
     <div class="e-grid-episode__image-container placeholder">
-    <img class="e-grid-episode__image carousel-image "
-    data-flickity-lazyload="https://eu2-prod-images.disco-api.com/2017/09/16/videoasset-16199-1505539939396.jpeg?w=480&f=jpg&p=true&q=75">
+    <img class="e-grid-episode__image carousel-image" data-flickity-lazyload="https://eu2-prod-images.disco-api.com/2017/10/03/videoasset-17731-1507068513927.jpeg?w=480&f=jpg&p=true&q=75">
+    <div class="e-grid-episode__image-overlay"></div>
+    <span class="e-grid-episode__date">15/07/2016</span>
+    <span class="e-grid-episode__duration">44 min</span>
     </div>
-
     <figcaption class="e-grid-episode__info">
-
-    <h4 class="e-grid-episode__title">Equipo de música para los Chicago Bull</h4>
+             
+    <i class="dplayfont dplayfont-play"></i>
+                   
+                    
+    <h4 class="e-grid-episode__title">6. El acuario real de Prince Royce</h4>
     <h5 class="e-grid-episode__description">
-    <span class="e-grid-episode__episode-season">E.14 T.5 - </span>
-    <span class="e-grid-episode__episode-descr">PARA TODOS LOS PÚBLICOS. La estrella de los Chicago Bulls, Jimmy Butler, encarga a Wayde y Brett un acuario en forma de radiocasete que se ilumina y del que sale música.</span>
+    <span class="e-grid-episode__description-content">La estrella de la música latina, Price Royce, da vida a su mansión de Miami con un acuario diseñado por ATM. Wa...</span>
     </h5>
-
-    <span class="e-grid-episode__date">30/06/2016</span>
-    <span class="e-grid-episode__duration">44 min&nbsp;&nbsp;
     '''
     # Parse episodes
     patron  = '<div class="carousel-cell"[^<]+'
     patron += '<a href="([^"]+)"[^<]+'
     patron += '<div class="e-grid-episode"[^<]+'
     patron += '<figure class="e-grid-episode__container[^<]+'
-    patron += '<div[^<]+'
+    patron += '<div class="e-grid-episode__image-container placeholder"[^<]+'
     patron += '<img class="[^"]+"\s+data-flickity-lazyload="([^"]+)"[^<]+'
+    patron += '<div class="e-grid-episode__image-overlay"></div>[^<]+'
+    patron += '<span class="e-grid-episode__date">([^<]+)</span[^<]+'
+    patron += '<span class="e-grid-episode__duration">([^<]+)</span[^<]+'
     patron += '</div[^<]+'
     patron += '<figcaption class="e-grid-episode__info"[^<]+'
+    patron += '<i class="dplayfont dplayfont-play"[^<]+</i[^<]+'
     patron += '<h4 class="e-grid-episode__title">([^<]+)</h4[^<]+'
-    patron += '<h5 class="e-grid-episode__description">(.*?)</h5[^<]+'
-    patron += '<span class="e-grid-episode__date">([^<]+)</span[^<]+'
-    patron += '<span class="e-grid-episode__duration">([^<]+)<'
+    patron += '<h5 class="e-grid-episode__description"[^<]+'
+    patron += '<span class="e-grid-episode__description-content">([^<]+)</span[^<]+'
     matches = scrapertools.find_multiple_matches(data, patron)
 
-    for scraped_url, scraped_thumbnail, title, scraped_plot, scraped_date, scraped_duration in matches:
+    for scraped_url, scraped_thumbnail, scraped_date, scraped_duration, title, scraped_plot in matches:
         url = urlparse.urljoin(item.url,scraped_url)
         # https://eu2-prod-images.disco-api.com/2018/07/12/show-1510-309576665834820.jpg?w=680&f=jpg&p=true&q=75
         thumbnail = scraped_thumbnail.split("?")[0]
