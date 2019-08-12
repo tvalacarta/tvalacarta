@@ -35,30 +35,30 @@ def programas(item):
     data = scrapertools.cache_page(item.url)
     
     '''
-    <div class="b-alphabetical-list__single-show letter-s" data-letter="s">
-    <a href="/dkiss/si-quiero-ese-vestido-espana/">
-    <div class="e-grid-show e-grid-show--float">
-    <figure class="e-grid-show__container placeholder">
-    <img class="e-grid-show__image carousel-image lazy-load" lazy-src="https://eu2-prod-images.disco-api.com/2018/10/24/show-2000-9250056697145904.jpg?w=680&f=jpg&p=true&q=75">
-    <div class="e-grid-show__list-action">
-    <a class="js-e-favorite-handler" data-type='shows' data-uid='2000' data-showslug='' data-channelslug='' data-method='POST'>
-    <i class="dplayfont dplayfont-add"></i>
-    </a>
-    </div>
-    </figure>
-    </div>
-    </a>
+    <div class="b-alphabetical-list__single-show letter-0" data-letter="0">
+        <div class="e-grid-show e-grid-show--float">
+            <figure class="e-grid-show__container placeholder  ">
+                <a href="/dmax/091-alerta-policia/">
+                    <img class="e-grid-show__image carousel-image lazy-load" lazy-src="https://eu2-prod-images.disco-api.com/2019/02/14/show-1110-72566123369351.jpg?w=680&f=jpg&p=true&q=75" alt="091 Alerta policía">
+                </a>
+                <div class="e-grid-show__list-action">
+                    <a class="js-e-favorite-handler" data-type='shows' data-uid='1110' data-showslug='091-alerta-policia' data-channelslug='dmax' data-method='POST'>
+                        <i class="dplayfont dplayfont-add"></i>
+                    </a>
+                </div>
+                <div class="label-container label-container--show">
+                </div>
+            </figure>
+        </div>
     </div>
     '''
 
     # Parse programs
     patron  = '<div class="b-alphabetical-list__single-show[^<]+'
+    patron += '<div class="e-grid-show e-grid-show--float[^<]+'
+    patron += '<figure class="e-grid-show__container[^<]+'
     patron += '<a href="([^"]+)"[^<]+'
-    patron += '<div class="e-grid-show e-grid-show--float"[^<]+'
-    patron += '<figure class="e-grid-show__container placeholder"[^<]+'
-    patron += '<img class="e-grid-show__image carousel-image lazy-load" lazy-src="([^"]+)"[^<]+'
-    patron += '<figcaption class="e-grid-show__info"[^<]+'
-    patron += '<h4 class="e-grid-show__title">([^<]+)</h4>'
+    patron += '<img class="e-grid-show__image carousel-image lazy-load" lazy-src="([^"]+)" alt="([^"]+)"[^<]+'
     matches = scrapertools.find_multiple_matches(data, patron)
 
     # Build item list
@@ -67,33 +67,6 @@ def programas(item):
         # https://eu2-prod-images.disco-api.com/2018/07/12/show-1510-309576665834820.jpg?w=680&f=jpg&p=true&q=75
         thumbnail = scraped_thumbnail.split("?")[0]
         itemlist.append( Item(channel=CHANNELNAME, title=title, action="temporadas", url=url, thumbnail=thumbnail, show=title, folder=True) )
-
-    # Parse special programs without title
-    patron  = '<div class="b-alphabetical-list__single-show[^<]+'
-    patron += '<a href="([^"]+)"[^<]+'
-    patron += '<div class="e-grid-show e-grid-show--float"[^<]+'
-    patron += '<figure class="e-grid-show__container placeholder"[^<]+'
-    patron += '<img class="e-grid-show__image carousel-image lazy-load" lazy-src="([^"]+)"[^<]+'
-    patron += '<div class="e-grid-show__list-action">'
-    matches = scrapertools.find_multiple_matches(data, patron)
-
-    # Build item list
-    for scraped_url, scraped_thumbnail in matches:
-        url = urlparse.urljoin(item.url,scraped_url)
-
-        # /dkiss/si-quiero-ese-vestido-espana/
-        partes = url.split("/")
-        title = partes.pop()
-        if title=="":
-            title=partes.pop()
-
-        title = title.replace("-"," ").capitalize()
-
-        # https://eu2-prod-images.disco-api.com/2018/07/12/show-1510-309576665834820.jpg?w=680&f=jpg&p=true&q=75
-        thumbnail = scraped_thumbnail.split("?")[0]
-        itemlist.append( Item(channel=CHANNELNAME, title=title, action="temporadas", url=url, thumbnail=thumbnail, show=title, folder=True) )
-
-        itemlist = sorted(itemlist, key=lambda Item: Item.title)
 
     return itemlist
 
@@ -131,58 +104,50 @@ def episodios(item):
 
     itemlist = []
 
-    # Download page
     data = scrapertools.cache_page(item.url)
 
     '''
     <div class="carousel-cell">
-    
-    <a href="/dmax/acuarios-xxl/temporada-6-episodio-6-el-acuario-real-de-prince-royce/">
-    <div class="e-grid-episode">
-    <figure class="e-grid-episode__container ">
-           
-    <div class="e-grid-episode__image-container placeholder">
-    <img class="e-grid-episode__image carousel-image" data-flickity-lazyload="https://eu2-prod-images.disco-api.com/2017/10/03/videoasset-17731-1507068513927.jpeg?w=480&f=jpg&p=true&q=75">
-    <div class="e-grid-episode__image-overlay"></div>
-    <span class="e-grid-episode__date">15/07/2016</span>
-    <span class="e-grid-episode__duration">44 min</span>
+        <div class="label-container">
+            <span class="e-label e-label--top e-label--new">NUEVO</span>
+        </div>
+        <a href="/dkiss/24-horas-en-urgencias/temporada-13-episodio-11/">
+            <div class="e-grid-episode">
+                <figure class="e-grid-episode__container ">
+                    <div class="e-grid-episode__image-container placeholder">
+                        <img class="e-grid-episode__image carousel-image" data-flickity-lazyload="https://eu2-prod-images.disco-api.com/2019/07/19/videoasset-40364-213424951828153.png?w=480&f=jpg&p=true&q=75" alt="24 Horas en urgencias - Episodio 11">
+                        <div class="e-grid-episode__image-overlay"></div>
+                        <span class="e-grid-episode__date">07/08/2019</span>
+                        <span class="e-grid-episode__duration">43 min</span>
+                    </div>
+                    <figcaption class="e-grid-episode__info">
+                        <i class="dplayfont dplayfont-play"></i>
+                        <h4 class="e-grid-episode__title">11. Episodio 11</h4>
+                        <h5 class="e-grid-episode__description">
+                            <span class="e-grid-episode__description-content"></span>
+                        </h5>
+                    </figcaption>
+                </figure>
+            </div>
+        </a>
     </div>
-    <figcaption class="e-grid-episode__info">
-             
-    <i class="dplayfont dplayfont-play"></i>
-                   
-                    
-    <h4 class="e-grid-episode__title">6. El acuario real de Prince Royce</h4>
-    <h5 class="e-grid-episode__description">
-    <span class="e-grid-episode__description-content">La estrella de la música latina, Price Royce, da vida a su mansión de Miami con un acuario diseñado por ATM. Wa...</span>
-    </h5>
     '''
     # Parse episodes
-    patron  = '<div class="carousel-cell"[^<]+'
-    patron += '<a href="([^"]+)"[^<]+'
-    patron += '<div class="e-grid-episode"[^<]+'
-    patron += '<figure class="e-grid-episode__container[^<]+'
-    patron += '<div class="e-grid-episode__image-container placeholder"[^<]+'
-    patron += '<img class="[^"]+"\s+data-flickity-lazyload="([^"]+)"[^<]+'
-    patron += '<div class="e-grid-episode__image-overlay"></div>[^<]+'
-    patron += '<span class="e-grid-episode__date">([^<]+)</span[^<]+'
-    patron += '<span class="e-grid-episode__duration">([^<]+)</span[^<]+'
-    patron += '</div[^<]+'
-    patron += '<figcaption class="e-grid-episode__info"[^<]+'
-    patron += '<i class="dplayfont dplayfont-play"[^<]+</i[^<]+'
-    patron += '<h4 class="e-grid-episode__title">([^<]+)</h4[^<]+'
-    patron += '<h5 class="e-grid-episode__description"[^<]+'
-    patron += '<span class="e-grid-episode__description-content">([^<]+)</span[^<]+'
+    patron  = '<div class="carousel-cell.+?(?=<a)<a href="([^"]+)'
+    patron += '.+?(?=data-flickity-lazyload)data-flickity-lazyload="([^"]+)'
+    patron += '.+?(?=e-grid-episode__date)e-grid-episode__date">([^<]+)'
+    patron += '.+?(?=e-grid-episode__duration)e-grid-episode__duration">(\d+)'
+    patron += '.+?(?=e-grid-episode__title)e-grid-episode__title">([^<]+)'
+    patron += '.+?(?=e-grid-episode__description-content)e-grid-episode__description-content">([^<]+)?'
+
     matches = scrapertools.find_multiple_matches(data, patron)
 
     for scraped_url, scraped_thumbnail, scraped_date, scraped_duration, title, scraped_plot in matches:
         url = urlparse.urljoin(item.url,scraped_url)
-        # https://eu2-prod-images.disco-api.com/2018/07/12/show-1510-309576665834820.jpg?w=680&f=jpg&p=true&q=75
         thumbnail = scraped_thumbnail.split("?")[0]
         plot = scrapertools.htmlclean(scraped_plot).strip()
-        plot = re.compile("\s+",re.DOTALL).sub(" ",plot)
         aired_date = scrapertools.parse_date(scraped_date)
-        duration = scrapertools.htmlclean(scraped_duration).strip()
+        duration = int(scraped_duration) * 60
 
         temporada = scrapertools.find_single_match(plot,"E.\d+ T.(\d+)")
         episodio = scrapertools.find_single_match(plot,"E.(\d+) T.\d+")
@@ -195,3 +160,18 @@ def episodios(item):
         itemlist.append( Item(channel=CHANNELNAME, title=title, action="play", server="dplay", url=url, thumbnail=thumbnail, plot=plot, aired_date=aired_date, duration=duration, show=item.show, folder=False) )
 
     return itemlist
+
+
+def test():
+    # Al entrar sale una lista de programas
+    menu_items = mainlist(Item())
+    if len(menu_items) == 0:
+        print("Al entrar a mainlist no sale nada")
+        return False
+
+    temporadas_items = temporadas(menu_items[0])
+    if len(temporadas_items) == 0:
+        print("El programa %s no tiene temporadas" % menu_items[0].title)
+        return False
+
+    return True
