@@ -463,7 +463,7 @@ def add_item_to_kodi_directory( item , itemlist , channel_provides_context_menu 
     else:
 
         kodi_item = xbmcgui.ListItem( display_title, iconImage="DefaultVideo.png", thumbnailImage=item.thumbnail )
-        kodi_item.setInfo( "video", { "Title" : display_title, "Plot" : item.plot, "Duration" : item.duration, "Studio" : item.canal , "Size": item.size, "Premiered": item.aired_date} )
+        kodi_item.setInfo( "video", { "Title" : display_title, "Plot" : item.plot, "Duration" : item.duration, "Studio" : item.canal , "Size": item.size, "Premiered": item.aired_date, "Mediatype": "episode"} )
 
         # Esta opcion es para poder utilizar el xbmcplugin.setResolvedUrl()
         if config.get_setting("player_mode")=="1": 
