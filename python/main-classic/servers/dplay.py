@@ -29,7 +29,12 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
     embed_id = scrapertools.find_single_match(data,'<meta itemprop="embedURL" content="https://es.dplay.com/embed/(\d+)/"')
     
     api_url = "https://es.dplay.com/ajax/playbackjson/video/"+embed_id
-    data = scrapertools.cache_page(api_url)
+    data = scrapertools.cache_page(api_url, headers=[
+        ['User-Agent', 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; es-ES; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12'],
+        ['X-Requested-With', 'XMLHttpRequest'],
+        ['Referer', 'https://es.dplay.com/embed/%s' % str(embed_id)]
+        ]
+    )
     logger.info("data="+data)
     data = data.replace("\\n","\n")
     logger.info("data="+data)
