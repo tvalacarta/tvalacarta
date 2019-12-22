@@ -4,8 +4,7 @@
 # Canal para a3media
 # http://blog.tvalacarta.info/plugin-xbmc/tvalacarta/
 #------------------------------------------------------------
-import urlparse,re
-import urllib, urllib2, os
+import re
 
 from core import logger
 from core import scrapertools
@@ -16,11 +15,7 @@ from core import config
 DEBUG = False
 CHANNELNAME = "a3media"
 
-import hmac
-
-ANDROID_HEADERS = [ ["User-Agent","Dalvik/1.6.0 (Linux; U; Android 4.3; GT-I9300 Build/JSS15J"] ]
-
-account = (config.get_setting("a3mediaaccount") == "true" )
+account = (config.get_setting("a3mediaaccount") == "true")
 
 def isGeneric():
     return True
@@ -32,9 +27,10 @@ def openconfig(item):
 
 def login():
     logger.info("pelisalacarta.channels.a3media login")
-
-    post = "j_username="+config.get_setting('a3mediauser')+"&j_password="+config.get_setting('a3mediapassword')
-    data = scrapertools.cachePage("https://servicios.atresplayer.com/j_spring_security_check", post=post)
+    
+    post = "type=credentials&username="+config.get_setting('a3mediauser')+"&password="+config.get_setting('a3mediapassword')
+    data = scrapertools.cachePage("https://api.atresplayer.com/login", post=post)
+    data = jsontools.load_json(data)
     if "error" in data:
         logger.info("tvalacarta.channels.a3media Error en el login")
         return False
@@ -44,316 +40,168 @@ def login():
 
 def mainlist(item):
     logger.info("tvalacarta.channels.a3media mainlist")
+    
     itemlist = []
 
     if account:
         log_result = login()
+        if not log_result:
+            itemlist.append(Item(channel=CHANNELNAME, title=bbcode_kodi2html("[COLOR yellow]Error en el login. Comprueba tus credenciales[/COLOR]"), action="openconfig", folder=False))
+    else:
+        itemlist.append(Item(channel=CHANNELNAME, title=bbcode_kodi2html("[COLOR yellow]Regístrate y habilita tu cuenta para disfrutar de más contenido[/COLOR]"), action="openconfig", folder=False))
+    
+    itemlist.append(Item(channel=CHANNELNAME, title="Directos", action="loadlives", folder=True))
 
-    if not account:
-        itemlist.append( Item(channel=CHANNELNAME, title=bbcode_kodi2html("[COLOR yellow]Regístrate y habilita tu cuenta para disfrutar de más contenido[/COLOR]"), action="openconfig", folder=False) )
-    elif not log_result:
-        itemlist.append( Item(channel=CHANNELNAME, title=bbcode_kodi2html("[COLOR yellow]Error en el login. Comprueba tus credenciales[/COLOR]"), action="openconfig", folder=False) )
-
-    url="http://servicios.atresplayer.com/api/mainMenu"
+    url = "https://api.atresplayer.com/client/v1/url?href=%2F"
     data = scrapertools.cachePage(url)
-    #logger.info(data)
-    lista = jsontools.load_json(data)[0]
-    if lista == None: lista =[]
-
-    url2="http://servicios.atresplayer.com/api/categorySections/"
-
-
-    itemlist.append( Item(channel=CHANNELNAME, title="Directos", action="loadlives", folder=True) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Destacados", action="episodios", url="http://servicios.atresplayer.com/api/highlights", folder=True) )
-
-    for entry in lista['menuItems']:
-        eid = entry['idSection']
-        scrapedtitle = entry['menuTitle']
-        scrapedurl = url2 + str(eid)
-        itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="secciones" , url=scrapedurl, folder=True, view="programs") )
-
-    itemlist.append( Item(channel=CHANNELNAME, title="A.....Z" , action="secciones" , url="http://servicios.atresplayer.com/api/sortedCategorySections", folder=True) )
-
+    logger.info(data)
+    data = jsontools.load_json(data)
+    main_channel_id = data["href"].split("/")[-1]
+    
+    url = "https://api.atresplayer.com/client/v1/info/categories/%s" % str(main_channel_id)
+    data = scrapertools.cachePage(url)
+    logger.info(data)
+    categories = jsontools.load_json(data)
+    for category in categories:
+        title = category["title"]
+        category_id = category["link"]["href"].split("=")[1]
+        url = "https://api.atresplayer.com/client/v1/row/search?entityType=ATPFormat&sectionCategory=true&mainChannelId=%s&categoryId=%s&sortType=AZ&size=100&page=" % (main_channel_id, category_id)
+        itemlist.append(Item(channel=CHANNELNAME, title=title, action="programs", url=url, folder=True, view="programs") )
 
     return itemlist
 
-def secciones(item):
-    logger.info("tvalacarta.channels.a3media secciones")
+def programs(item):
+    logger.info("tvalacarta.channels.a3media categories")
 
-    data = scrapertools.cachePage(item.url)
-    #logger.info(data)
-    lista = jsontools.load_json(data)
-    if lista == None: lista =[]
+    data = scrapertools.cachePage(item.url+str(0))
+    data = jsontools.load_json(data)
+    programs = data["itemRows"]
+    total_pages = data["pageInfo"]["totalPages"]
+    if total_pages > 1:
+        for page in range(1, total_pages):
+            data = scrapertools.cachePage(item.url+str(page))
+            data = jsontools.load_json(data)
+            programs.extend(data["itemRows"])
 
     itemlist = []
-
-    for entrys in lista:
-        try:
-            entry = entrys['section']
-        except:
-            logger.info("tvalacarta.channels.a3media -----------------------")
-            logger.info("tvalacarta.channels.a3media error en "+repr(entrys))
-            continue
-        extra = entry['idSection']
-        scrapedtitle = entry['menuTitle']
-        scrapedurl = item.url
-        if entry.has_key('storyline'): scrapedplot = entry['storyline']
-        else: scrapedplot = ""
-        scrapedthumbnail = entry['urlImage'].replace('.jpg','03.jpg')
-
-        if entry['drm'] == False: ##solo añade las secciones con visualizacion no protegida
-            # Añade al listado
-            itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="temporadas" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , extra=str(extra), folder=True, view="videos") )
+    for program in programs:
+        title = program["title"]
+        image = program["image"]["pathHorizontal"]
+        url = program["link"]["href"]
+        itemlist.append(Item(channel=CHANNELNAME, title=title, action="seasons", url=url, thumbnail=image, fanart=image, folder=True, view="videos"))
 
     return itemlist
 
-def temporadas(item):
-    logger.info("tvalacarta.channels.a3media temporadas")
+def seasons(item):
+    logger.info("tvalacarta.channels.a3media seasons")
 
     data = scrapertools.cachePage(item.url)
-    #logger.info(data)
-    lista = jsontools.load_json(data)
-    if lista == None: lista =[]
+    data = jsontools.load_json(data)
 
-    url2="http://servicios.atresplayer.com/api/episodes/"
     itemlist = []
-
-    scrapedplot=""
-    n = 0
-    ids = None
-    for entrys in lista:
-        try:
-            entry = entrys['section']
-        except:
-            logger.info("tvalacarta.channels.a3media -----------------------")
-            logger.info("tvalacarta.channels.a3media error en "+repr(entrys))
-            continue
-        if entry['idSection'] == int(item.extra):
-            ids = entry['idSection']
-            if entry.has_key('subCategories'):
-                for temporada in entry['subCategories']:
-                    n += 1
-                    extra = temporada['idSection']
-                    scrapedtitle = temporada['menuTitle']
-                    scrapedurl = url2 + str(extra)
-                    if temporada.has_key('storyline'): scrapedplot = temporada['storyline']
-                    else: scrapedplot = item.plot
-                    scrapedthumbnail = entry['urlImage'].replace('.jpg','03.jpg')
-
-                    # Añade al listado
-                    itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, fanart=scrapedthumbnail, plot=scrapedplot , extra=str(extra), folder=True, view="videos") )
-
-                    ######## Añadido ##########################################
-                    if temporada.has_key('subCategories'):
-                        for prueba in temporada['subCategories']:
-                            n += 1
-                            extra2 = prueba['idSection']
-                            scrapedtitle = prueba['menuTitle']
-                            scrapedurl = url2 + str(extra2)
-                            if prueba.has_key('storyline'): scrapedplot = prueba['storyline']
-                            scrapedthumbnail = temporada['urlImage'].replace('.jpg','03.jpg')
-
-                            # Añade al listado
-                            itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="episodios" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra=str(extra2), folder=True, view="videos") )
-                    ######## Fin Añadido ######################################
-
-    if n == 1:  #si solo hay una temporada cargar los episodios
-        itemlist = episodios(itemlist[0])
-
-    if n == 0 and ids != None:  #si no hay temporadas pueden ser mas secciones
-        item.url = "http://servicios.atresplayer.com/api/categorySections/" + str(ids)
-        itemlist = secciones(item)
+    format_id = data["id"]
+    image = data["image"]["pathHorizontal"]
+    plot = data["description"]
+    for season in data["seasons"]:
+        title = season["title"]
+        season_id = season["link"]["href"].split("=")[1]
+        url = "https://api.atresplayer.com/client/v1/row/search?entityType=ATPEpisode&formatId=%s&seasonId=%s&sortType=&size=100&page=" % (format_id, season_id)
+        itemlist.append(Item(channel=CHANNELNAME, title=title, action="episodes", url=url, thumbnail=image, fanart=image, plot=plot, folder=True, view="videos"))
 
     return itemlist
 
-def episodios(item):
+def episodes(item):
     logger.info("tvalacarta.channels.a3media episodios")
 
-    data = scrapertools.cachePage(item.url,headers=ANDROID_HEADERS)
-    #logger.info(data)
-    lista = jsontools.load_json(data)
-
-    if lista == None: lista =[]
-
-    itemlist = []
-
-    if lista.has_key('episodes'):
-        episodes = lista['episodes']
-    elif lista.has_key('items'):
-        episodes = lista['items']
-    else:
-        episodes = []
-
-    for entrys in episodes:
-        logger.info("entrys="+repr(entrys))
-        if entrys.has_key('episode'):
-            entry = entrys['episode']
-        elif entrys.has_key('section'):
-            continue
-
-        if entry.has_key('type'):
-            tipo = entry['type']
-        else:
-            tipo = "FREE"
-
-        try:
-            episode = entry['contentPk']
-        except:
-            episode = 0
-
-        try :
-            scrapedtitle = entry['titleSection']+" "+entry['titleDetail']
-        except:
-            scrapedtitle = entry['name']
-        if tipo == "REGISTER":
-            scrapedtitle = scrapedtitle + " (R)"
-        elif tipo == "PREMIUM":
-            scrapedtitle = scrapedtitle + " (P)"
-
-        scrapedurl = "http://servicios.atresplayer.com/api/urlVideo/%s/%s/" % (episode, "android_tablet")
-        extra = episode
-        if entry.has_key('storyline'): scrapedplot = entry['storyline']
-        else: scrapedplot = item.plot
-        scrapedthumbnail = entry['urlImage'].replace('.jpg','03.jpg')
-
-        if account:
-            if tipo == "FREE" or tipo == "REGISTER": #carga los videos que gratuitos y con registro
-                # Añade al listado
-                itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra = str(extra), folder=False) )
-            #    logger.debug(tipo + " -> Añadido (1)")
-            #else:
-            #    logger.debug(tipo + " -> No añadido (1)")
-        else:
-            if tipo == "FREE": #solo carga los videos que no necesitan registro ni premium
-                # Añade al listado
-                itemlist.append( Item(channel=CHANNELNAME, title=scrapedtitle , action="play" , url=scrapedurl, thumbnail=scrapedthumbnail, plot=scrapedplot , extra = str(extra), folder=False) )
-            #    logger.debug(tipo + " -> Añadido (2)")
-            #else:
-            #    logger.debug(tipo + " -> No añadido (2)")
-    return itemlist
-
-def directos(item=None):
-    logger.info("tvalacarta.channels.a3media directos")
+    data = scrapertools.cachePage(item.url+str(0))
+    data = jsontools.load_json(data)
+    episodes = data["itemRows"]
+    total_pages = data["pageInfo"]["totalPages"]
+    if total_pages > 1:
+        for page in range(1, total_pages):
+            data = scrapertools.cachePage(item.url+str(page))
+            data = jsontools.load_json(data)
+            episodes.extend(data["itemRows"])
 
     itemlist = []
-
-    itemlist.append( Item(channel=CHANNELNAME, title="La Sexta",    url="https://pull2c-i.akamaized.net/geolasexta/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/lasexta.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Antena 3",    url="https://pull2b-i.akamaized.net/geoantena3/bitrate_1.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/antena3.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Mega", url="https://pull2a-i.akamaized.net/geomega/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/mega.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Neox", url="https://pull2b-i.akamaized.net/geoneox/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/neox.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Nova", url="https://pull1c-i.akamaized.net/geonova/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/nova.png", category="Nacionales", action="play", folder=False ) )
-    itemlist.append( Item(channel=CHANNELNAME, title="A3Series", url="https://pull2a-i.akamaized.net/a3series/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/a3series.png", category="Nacionales", action="play", folder=False ) )
-
-    return itemlist
-
-# Cargar menú de directos
-def loadlives(item):
-    logger.info("tvalacarta.channels.a3media play loadlives")
-
-    itemlist = []
-
-    url_ondacero  = "rtmp://ondacerofms35livefs.fplive.net:1935/ondacerofms35live-live/stream-madrid swfVfy=http://www.atresplayer.com/static/swf/swf/oc/AUPlayerBlack.swf pageUrl=http://www.atresplayer.com/directos/radio/onda-cero/ live=true"
-    url_europafm  = "rtmp://antena3fms35geobloqueolivefs.fplive.net:1935/antena3fms35geobloqueolive-live/stream-europafm swfVfy=http://www.atresplayer.com/static/swf/swf/efm/AUPlayerBlack.swf pageUrl=http://www.atresplayer.com/directos/radio/europa-fm/ live=true"
-    url_melodiafm = "rtmp://ondacerogeofms35livefs.fplive.net:1935/ondacerogeofms35live-live/stream-ondamelodia swfVfy=http://www.atresplayer.com/static/swf/swf/mfm/AUPlayerBlack.swf pageUrl=http://www.atresplayer.com/directos/radio/melodia-fm/ live=true"
-
-    for directo in directos(item):
-        itemlist.append(directo)
-
-    itemlist.append( Item(channel=CHANNELNAME, title="Radio: Onda Cero",   action="play", url=url_ondacero,  folder=False) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Radio: Europa FM",   action="play", url=url_europafm,  folder=False) )
-    itemlist.append( Item(channel=CHANNELNAME, title="Radio: Melodía FM",   action="play", url=url_melodiafm,  folder=False) )
+    for episode in episodes:
+        title = episode["title"]
+        image = episode["image"]["pathHorizontal"]        
+        plot = "%s\nTipo de contenido: %s" % (episode["image"]["title"], episode["visibility"])
+        url = "https://api.atresplayer.com/player/v1/episode/%s" % episode["contentId"]
+        itemlist.append(Item(channel=CHANNELNAME, title=title, action="play", url=url, plot=plot, thumbnail=image, folder=False))
 
     return itemlist
-
 
 def play(item):
     logger.info("tvalacarta.channels.a3media play")
 
     itemlist = []
+    # If they are not live shows, get the link
+    if not item.url.startswith("https://livestartover"):
+        data = scrapertools.cachePage(item.url)
+        data = jsontools.load_json(data)
+        sources = {}
+        for source in data["sources"]:
+            sources[source["type"]] = source["src"]
+        if "application/vnd.apple.mpegurl" in sources.keys():
+            item.url = sources["application/vnd.apple.mpegurl"]
+        else:
+            item.url = sources.values()[0]
 
-    # Si es un stream de directo, no lo procesa
-    if item.url.startswith("rtmp://") or item.url.startswith("http://a3live-lh"):
-        itemlist.append(item)
-        return itemlist
-    else:
-        token = d(item.extra, "QWtMLXs414Yo+c#_+Q#K@NN)")
-        url = item.url + token
-
-        if account:
-            cookies = os.path.join( config.get_data_path(), 'cookies.dat' )
-            cookiedatafile = open(cookies,'r')
-            cookiedata = cookiedatafile.read()
-            cookiedatafile.close();
-            jsessionid = scrapertools.find_single_match(cookiedata,"servicios.atresplayer.com.*?JSESSIONID\s+([A-Za-z0-9\+\-]+)")
-            ANDROID_HEADERS.append(['Cookie','JSESSIONID='+jsessionid])
-
-        data = scrapertools.cachePage(url,headers=ANDROID_HEADERS)
-        logger.info(data)
-        lista = jsontools.load_json(data)
-        if lista != None:
-            item.url = lista['resultObject']['es']
-            logger.info("tvalacarta.channels.a3media item.url="+item.url)
-            itemlist.append(item)
-
-        return itemlist
+    itemlist.append(item)
+    
+    return itemlist
 
 
-def getApiTime():
-    stime = scrapertools.cachePage("http://servicios.atresplayer.com/api/admin/time",headers=ANDROID_HEADERS)
-    return long(stime) / 1000L
+def loadlives(item=None):
+    logger.info("tvalacarta.channels.a3media loadlives")
 
-def d(s, s1):
-    l = 30000L + getApiTime()
-    s2 = e(s+str(l), s1)
-    return "%s|%s|%s" % (s, str(l), s2)
+    itemlist = []
+    itemlist.append( Item(channel=CHANNELNAME, title="La Sexta", url="https://livestartover.atresmedia.com/lasexta/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/lasexta.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Antena 3", url="https://livestartover.atresmedia.com/antena3/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/antena3.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Mega", url="https://livestartover.atresmedia.com/geomega/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/mega.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Neox", url="https://livestartover.atresmedia.com/geoneox/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/neox.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="Nova", url="https://livestartover.atresmedia.com/geonova/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/nova.png", category="Nacionales", action="play", folder=False ) )
+    itemlist.append( Item(channel=CHANNELNAME, title="A3Series", url="https://livestartover.atresmedia.com/geoa3series/master.m3u8", thumbnail="http://media.tvalacarta.info/canales/128x128/a3series.png", category="Nacionales", action="play", folder=False ) )
 
-def e(s, s1):
-    return hmac.new(s1, s).hexdigest()
+    return itemlist
 
 
 def bbcode_kodi2html(text):
     if config.get_platform().startswith("plex") or config.get_platform().startswith("mediaserver"):
-        import re
-        text = re.sub(r'\[COLOR\s([^\]]+)\]',
-                      r'<span style="color: \1">',
-                      text)
+        text = re.sub(r'\[COLOR\s([^\]]+)\]', r'<span style="color: \1">', text)
         text = text.replace('[/COLOR]','</span>')
         text = text.replace('[CR]','<br>')
-        text = re.sub(r'\[([^\]]+)\]',
-                      r'<\1>',
-                      text)
+        text = re.sub(r'\[([^\]]+)\]', r'<\1>', text)
         text = text.replace('"color: white"','"color: auto"')
-
     return text
 
-# Test de canal
-# Devuelve: Funciona (True/False) y Motivo en caso de que no funcione (String)
+# Channel test
 def test():
-
     items_mainlist = mainlist(Item())
     series_item = None
     for item in items_mainlist:
-        if item.title=="Series":
+        if item.title == "Series":
             series_menu_item = item
 
     if series_menu_item is None:
-        return False,"No hay sección Series en el menu"
+        return False, "There is no Series entry in the menu"
 
-    # El canal tiene estructura menu -> series -> temporadas -> episodios -> play
-    series_items = secciones(series_menu_item)
-    if len(series_items)==0:
-        return False,"No hay series"
+    series_items = programs(series_menu_item)
+    if len(series_items) == 0:
+        return False, "There are no series"
 
-    temporadas_items = temporadas(series_items[0])
-    if len(temporadas_items)==0:
-        return False,"No hay temporadas"
+    temporadas_items = seasons(series_items[0])
+    if len(temporadas_items) == 0:
+        return False, "There are no seasons"
 
-    episodios_items = episodios(temporadas_items[0])
-    if len(episodios_items)==0:
-        return False,"No hay episodios"
+    episodios_items = episodes(temporadas_items[0])
+    if len(episodios_items) == 0:
+        return False, "There are no episodes"
 
-    play_item = episodios(temporadas_items[0])
-    if len(episodios_items)==0:
-        return False,"No hay video"
+    play_item = episodes(temporadas_items[0])
+    if len(episodios_items) == 0:
+        return False, "There are no videos"
 
-    return True,""
+    return True, ""
