@@ -57,7 +57,10 @@ def novedades(item):
         # http://www.rtpa.es/video:Caballos%20de%20metal_551396652766.html
         url = "http://www.rtpa.es/video:"+urllib.quote(vod["nombre_programa"])+"_"+vod["id_generado"]+".html"
 
-        thumbnail = urllib.quote(vod["url_imagen"]).replace("//","/").replace("http%3A/","http://")
+        if "url_imagen" in vod:
+            thumbnail = urllib.quote(vod["url_imagen"]).replace("//","/").replace("http%3A/","http://")
+        else:
+            thumbnail = ""
         plot = vod["sinopsis"]
         itemlist.append( Item(channel=CHANNELNAME, title=title , url=url,  thumbnail=thumbnail , plot=plot, server="rtpa", action="play" , show = item.title , folder=False) )
 
