@@ -16,10 +16,9 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
     data = scrapertools.cache_page(page_url)
 
-    #<script src="http://cdnapi.kaltura.com/p/2288691/sp/228869100/embedIframeJs/uiconf_id/39784151/partner_id/2288691?autoembed=true&playerId=kaltura_player_1496914486&entry_id=0_3e1eijre&flashvars[streamerType]=auto&width=640&height=360&flashvars[streamerType]=auto"></script> </div>
-    partner_id = scrapertools.find_single_match(data,'<script src="http://cdnapi.kaltura.com/p/\d+/sp/\d+/embedIframeJs/uiconf_id/\d+/partner_id/(\d+)')
+    partner_id = scrapertools.find_single_match(data,'<meta property="og:image" content="https://www.kaltura.com/p/(\d+)/sp/\d+/thumbnail')
     logger.info("tvalacarta.server.rtvcm get_video_url partner_id="+partner_id)
-    video_id = scrapertools.find_single_match(data,'<script src="http://cdnapi.kaltura.com/p/\d+/sp/\d+/embedIframeJs/uiconf_id/\d+/partner_id/\d+.autoembed=true&playerId=kaltura_player_\d+&entry_id=([^\&]+)\&')
+    video_id = scrapertools.find_single_match(data,'<meta property="og:image" content="https://www.kaltura.com/p/\d+/sp/\d+/thumbnail/entry_id/([^/]+)')
     logger.info("tvalacarta.server.rtvcm get_video_url video_id="+video_id)
 
     media_url = "kaltura:"+partner_id+":"+video_id
