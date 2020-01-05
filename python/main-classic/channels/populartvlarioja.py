@@ -68,34 +68,45 @@ def episodios(item):
     data = scrapertools.cache_page(item.url)
 
     '''
-    <div id="post-3731" class="post-3731 post type-post status-publish format-standard has-post-thumbnail hentry category-marcador category-programas item cf item-video">
-    <div class="thumb">
-    <a class="clip-link" data-id="3731" title="Marcador 20-11-17" href="http://www.populartvlarioja.com/?p=3731">
-    <span class="clip">
-    <img src="http://www.populartvlarioja.com/wp-content/uploads/2017/11/marcador-20-11-17.jpg" alt="Marcador 20-11-17" /><span class="vertical-align"></span>
+    <div id="post-9924" class="video-item post-9924 post type-post status-publish format-video has-post-thumbnail hentry category-conexion-rioja category-destacados category-programas post_format-post-format-video">
+    <div class="item-thumbnail">
+    <a href="http://www.populartvlarioja.com/2019/12/conexion-rioja-31-12-19/">
+    <img width="480" height="293" src="http://www.populartvlarioja.com/wp-content/uploads/2019/12/conexion-rioja-31-12-19-480x293.jpg" class="attachment-thumb_520x293 size-thumb_520x293 wp-post-image" alt="" />                            <div class="link-overlay fa fa-play"></div>
+    </a>
+    </div>
+    <div class="item-head">
+    <h3><a href="http://www.populartvlarioja.com/2019/12/conexion-rioja-31-12-19/" rel="9924" title="Conexión Rioja 31-12-19">Conexión Rioja 31-12-19</a>
+    </h3>
+    <div class="item-info hidden">
+    <span class="item-date">31 diciembre, 2019</span>
+    <div class="item-meta">
+    </div>
+    </div>
+    </div>
+    <div class="item-content hidden">
+
+    </div>
+    <div class="clearfix"></div>
     '''
 
     # Extrae las zonas de los videos
-    patron  = '<div id="post-[^<]+'
-    patron += '<div class="thumb"[^<]+'
-    patron += '<a class="clip-link" data-id="[^"]+" title="([^"]+)" href="([^"]+)"[^<]+'
-    patron += '<span class="clip"[^<]+'
-    patron += '<img src="([^"]+)"'
-
+    patron  = '<div id="post-[^<]+(.*?)<div class="clearfix">'
     matches = re.compile(patron,re.DOTALL).findall(data)
 
-    for scrapedtitle,scrapedurl,scrapedthumbnail in matches:
-        title = scrapedtitle
-        url = urlparse.urljoin(item.url,scrapedurl)
-        thumbnail = scrapedthumbnail
+    for bloque in matches:
+        title = scrapertools.find_single_match(bloque,'<h3><a href="[^"]+" rel="\d+" title="([^"]+)"')
+        url = urlparse.urljoin(item.url, scrapertools.find_single_match(bloque,'<h3><a href="([^"]+)"') )
+        thumbnail = scrapertools.find_single_match(bloque,'<img width="\d+" height="\d+" src="([^"]+)"')
         plot = ""
 
         itemlist.append( Item(channel=CHANNELNAME, title=title , url=url, thumbnail=thumbnail, plot=plot, action="play", server="populartvlarioja", show=item.show, folder=False) )
 
     #<a class="nextpostslink" rel="next" href="http://www.populartvlarioja.com/?cat=8&amp;paged=2">&raquo;</a>
-    next_page_url = scrapertools.find_single_match(data,'<a class="nextpostslink" rel="next" href="([^"]+)"')
+    next_page_url = scrapertools.find_single_match(data,'"nextLink"."([^"]+)"')
+    logger.info("tvalacarta.channels.populartvlarioja next_page_url="+next_page_url)
     if next_page_url!="":
-        next_page_url = next_page_url.replace("&amp;","&")
+        next_page_url = next_page_url.replace("\\","")
+        logger.info("tvalacarta.channels.populartvlarioja next_page_url="+next_page_url)
         itemlist.append( Item(channel=CHANNELNAME, title=">> Página siguiente" , url=urlparse.urljoin(item.url,next_page_url), action="episodios", show=item.show, folder=True) )
 
     return itemlist
