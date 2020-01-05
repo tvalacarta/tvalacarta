@@ -27,23 +27,20 @@ def programas(item):
 
     itemlist = []
 
+    encontrados = dict()
+
     # Descarga la página
     data = scrapertools.cache_page(item.url)
 
     # Parse
     '''
-    <div class="col-12 col-sm-6 col-md-4 col-lg-3 my-3 mb-sm-0">
-    <a href="/habitacio-910/">
-    <div class="programa-16-9" style="background-image: url('https://img.beteve.cat/wp-content/uploads/2018/06/header-web-habitacio-910-1920x1080.jpg')">
-    <span>Habitació 910</span>
-    </div>
-    </a>
-    </div>
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+    <a href="/habitacio-910/"/>
+    <div class="btv-programa-name-container text-center" style="background-image: url(https://img.beteve.cat/wp-content/uploads/2018/06/header-web-habitacio-910-1920x1080.jpg);"><span>Habitació 910</span>
     '''
     patron  = '<div class="col-12[^<]+'
     patron += '<a href="([^"]+)"[^<]+'
-    patron += '<div class="programa-16-9" style="background-image. '
-    patron += "url.'([^']+)'[^<]+"
+    patron += '<div class="btv-programa-name-container text-center" style="background-image. url\(([^\)]+)\)[^<]+'
     patron += '<span>([^<]+)</span[^<]+'
 
     matches = scrapertools.find_multiple_matches(data,patron)
@@ -51,7 +48,38 @@ def programas(item):
     for scraped_url,thumbnail,title in matches:
         url = urlparse.urljoin(item.url,scraped_url)
 
+        encontrados[url] = True
+
         itemlist.append( Item(channel=CHANNELNAME, title=title , url=url, thumbnail=thumbnail, action="episodios", show=title, folder=True) )
+
+    '''
+    <div class="col-12 col-sm-6 col-md-4 my-3 mb-sm-0">
+    <img class="btv-programes-item-img " src="https://beteve.cat/wp-content/themes/beteve/img/icona-programacio-video-on.svg">
+    <img class="btv-programes-item-img btv-programes-item-img-off" src="https://beteve.cat/wp-content/themes/beteve/img/icona-programacio-audio-off.svg">
+    <a href="/nit-a-la-terra/" class="btv-programes-item">                                            
+    <span>Nit a la Terra</span>
+    </a>
+    '''
+
+    patron  = '<div class="col-12[^<]+'
+    patron  = '<img class="btv-programes-item-img[^<]+'
+    patron  = '<img class="btv-programes-item-img[^<]+'
+    patron += '<a href="([^"]+)" class="btv-programes-item"[^<]+'
+    patron += '<span>([^<]+)</span[^<]+'
+
+    matches = scrapertools.find_multiple_matches(data,patron)
+
+    for scraped_url,title in matches:
+        url = urlparse.urljoin(item.url,scraped_url)
+
+        if url in encontrados:
+            continue
+
+        encontrados[url] = True
+
+        itemlist.append( Item(channel=CHANNELNAME, title=title , url=url, thumbnail="", action="episodios", show=title, folder=True) )
+    
+    itemlist = sorted(itemlist, key=lambda Item: Item.title)
 
     return itemlist
 
