@@ -47,7 +47,7 @@ def mainlist(item):
     itemlist.append( Item(channel=__channel__, title="Divulgació", action="loadprogram", url = "http://www.ccma.cat/tv3/alacarta/programes/divulgacio", folder=True) )
     itemlist.append( Item(channel=__channel__, title="Cultura", action="loadprogram", url = "http://www.ccma.cat/tv3/alacarta/programes/cultura", folder=True) )
     itemlist.append( Item(channel=__channel__, title="Música", action="loadprogram", url = "http://www.ccma.cat/tv3/alacarta/programes/musica", folder=True) )
-    itemlist.append( Item(channel=__channel__, title="Web antiga", action="loadoldwebentries", folder=True) )
+    #itemlist.append( Item(channel=__channel__, title="Web antiga", action="loadoldwebentries", folder=True) )
     itemlist.append( Item(channel=__channel__, title="Cercar", action="search", extra="new") )
 
     return itemlist
@@ -214,7 +214,7 @@ def findsections(data):
 
 # Carga subsecciones (precondicion: llega una subpagina generada por "findsections")
 def loadsections(subpage, channel=__channel__,item=None):
-    logger.info("tvalacarta.channels.tv3 pager")
+    logger.info("tvalacarta.channels.tv3 loadsections")
 
     itemlist = []
     patron = '<div class="R-infoDestacat">[\s]*<a title="([^"]+)" href="([^"]+)"'
@@ -302,22 +302,16 @@ def pager(url, channel=__channel__, load_all_pages = False, item=None):
         if len(matches) > 0:
             for chapter in matches:
                 try:
-                    patron = '<img class="media-object" src="([^"]+)"'
-                    matches = re.compile(patron,re.DOTALL).findall(chapter)
-                    scrapedthumbnail = matches[0]
+                    scrapedthumbnail = "https:"+scrapertools.find_single_match(chapter,'<img class="media-object lazy-img" src="[^"]+" data-src="([^"]+)"')
 
-                    patron = '<time class="data" datetime="[^"]+">([^<]+)<'
-                    matches = re.compile(patron,re.DOTALL).findall(chapter)
-                    date = matches[0]
+                    date = scrapertools.find_single_match(chapter,'<time class="data" datetime="[^"]+">([^<]+)<')
 
-                    patron= '<h3 class="titol"><a href="([^"]+)">([^<]+)<'
-                    matches = re.compile(patron,re.DOTALL).findall(chapter)
-                    urlprog = URLBASE + matches[0][0]
-                    scrapedtitle = date.strip() + " - \"" + matches[0][1].replace('\"','').strip() + "\""
+                    urlprog = URLBASE + scrapertools.find_single_match(chapter,'<h3 class="titol"><a href="([^"]+)">[^<]+<')                    
 
-                    patron= '<p class="entradeta">([^<]+)<'
-                    matches = re.compile(patron,re.DOTALL).findall(chapter)
-                    scrapedplot = matches[0].strip()
+                    scrapedtitle = scrapertools.find_single_match(chapter,'<h3 class="titol"><a href="[^"]+">([^<]+)<')
+                    scrapedtitle = date.strip() + " - \"" + scrapedtitle.replace('\"','').strip() + "\""
+
+                    scrapedplot = scrapertools.find_single_match(chapter,'<p class="entradeta">([^<]+)<')
 
                     duration = scrapertools.find_single_match(chapter,'<time class="duration"[^<]+<span[^<]+</span>([^<]+)</time>')
                     duration = duration.strip()
@@ -341,9 +335,8 @@ def pager(url, channel=__channel__, load_all_pages = False, item=None):
                     )
 
                 except:
-                    for line in sys.exc_info():
-                        logger.error( "%s" % line )
-
+                    import traceback
+                    logger.error(traceback.format_exc())
 
         # Extrae el paginador, que en la nueva versión de la web (CCMA) se puede usar el paginador
         # que lleva la misma web y que resulta muy fácil de implementar.
