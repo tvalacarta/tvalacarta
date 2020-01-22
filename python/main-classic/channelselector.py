@@ -32,7 +32,10 @@ def getmainlist(preferred_thumb=""):
     #itemlist.append( Item(title="Buscador" , channel="buscador" , action="mainlist" , thumbnail = urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/search.png")) )
     itemlist.append( Item(title="Descargas" , channel="descargas" , action="mainlist", thumbnail = urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/downloads.png")) )
     itemlist.append( Item(title="Favoritos" , channel="favoritos" , action="mainlist", thumbnail = urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/favorites.png")) )
-    itemlist.append( Item(title="Configuración" , channel="configuracion" , action="mainlist", thumbnail = urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/settings.png")) )
+
+    thumb_configuracion = "menu/settings_%s.png" % config.get_setting("plugin_updates_available")
+
+    itemlist.append( Item(title="Configuración" , channel="configuracion" , action="mainlist", thumbnail = urlparse.urljoin(get_thumbnail_path(preferred_thumb),thumb_configuracion)) )
     itemlist.append( Item(title="Ayuda" , channel="ayuda" , action="mainlist", thumbnail = urlparse.urljoin(get_thumbnail_path(preferred_thumb),"menu/help.png")) )
 
     return itemlist
@@ -47,7 +50,7 @@ def mainlist(params,url,category):
         except ImportError:
             logger.info("channelselector.mainlist No disponible modulo actualizaciones")
         else:
-            if config.get_setting("updatecheck2") == "true":
+            if config.get_setting("check_for_plugin_updates") == "true":
                 logger.info("channelselector.mainlist Verificar actualizaciones activado")
                 updater.checkforupdates()
             else:

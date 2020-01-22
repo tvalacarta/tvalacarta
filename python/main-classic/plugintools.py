@@ -1096,7 +1096,7 @@ def get_filename_from_url(url):
     return filename
 
 def show_notification(title,message,icon=""):
-    xbmc.executebuiltin((u'XBMC.Notification("'+title+'", "'+message+'", 2000, "'+icon+'")'))
+    xbmc.executebuiltin('XBMC.Notification("'+title+'", "'+message+'", 2000, "'+icon+'")')
 
 def load_json(data):
     _log("load_json")

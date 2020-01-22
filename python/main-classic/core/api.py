@@ -412,6 +412,12 @@ def plugins_get_latest_packages():
     parameters = { "plugin" : config.PLUGIN_NAME , "platform" : config.get_platform() }
     return remote_call( "plugins/get_latest_packages.php" , parameters )
 
+def plugins_get_all_packages():
+    plugintools.log("tvalacarta.core.api.plugins.plugins_get_all_packages")
+
+    parameters = { "plugin" : config.PLUGIN_NAME , "platform" : config.get_platform() }
+    return remote_call( "plugins/get_all_packages.php" , parameters )
+
 # ---------------------------------------------------------------------------------------------------------
 #  video service calls
 # ---------------------------------------------------------------------------------------------------------
@@ -421,3 +427,4 @@ def videos_get_media_url(item):
 
     parameters = { "id" : item.id }
     return remote_call( "videos/get_media_url.php" , parameters )
+

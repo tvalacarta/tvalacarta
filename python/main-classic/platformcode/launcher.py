@@ -55,9 +55,6 @@ def start():
     # Test if all the required directories are created
     config.verify_directories_created()
 
-    # Check for updates
-    api.plugins_get_latest_packages()
-
 def run(item=None):
     logger.info("tvalacarta.platformcode.launcher run")
     
@@ -84,31 +81,39 @@ def run(item=None):
         if item.action=="selectchannel":
             
             import channelselector
-            # TODO: Que channelselector devuelva items, procesados por el mismo add_items_to_kodi_directory que el resto
-            itemlist = channelselector.mainlist(params, item.url, item.category)
+            import plugintools
 
             # Check for updates only on first screen
-            if config.get_setting("updatecheck2") == "true":
+            if config.get_setting("check_for_plugin_updates") == "true":
                 logger.info("tvalacarta.platformcode.launcher Check for plugin updates enabled")
                 from core import updater
                 
                 try:
-                    version = updater.checkforupdates()
+                    config.set_setting("plugin_updates_available", "0")
+                    new_published_version_tag , number_of_updates = updater.get_available_updates()
 
-                    if version:
-                        import xbmcgui
-                        advertencia = xbmcgui.Dialog()
-                        advertencia.ok("Versión "+version+" disponible","Ya puedes descargar la nueva versión del plugin\ndesde el listado principal")
+                    config.set_setting("plugin_updates_available", str(number_of_updates))
 
-                        itemlist.insert(0,Item(title="Descargar version "+version, version=version, channel="updater", action="update", thumbnail=channelselector.get_thumbnail_path() + "Crystal_Clear_action_info.png"))
+                    # TODO: Que channelselector devuelva items, procesados por el mismo add_items_to_kodi_directory que el resto
+                    itemlist = channelselector.mainlist(params, item.url, item.category)
+
+                    if new_published_version_tag!="":
+                        plugintools.show_notification(new_published_version_tag+" disponible",
+                                                "Ya puedes descargar la nueva versión del plugin\n"
+                                                "desde el menú Configuración")
                 except:
-                    import xbmcgui
-                    advertencia = xbmcgui.Dialog()
-                    advertencia.ok("No se puede conectar","No ha sido posible comprobar","si hay actualizaciones")
-                    logger.info("channelselector.mainlist Fallo al verificar la actualización")
+                    import traceback
+                    logger.error(traceback.format_exc())
+                    plugintools.message("No se puede conectar", "No ha sido posible comprobar",
+                                            "si hay actualizaciones")
+                    logger.error("Fallo al verificar la actualización")
+                    config.set_setting("plugin_updates_available", "0")
+                    itemlist = channelselector.mainlist(params, item.url, item.category)
 
             else:
-                logger.info("tvalacarta.platformcode.launcher Check for plugin updates disabled")
+                logger.info("Check for plugin updates disabled")
+                config.set_setting("plugin_updates_available", "0")
+                itemlist = channelselector.mainlist(params, item.url, item.category)
 
             #xbmctools.add_items_to_kodi_directory(itemlist, item)
 
@@ -307,5 +312,5 @@ def run(item=None):
                 "porque hay algo mal en tvalacarta.\nPara saber más detalles, consulta el log.")
         else:
             xbmcgui.Dialog().ok(
-                "Se ha producido un error",
-                "Lamentablemente estas cosas pasan, puedes comprobar el log para averiguar más detalles" )
+                "Se ha producido un error inesperado",
+                "Puedes comprobar el log para averiguar más detalles" )
