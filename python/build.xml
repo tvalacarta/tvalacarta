@@ -28,9 +28,9 @@
 <project name="tvalacarta" default="package">
 	<description>tvalacarta</description>
 
-    <property name="version" value="4.1.2"/>
-    <property name="versionboxee" value="6.3"/>
-    <property name="versiondate" value="17/12/2018"/>
+    <property name="version" value="4.2.0"/>
+    <property name="versionboxee" value="6.4"/>
+    <property name="versiondate" value="22/01/2020"/>
     <property name="versionchanges" value="General update"/>
 
     <property name="target" value="../../../dist/tvalacarta/"/>
@@ -53,6 +53,7 @@
     <!-- package =============================================== -->
     <target name="package" depends="clean" description="Builds a package for each platform">
 
+        <antcall target="copy-kodi-18-leia"/>
         <antcall target="copy-kodi-17-krypton"/>
         <antcall target="copy-kodi-16-jarvis"/>
         <antcall target="copy-kodi-16-jarvis-ui"/>
@@ -79,6 +80,7 @@
 
     <target name="upload" description="Upload zip files to the web server">
 
+        <exec executable="scp"><arg value="${target}/tvalacarta-kodi-leia-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-kodi-leia-${version}.zip"/></exec>
         <exec executable="scp"><arg value="${target}/tvalacarta-kodi-krypton-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-kodi-krypton-${version}.zip"/></exec>
         <exec executable="scp"><arg value="${target}/tvalacarta-kodi-jarvis-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-kodi-jarvis-${version}.zip"/></exec>
         <exec executable="scp"><arg value="${target}/tvalacarta-kodi-isengard-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-kodi-isengard-${version}.zip"/></exec>
@@ -90,6 +92,9 @@
         <exec executable="scp"><arg value="${target}/tvalacarta-xbmc-plugin-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-xbmc-plugin-${version}.zip"/></exec>
         <exec executable="scp"><arg value="${target}/tvalacarta-boxee-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-boxee-${version}.zip"/></exec>
         <exec executable="scp"><arg value="${target}/tvalacarta-plex-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta-plex-${version}.zip"/></exec>
+
+        <echo message="Subiendo tvalacarta-kodi-18-leia-${version}"/>
+        <exec executable="scp"><arg value="${target}/tvalacarta-kodi-leia-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/kodi-leia/tvalacarta-kodi-leia-${version}.zip"/></exec>
 
         <echo message="Subiendo tvalacarta-kodi-17-krypton-${version}"/>
         <exec executable="scp"><arg value="${target}/tvalacarta-kodi-krypton-${version}.zip"/><arg value="${ruta_remota_descargas}/tvalacarta/kodi-krypton/tvalacarta-kodi-krypton-${version}.zip"/></exec>
@@ -154,6 +159,29 @@
         <delete file="tvalacarta-version.xml"/>
     </target>
 
+    <!-- copy-kodi-18-leia ============================================================ -->
+    <target name="copy-kodi-18-leia">
+
+        <mkdir dir="${target}/kodi-18-leia/plugin.video.tvalacarta"/>
+
+        <copy todir="${target}/kodi-18-leia/plugin.video.tvalacarta">
+            <fileset dir="main-classic">
+                <exclude name="**/.*"/>
+                <exclude name="**/.*/**"/>
+                <exclude name="**/*.pyo"/>
+                <exclude name="**/*.pyc"/>
+                <exclude name="resources/images/bannermenu/**"/>
+                <exclude name="resources/images/banners/**"/>
+                <exclude name="resources/images/fanart/**"/>
+                <exclude name="resources/images/posters/**"/>
+                <exclude name="resources/images/squares/**"/>
+            </fileset>
+        </copy>
+
+        <zip destfile="${target}/tvalacarta-kodi-leia-${version}.zip" basedir="${target}/kodi-18-leia"/>
+
+    </target>
+
     <!-- copy-kodi-17-krypton ============================================================ -->
     <target name="copy-kodi-17-krypton">
 
@@ -170,6 +198,12 @@
                 <exclude name="resources/images/fanart/**"/>
                 <exclude name="resources/images/posters/**"/>
                 <exclude name="resources/images/squares/**"/>
+            </fileset>
+        </copy>
+        <copy overwrite="true" todir="${target}/kodi-17-krypton/plugin.video.tvalacarta">
+            <fileset dir="version-kodi-17-krypton">
+                <exclude name="**/.*"/>
+                <exclude name="**/.*/**"/>
             </fileset>
         </copy>
 

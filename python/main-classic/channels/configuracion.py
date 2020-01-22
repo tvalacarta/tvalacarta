@@ -3,6 +3,7 @@
 # tvalacarta - XBMC Plugin
 # http://blog.tvalacarta.info/plugin-xbmc/tvalacarta/
 #------------------------------------------------------------
+import os
 import urlparse,re
 import urllib
 import datetime
