@@ -17,10 +17,10 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
 
     data = scrapertools.cache_page(page_url)
 
-    url = scrapertools.get_match(data,"<source src='([^']+)' type='application/x-mpegURL'")
+    media_url = scrapertools.find_single_match(data,"<source src='([^']+)' type='")
 
     video_urls = []
-    video_urls.append( [ "(.m3u8)" , url ] )
+    video_urls.append( [ "("+scrapertools.get_filename_from_url(media_url)[-4:]+")" , media_url ] )
 
     for video_url in video_urls:
         logger.info("tvalacarta.servers.rtpa %s - %s" % (video_url[0],video_url[1]))
