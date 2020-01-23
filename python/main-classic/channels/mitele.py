@@ -74,7 +74,7 @@ def seasons(item):
     tabs = jsontools.load_json(data)["tabs"]
     items = []
     for tab in tabs:
-        if tab["type"] == "navigation":
+        if tab["type"] == "navigation" and "contents" in tab:
             for season in tab["contents"]:
                 title = season["title"]
                 thumbnail = season["images"]["thumbnail"]["src"] if "images" in season and "thumbnail" in season["images"] else ""
@@ -100,7 +100,7 @@ def episodes(item):
     items = []
     if "tabs" in json_data:
         for tab in json_data["tabs"]:
-            if tab["type"] in ["navigation", "automatic-list"]:
+            if tab["type"] in ["navigation", "automatic-list"] and "contents" in tab:
                 for season in tab["contents"]:
                     if season["info"]["season_number"] == item.extra:
                         get_episodes(season["children"], item.category, items)
