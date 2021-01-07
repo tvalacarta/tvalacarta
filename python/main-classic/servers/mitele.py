@@ -5,6 +5,8 @@
 # http://blog.tvalacarta.info/plugin-xbmc/tvalacarta/
 #------------------------------------------------------------
 
+import urllib
+
 from core import logger
 from core import scrapertools
 
@@ -19,7 +21,8 @@ def get_video_url( page_url , premium = False , user="" , password="", video_pas
         for entry in result['formats']:
             logger.info("entry="+repr(entry))
             if 'hls' in entry['format']:
-                video_urls.append([scrapertools.safe_unicode(entry['format']).encode('utf-8'), scrapertools.safe_unicode(entry['url']).encode('utf-8')])
+                video_url = ('%s|%s' % (entry['url'], urllib.urlencode(entry['http_headers'])))
+                video_urls.append([scrapertools.safe_unicode(entry['format']).encode('utf-8'), scrapertools.safe_unicode(video_url).encode('utf-8')])
     video_urls.reverse()
     return video_urls
 
